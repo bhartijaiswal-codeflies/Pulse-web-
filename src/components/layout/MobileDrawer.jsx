@@ -44,17 +44,12 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
             <X className="w-4 h-4" />
           </button>
 
-          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
-            <svg
-              className="w-[18px] h-[18px] text-white stroke-[2.2]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
+          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-1.5 ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+            <img
+              src="/logo.png"
+              alt="Pulse HR Logo"
+              className="w-full h-full object-contain brightness-0 invert"
+            />
           </div>
         </div>
 

@@ -114,3 +114,4 @@ export const Holidays3CardsView = () => {
     </div>
   );
 };
+

@@ -43,17 +43,12 @@ export const Sidebar = () => {
       <div className="flex flex-col items-center w-full flex-1 overflow-hidden">
         {/* Brand Circular Glowing Logo */}
         <div className="relative group cursor-pointer mb-3 flex-shrink-0">
-          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105">
-            <svg
-              className="w-[18px] h-[18px] text-white stroke-[2.2]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
+          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-1.5 ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105">
+            <img
+              src="/logo.png"
+              alt="Pulse HR Logo"
+              className="w-full h-full object-contain brightness-0 invert"
+            />
           </div>
           {/* Tooltip */}
           <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-[#0D152D] text-white text-[11px] font-semibold rounded-md shadow-xl border border-[#1A2544] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
