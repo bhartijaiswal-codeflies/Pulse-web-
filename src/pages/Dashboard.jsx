@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
-import { CheckInsCard } from '../components/dashboard/CheckInsCard';
 import { OnLeaveTodayWidget } from '../components/dashboard/OnLeaveTodayWidget';
-import { NewJoineeHolidaysCard } from '../components/dashboard/NewJoineeHolidaysCard';
-import { WorkAnniversariesCard } from '../components/dashboard/WorkAnniversariesCard';
+import { CheckInsCard } from '../components/dashboard/CheckInsCard';
 import { BirthdaysCard } from '../components/dashboard/BirthdaysCard';
-import { InboxLeaveRequestsCard } from '../components/dashboard/InboxLeaveRequestsCard';
+import { WorkAnniversariesCard } from '../components/dashboard/WorkAnniversariesCard';
+import { HolidaysSliderCard } from '../components/dashboard/HolidaysSliderCard';
 import { WorkingRemotelyWidget } from '../components/dashboard/WorkingRemotelyWidget';
+import { InboxLeaveRequestsCard } from '../components/dashboard/InboxLeaveRequestsCard';
 import { Modal } from '../components/common/Modal';
 import { employeeService } from '../services/employeeService';
 import { currentUser } from '../data/mockData';
@@ -81,7 +81,7 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12 w-full">
-      {/* Top Header Row matching the wireframe: [Dash board] / Dashboard / Candidate */}
+      {/* Top Header Row matching Wireframe: Dashboard | Candidate + Apply Leave button */}
       <div className="flex items-center justify-between border-b border-[#E5EAF2] pb-3 -mt-2">
         <div className="flex items-center gap-6">
           <button
@@ -118,51 +118,32 @@ export const Dashboard = () => {
         </button>
       </div>
 
-      {/* Main Grid Area: Exactly matching Reference Image 1 Wireframe */}
-      <div className="space-y-5 w-full">
-        {/* Row 1: CheckIns (Left) & On leave Today [leave requests] (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          <div className="lg:col-span-4">
-            <CheckInsCard onAttendanceChange={loadData} />
-          </div>
-          <div className="lg:col-span-8">
-            <OnLeaveTodayWidget onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
-          </div>
+      {/* 3-Column Dashboard Layout as requested:
+          Column 1: on leave today & checkin and checkout
+          Column 2: celebrating birthday, celebrating work anniversary, and holidays slider of 3 cards
+          Column 3: working remotely & inbox having leave request */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full">
+        {/* Column 1: On Leave Today & Checkin and Checkout */}
+        <div className="flex flex-col gap-6 w-full">
+          <OnLeaveTodayWidget onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
+          <CheckInsCard onAttendanceChange={loadData} />
         </div>
 
-        {/* Row 2: 3-Column Layout from Wireframe */}
-        {/* Left: New Joinee / Holidays (spans full height) */}
-        {/* Center: celebrating work anniversaries (top) & Inbox leave requests (bottom) */}
-        {/* Right: celebrating birthdays (top) & Working Remotely (bottom) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          {/* Column 1 (Left 4 cols): New Joinee / Holidays */}
-          <div className="lg:col-span-4">
-            <NewJoineeHolidaysCard />
-          </div>
+        {/* Column 2: Celebrating Birthday, Celebrating Work Anniversary, and Holidays Slider */}
+        <div className="flex flex-col gap-6 w-full">
+          <BirthdaysCard />
+          <WorkAnniversariesCard />
+          <HolidaysSliderCard />
+        </div>
 
-          {/* Column 2 (Center 4 cols): Anniversaries + Inbox */}
-          <div className="lg:col-span-4 flex flex-col gap-5">
-            <div className="flex-1">
-              <WorkAnniversariesCard />
-            </div>
-            <div className="flex-1">
-              <InboxLeaveRequestsCard
-                requests={leaveRequests}
-                onApprove={handleApproveLeave}
-                onReject={handleRejectLeave}
-              />
-            </div>
-          </div>
-
-          {/* Column 3 (Right 4 cols): Birthdays + Working Remotely */}
-          <div className="lg:col-span-4 flex flex-col gap-5">
-            <div className="flex-1">
-              <BirthdaysCard />
-            </div>
-            <div className="flex-1">
-              <WorkingRemotelyWidget />
-            </div>
-          </div>
+        {/* Column 3: Working Remotely & Inbox Having Leave Request */}
+        <div className="flex flex-col gap-6 w-full">
+          <WorkingRemotelyWidget />
+          <InboxLeaveRequestsCard
+            requests={leaveRequests}
+            onApprove={handleApproveLeave}
+            onReject={handleRejectLeave}
+          />
         </div>
       </div>
 
