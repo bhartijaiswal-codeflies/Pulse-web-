@@ -42,7 +42,7 @@ export const Sidebar = () => {
       {/* Top Section: Logo & Menu Tiles */}
       <div className="flex flex-col items-center w-full flex-1 overflow-hidden">
         {/* Brand Circular Glowing Logo */}
-        <div className="relative group cursor-pointer mb-4 flex-shrink-0">
+        <div className="relative group cursor-pointer pt-3 mb-4 flex-shrink-0">
           <div className="w-[46px] h-[46px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 ring-2 ring-[#3B82F6]/70 shadow-[0_0_16px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105">
             <img
               src="/logo.png"
@@ -65,10 +65,9 @@ export const Sidebar = () => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `group relative w-[62px] h-[54px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${
-                    isActive
-                      ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
-                      : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
+                  `group relative w-[62px] h-[54px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${isActive
+                    ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
+                    : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
                   }`
                 }
               >
@@ -77,11 +76,10 @@ export const Sidebar = () => {
                     {/* Badge Pill */}
                     {item.badge && (
                       <span
-                        className={`absolute -top-1 -right-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-xs transition-colors ${
-                          isActive
+                        className={`absolute -top-1 -right-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-xs transition-colors ${isActive
                             ? 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
                             : 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
-                        }`}
+                          }`}
                       >
                         {item.badge}
                       </span>
@@ -94,18 +92,16 @@ export const Sidebar = () => {
 
                     {/* Icon */}
                     <Icon
-                      className={`w-[18px] h-[18px] mb-1 transition-transform group-hover:scale-105 stroke-[1.8] ${
-                        isActive ? 'text-[#3B82F6]' : 'text-[#76849D] group-hover:text-white'
-                      }`}
+                      className={`w-[18px] h-[18px] mb-1 transition-transform group-hover:scale-105 stroke-[1.8] ${isActive ? 'text-[#3B82F6]' : 'text-[#76849D] group-hover:text-white'
+                        }`}
                     />
 
                     {/* Short Label */}
                     <span
-                      className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${
-                        isActive
+                      className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${isActive
                           ? 'font-semibold text-[#93C5FD]'
                           : 'font-medium text-[#76849D] group-hover:text-[#E2E8F0]'
-                      }`}
+                        }`}
                     >
                       {item.name}
                     </span>
