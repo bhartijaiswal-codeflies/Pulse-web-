@@ -45,3 +45,4 @@ export const StatusBadge = ({ status, size = 'sm', icon }) => {
     </span>
   );
 };
+

@@ -530,3 +530,4 @@ export const Candidates = () => {
     </div>
   );
 };
+

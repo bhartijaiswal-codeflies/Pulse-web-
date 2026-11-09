@@ -47,3 +47,4 @@ export const HolidayWidget = ({ holidays }) => {
     </div>
   );
 };
+

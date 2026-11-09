@@ -220,3 +220,4 @@ export const EmployeeChecklist = ({ tasks, onToggleTask, onAddTask }) => {
     </div>
   );
 };
+

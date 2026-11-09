@@ -205,3 +205,4 @@ export const LeaveRequests = ({ requests, onApprove, onReject }) => {
     </div>
   );
 };
+

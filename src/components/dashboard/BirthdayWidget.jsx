@@ -72,3 +72,4 @@ export const BirthdayWidget = ({ birthdays }) => {
     </div>
   );
 };
+

@@ -5,31 +5,31 @@ import {
   UserMinus,
   Clock,
   Plus,
-  Send,
   Calendar,
   Sparkles,
+  Bell,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
-import { LeaveRequests } from '../components/dashboard/LeaveRequests';
+import { InboxCard } from '../components/dashboard/InboxCard';
+import { HolidayBannerCard } from '../components/dashboard/HolidayBannerCard';
+import { OnLeaveTodayCard } from '../components/dashboard/OnLeaveTodayCard';
+import { WorkingRemotelyCard } from '../components/dashboard/WorkingRemotelyCard';
+import { TimeTodayCard } from '../components/dashboard/TimeTodayCard';
+import { LeaveBalancesCard } from '../components/dashboard/LeaveBalancesCard';
+import { CelebrationCards } from '../components/dashboard/CelebrationCards';
 import { EmployeeChecklist } from '../components/dashboard/EmployeeChecklist';
-import { BirthdayWidget } from '../components/dashboard/BirthdayWidget';
-import { AnniversaryWidget } from '../components/dashboard/AnniversaryWidget';
-import { HolidayWidget } from '../components/dashboard/HolidayWidget';
-import { QuickClockInWidget } from '../components/dashboard/QuickClockInWidget';
 import { RecentActivities } from '../components/dashboard/RecentActivities';
 import { Modal } from '../components/common/Modal';
 import { employeeService } from '../services/employeeService';
 import {
   dashboardStats,
-  upcomingBirthdays,
-  workAnniversaries,
-  upcomingHolidays,
   currentUser,
 } from '../data/mockData';
 import { useToast } from '../context/NotificationContext';
 
 export const Dashboard = () => {
+  const [activeTab, setActiveTab] = useState('DASHBOARD');
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [checklist, setChecklist] = useState([]);
   const [activities, setActivities] = useState([]);
@@ -37,10 +37,10 @@ export const Dashboard = () => {
   const { addToast } = useToast();
 
   // Apply leave form state
-  const [leaveType, setLeaveType] = useState('Casual Leave');
+  const [leaveType, setLeaveType] = useState('Privilege Leave');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [days, setDays] = useState(1);
+  const [days, setDays] = useState(2);
   const [reason, setReason] = useState('');
 
   const loadData = () => {
@@ -97,8 +97,8 @@ export const Dashboard = () => {
     });
 
     addToast({
-      title: 'Leave Application Submitted',
-      message: `Your ${leaveType} application for ${days} days has been queued for review.`,
+      title: 'Leave Request Submitted',
+      message: `Your ${leaveType} (${days} days) has been logged for supervisor approval.`,
       type: 'success',
     });
 
@@ -112,26 +112,58 @@ export const Dashboard = () => {
   const pendingLeavesCount = leaveRequests.filter((r) => r.status === 'Pending').length;
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
-      {/* Page Header */}
-      <PageHeader
-        title="Dashboard"
-        badgeText="Real-Time Sync"
-        subtitle={`Welcome back, ${currentUser.name}! Here is your workforce summary for today.`}
-        breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Dashboard' }]}
-        actions={
+    <div className="space-y-6 animate-fade-in pb-12 w-full">
+      {/* Sub-header Tab Bar matching Reference Image 4 ("DASHBOARD" | "KEKA UPDATES") */}
+      <div className="flex items-center justify-between border-b border-[#E5EAF2] pb-1 -mt-2">
+        <div className="flex items-center gap-6">
           <button
-            onClick={() => setShowApplyLeaveModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all shadow-blue-500/20 active:scale-95"
+            onClick={() => setActiveTab('DASHBOARD')}
+            className={`text-xs font-extrabold uppercase tracking-wider pb-3 transition-colors relative ${
+              activeTab === 'DASHBOARD'
+                ? 'text-[#2563EB]'
+                : 'text-[#8292AD] hover:text-[#172033]'
+            }`}
           >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Apply For Leave</span>
+            <span>DASHBOARD</span>
+            {activeTab === 'DASHBOARD' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-full" />
+            )}
           </button>
-        }
-      />
 
-      {/* Row 1: Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <button
+            onClick={() => {
+              setActiveTab('UPDATES');
+              addToast({
+                title: 'System Updates',
+                message: 'All HR systems and payroll sync services are operating normally.',
+                type: 'info',
+              });
+            }}
+            className={`text-xs font-extrabold uppercase tracking-wider pb-3 transition-colors relative flex items-center gap-1.5 ${
+              activeTab === 'UPDATES'
+                ? 'text-[#2563EB]'
+                : 'text-[#8292AD] hover:text-[#172033]'
+            }`}
+          >
+            <span>PULSE UPDATES</span>
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            {activeTab === 'UPDATES' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-full" />
+            )}
+          </button>
+        </div>
+
+        <button
+          onClick={() => setShowApplyLeaveModal(true)}
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-xs transition-all active:scale-95 shadow-blue-500/20"
+        >
+          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span>Apply Leave</span>
+        </button>
+      </div>
+
+      {/* Row 1: Top Statistics Cards from Reference Image 3 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total Employees"
           value={dashboardStats.totalEmployees.value}
@@ -173,41 +205,50 @@ export const Dashboard = () => {
         />
       </div>
 
-      {/* Row 2: Main Dashboard Widgets (Two Columns) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 cols on desktop) */}
-        <div className="lg:col-span-7 space-y-6">
-          {/* Leave Requests Inbox */}
-          <LeaveRequests
-            requests={leaveRequests}
-            onApprove={handleApproveLeave}
-            onReject={handleRejectLeave}
-          />
+      {/* Row 2: Main Dashboard Grid Layout matching Reference Image 4 & Reference Image 1 Wireframe */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full">
+        {/* Left / Center Grid Region (7 Cols on large displays) */}
+        <div className="lg:col-span-7 space-y-5">
+          {/* 2-Column Card Grid (Inbox, Holidays, On Leave, Working Remotely, Time Today, Leave Balances) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 1. Inbox Card */}
+            <InboxCard
+              requests={leaveRequests}
+              onApprove={handleApproveLeave}
+              onReject={handleRejectLeave}
+            />
 
-          {/* Employee Checklist */}
+            {/* 2. Holidays Green Banner Card */}
+            <HolidayBannerCard />
+
+            {/* 3. On Leave Today Card */}
+            <OnLeaveTodayCard />
+
+            {/* 4. Working Remotely Card */}
+            <WorkingRemotelyCard />
+
+            {/* 5. Time Today Purple Live Clock Card */}
+            <TimeTodayCard onAttendanceChange={loadData} />
+
+            {/* 6. Leave Balances Card */}
+            <LeaveBalancesCard onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
+          </div>
+
+          {/* 7. Employee Checklist / CheckIns (from Reference Image 1 Wireframe) */}
           <EmployeeChecklist
             tasks={checklist}
             onToggleTask={handleToggleChecklist}
             onAddTask={handleAddChecklistTask}
           />
-
-          {/* Recent Activities Feed */}
-          <RecentActivities activities={activities} />
         </div>
 
-        {/* Right Column (5 cols on desktop) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Web Clock-in / Working Remotely Widget */}
-          <QuickClockInWidget onAttendanceChange={loadData} />
+        {/* Right Region: Wide Cards Stack (5 Cols on large displays) */}
+        <div className="lg:col-span-5 space-y-5">
+          {/* Celebration Cards: Birthdays, Work Anniversaries, New Joinees (Reference Image 4) */}
+          <CelebrationCards />
 
-          {/* Upcoming Birthdays */}
-          <BirthdayWidget birthdays={upcomingBirthdays} />
-
-          {/* Work Anniversaries */}
-          <AnniversaryWidget anniversaries={workAnniversaries} />
-
-          {/* Upcoming Holidays */}
-          <HolidayWidget holidays={upcomingHolidays} />
+          {/* Recent Activities Stream */}
+          <RecentActivities activities={activities} />
         </div>
       </div>
 
@@ -217,7 +258,7 @@ export const Dashboard = () => {
           isOpen={showApplyLeaveModal}
           onClose={() => setShowApplyLeaveModal(false)}
           title="Submit Leave Request"
-          subtitle="Submit formal leave notification to HR and supervisor"
+          subtitle="Submit formal time-off request for manager approval"
         >
           <form onSubmit={handleApplyLeaveSubmit} className="space-y-4">
             <div>
@@ -229,9 +270,9 @@ export const Dashboard = () => {
                 onChange={(e) => setLeaveType(e.target.value)}
                 className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
               >
-                <option value="Casual Leave">Casual Leave (Balance: 12 days)</option>
-                <option value="Sick Leave">Sick Leave (Balance: 8 days)</option>
                 <option value="Privilege Leave">Privilege Leave (Balance: 18 days)</option>
+                <option value="Casual Leave">Casual Leave (Balance: 10 days)</option>
+                <option value="Sick Leave">Sick Leave (Balance: 7 days)</option>
                 <option value="Compensatory Off">Compensatory Off (Balance: 2 days)</option>
               </select>
             </div>
@@ -286,7 +327,7 @@ export const Dashboard = () => {
                 rows={3}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="Briefly state the reason for absence..."
+                placeholder="Briefly describe the reason for your time-off..."
                 className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
               />
             </div>
@@ -303,7 +344,7 @@ export const Dashboard = () => {
                 type="submit"
                 className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
               >
-                Submit Application
+                Submit Request
               </button>
             </div>
           </form>

@@ -322,3 +322,4 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
     </header>
   );
 };
+

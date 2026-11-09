@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { X, LogOut, Activity } from 'lucide-react';
+import { X, LogOut } from 'lucide-react';
 import { navigationItems } from './Sidebar';
 import { useToast } from '../../context/NotificationContext';
 
@@ -9,7 +9,6 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
   const location = useLocation();
   const { addToast } = useToast();
 
-  // Close drawer automatically on route change
   useEffect(() => {
     onClose();
   }, [location.pathname]);
@@ -30,38 +29,37 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 md:hidden flex">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#080D20]/70 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-[#060A18]/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Drawer */}
-      <div className="relative flex flex-col w-72 max-w-[80vw] bg-[#080D20] text-[#8292AD] h-full shadow-2xl z-10 animate-fade-in border-r border-[#151D36]">
-        {/* Drawer Header */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-[#151D36]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#2563EB] flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-              <Activity className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-white font-bold text-base tracking-wide flex items-center gap-1.5">
-                Pulse <span className="text-[10px] uppercase font-semibold tracking-wider px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">HR</span>
-              </span>
-              <p className="text-[10px] text-[#8292AD]">People Management</p>
-            </div>
-          </div>
+      <div className="relative flex flex-col w-28 bg-[#060A18] text-[#8292AD] h-full shadow-2xl z-10 animate-fade-in border-r border-[#131B33] items-center py-4 justify-between">
+        {/* Top Header */}
+        <div className="flex flex-col items-center gap-3 w-full">
           <button
             onClick={onClose}
-            className="p-1.5 text-[#8292AD] hover:text-white rounded-lg hover:bg-[#121A33] transition-colors"
+            className="self-end mr-3 p-1.5 text-[#627597] hover:text-white rounded-lg hover:bg-[#121A33] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
+
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+            <svg
+              className="w-6 h-6 text-white stroke-[2.2]"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </div>
         </div>
 
         {/* Links */}
-        <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          <div className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#4E5D78]">
-            Navigation
-          </div>
+        <div className="flex-1 py-4 flex flex-col items-center space-y-2 w-full px-2 overflow-y-auto">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -69,32 +67,41 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  `relative w-[76px] h-[64px] flex flex-col items-center justify-center rounded-2xl transition-all ${
                     isActive
-                      ? 'bg-[#2563EB] text-white shadow-sm font-semibold'
-                      : 'text-[#8292AD] hover:text-white hover:bg-[#121A33]'
+                      ? 'bg-[#0E1C3D] border border-blue-500/40 text-white shadow-[0_0_12px_rgba(37,99,235,0.22)]'
+                      : 'text-[#627597] hover:text-white hover:bg-[#0D152D]'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <Icon
-                      className={`w-5 h-5 flex-shrink-0 ${
-                        isActive ? 'text-white' : 'text-[#8292AD]'
-                      }`}
-                    />
-                    <span className="truncate flex-1">{item.name}</span>
                     {item.badge && (
                       <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                        className={`absolute -top-1.5 -right-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm leading-none ${
                           isActive
-                            ? 'bg-white/20 text-white'
-                            : 'bg-[#151D36] text-blue-400 border border-blue-500/20'
+                            ? 'bg-[#2563EB] text-white'
+                            : 'bg-[#1E3A8A] text-blue-200 border border-blue-400/30'
                         }`}
                       >
                         {item.badge}
                       </span>
                     )}
+                    {item.redDot && !item.badge && (
+                      <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-[#060A18]" />
+                    )}
+                    <Icon
+                      className={`w-5 h-5 mb-1 ${
+                        isActive ? 'text-[#3B82F6]' : 'text-[#627597]'
+                      }`}
+                    />
+                    <span
+                      className={`text-[10px] tracking-tight truncate max-w-[68px] ${
+                        isActive ? 'font-bold text-[#93C5FD]' : 'font-medium text-[#627597]'
+                      }`}
+                    >
+                      {item.name}
+                    </span>
                   </>
                 )}
               </NavLink>
@@ -102,14 +109,14 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
           })}
         </div>
 
-        {/* Drawer Footer */}
-        <div className="p-3 border-t border-[#151D36]">
+        {/* Logout */}
+        <div className="w-full px-2 pt-2 border-t border-[#131B33]">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#8292AD] hover:text-rose-400 hover:bg-[#1A1222] transition-colors"
+            className="w-[76px] h-[56px] mx-auto flex flex-col items-center justify-center rounded-2xl text-[#627597] hover:text-rose-400 hover:bg-[#1A1222] transition-colors"
           >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
+            <LogOut className="w-5 h-5 mb-1" />
+            <span className="text-[10px] font-medium">Logout</span>
           </button>
         </div>
       </div>
