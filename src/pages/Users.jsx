@@ -132,10 +132,391 @@ export const Users = () => {
               onClick={() => setSelectedUser(row)}
             >
               {row.name}
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
             <div className="text-[11px] text-[#8292AD]">{row.id} • {row.email}</div>
-          </div>
-        </div>
+            {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+          {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
       ),
     },
     {
@@ -145,7 +526,134 @@ export const Users = () => {
         <div>
           <div className="text-xs font-semibold text-[#172033]">{row.designation}</div>
           <div className="text-[11px] text-[#8292AD]">{row.department}</div>
-        </div>
+          {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
       ),
     },
     {
@@ -236,7 +744,134 @@ export const Users = () => {
           icon={ShieldCheck}
           iconBg="bg-purple-50 text-purple-600"
         />
-      </div>
+        {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
       {/* Filters Bar matching Reference Image 3 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#E5EAF2] shadow-card">
@@ -255,7 +890,134 @@ export const Users = () => {
               {dept}
             </button>
           ))}
-        </div>
+          {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
         {/* Search */}
         <div className="w-full sm:w-72">
@@ -265,8 +1027,262 @@ export const Users = () => {
             onClear={() => setSearchQuery('')}
             placeholder="Search by name, ID, title..."
           />
-        </div>
-      </div>
+          {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+        {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
       {/* Table */}
       <DataTable
@@ -283,7 +1299,141 @@ export const Users = () => {
             >
               Profile
             </button>
-          </div>
+            <button
+              onClick={() => setEditingEmployee({ ...row })}
+              className="p-1 text-[#8292AD] hover:text-[#172033] hover:bg-[#F7F9FC] rounded-lg border border-transparent hover:border-[#E5EAF2] transition-colors"
+              title="Edit employee"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+            </button>
+            {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
         )}
       />
 
@@ -309,7 +1459,134 @@ export const Users = () => {
                   placeholder="e.g. Rachel Adams"
                   className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 />
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
@@ -323,8 +1600,262 @@ export const Users = () => {
                   placeholder="rachel.a@pulsehr.com"
                   className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 />
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -344,7 +1875,134 @@ export const Users = () => {
                   <option value="People Operations">People Operations</option>
                   <option value="Customer Success">Customer Success</option>
                 </select>
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
@@ -357,8 +2015,262 @@ export const Users = () => {
                   placeholder="e.g. Senior Backend Engineer"
                   className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 />
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -376,7 +2288,134 @@ export const Users = () => {
                   <option value="Director">Director</option>
                   <option value="HR Admin">HR Admin (Full Access)</option>
                 </select>
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
@@ -389,8 +2428,262 @@ export const Users = () => {
                   placeholder="e.g. San Francisco, CA"
                   className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 />
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
               <button
@@ -406,7 +2699,134 @@ export const Users = () => {
               >
                 Provision Employee
               </button>
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
           </form>
         </Modal>
       )}
@@ -430,36 +2850,1433 @@ export const Users = () => {
                 <div className="flex items-center justify-between">
                   <h4 className="text-base font-bold text-[#172033]">{selectedUser.name}</h4>
                   <StatusBadge status={selectedUser.status} size="sm" />
-                </div>
-                <p className="text-xs font-semibold text-[#2563EB] mt-0.5">{selectedUser.designation}</p>
-                <p className="text-xs text-[#8292AD]">{selectedUser.department}</p>
+                  {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+                <p className="text-xs font-semibold text-[#2563EB] mt-0.5">{selectedUser.designation}</p>
+                <p className="text-xs text-[#8292AD]">{selectedUser.department}</p>
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-xl border border-[#E5EAF2]">
                 <span className="text-[#8292AD] block mb-0.5">Email</span>
                 <span className="font-semibold text-[#172033] break-all">{selectedUser.email}</span>
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
               <div className="p-3 rounded-xl border border-[#E5EAF2]">
                 <span className="text-[#8292AD] block mb-0.5">Phone</span>
                 <span className="font-semibold text-[#172033]">{selectedUser.phone}</span>
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
               <div className="p-3 rounded-xl border border-[#E5EAF2]">
                 <span className="text-[#8292AD] block mb-0.5">Role Tier</span>
                 <span className="font-semibold text-[#172033]">{selectedUser.role}</span>
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
               <div className="p-3 rounded-xl border border-[#E5EAF2]">
                 <span className="text-[#8292AD] block mb-0.5">Joined Date</span>
                 <span className="font-semibold text-[#172033]">{selectedUser.joiningDate}</span>
+                {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
 
             <div className="p-3 rounded-xl border border-[#E5EAF2] bg-[#FCFDFE] text-xs">
               <span className="text-[#8292AD] block mb-0.5">Assigned Office Location</span>
               <span className="font-semibold text-[#172033]">{selectedUser.location}</span>
+              {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
             </div>
-          </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+            {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+        </Modal>
+      )}
+      {/* Edit Employee Modal */}
+      {editingEmployee && (
+        <Modal
+          isOpen={!!editingEmployee}
+          onClose={() => setEditingEmployee(null)}
+          title={`Edit Profile: ${editingEmployee.name}`}
+          subtitle={`Employee ID: ${editingEmployee.id}`}
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              employeeService.updateEmployee(editingEmployee.id, editingEmployee);
+              addToast({
+                title: 'Employee Updated',
+                message: `Changes to ${editingEmployee.name}'s profile saved.`,
+                type: 'success',
+              });
+              loadEmployees();
+              setEditingEmployee(null);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={editingEmployee.name}
+                onChange={(e) =>
+                  setEditingEmployee({ ...editingEmployee, name: e.target.value })
+                }
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Designation Title
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.designation}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, designation: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
+                <select
+                  value={editingEmployee.department}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, department: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Product Design">Product Design</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Data & Analytics">Data & Analytics</option>
+                  <option value="Security Operations">Security Operations</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Customer Success">Customer Success</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Work Location
+                </label>
+                <input
+                  type="text"
+                  value={editingEmployee.location}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, location: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Role Tier
+                </label>
+                <select
+                  value={editingEmployee.role}
+                  onChange={(e) =>
+                    setEditingEmployee({ ...editingEmployee, role: e.target.value })
+                  }
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Employee">Employee</option>
+                  <option value="Team Lead">Team Lead</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Director">Director</option>
+                  <option value="HR Admin">HR Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setEditingEmployee(null)}
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+              >
+                Save Updates
+              </button>
+            </div>
+          </form>
         </Modal>
       )}
     </div>

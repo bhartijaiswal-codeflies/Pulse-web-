@@ -121,3 +121,4 @@ export const CheckInsCard = ({ onAttendanceChange }) => {
     </div>
   );
 };
+

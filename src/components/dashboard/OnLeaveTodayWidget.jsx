@@ -112,3 +112,4 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
     </div>
   );
 };
+

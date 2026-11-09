@@ -169,3 +169,4 @@ export const InboxLeaveRequestsCard = ({ requests, onApprove, onReject }) => {
     </div>
   );
 };
+
