@@ -80,20 +80,20 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-[#172033] text-sm">Today's Leaves</h3>
                 <span className="text-[10px] font-semibold text-[#8292AD] bg-[#F7F9FC] px-2 py-0.5 rounded border border-[#E5EAF2]">
-                  leave requests
+                  Admin Roster
                 </span>
               </div>
               <p className="text-[11px] text-[#8292AD]">Team Time-Off & Absence Roster</p>
             </div>
           </div>
 
-          <button
-            onClick={onApplyLeaveClick}
+          <Link
+            to="/attendance"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-50 text-[#2563EB] hover:bg-blue-100 border border-blue-200 transition-colors"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span>Apply Leave</span>
-          </button>
+            <span>Leave Register</span>
+            <ExternalLink className="w-3 h-3" />
+          </Link>
         </div>
 
         {/* Status Filter Chips */}

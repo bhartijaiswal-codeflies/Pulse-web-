@@ -31,7 +31,7 @@ export const InboxLeaveRequestsCard = ({ requests, onApprove, onReject }) => {
   };
 
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[190px]">
+    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[220px]">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2]">
         <div className="flex items-center gap-2">
@@ -40,7 +40,7 @@ export const InboxLeaveRequestsCard = ({ requests, onApprove, onReject }) => {
           </div>
           <div>
             <h3 className="font-bold text-[#172033] text-sm">Inbox leave requests</h3>
-            <p className="text-[11px] text-[#8292AD]">Pending Approvals</p>
+            <p className="text-[11px] text-[#8292AD]">Pending Admin Approvals</p>
           </div>
         </div>
         {pending.length > 0 && (
@@ -53,7 +53,7 @@ export const InboxLeaveRequestsCard = ({ requests, onApprove, onReject }) => {
       {/* Content list */}
       <div className="my-2.5 space-y-2">
         {pending.length > 0 ? (
-          pending.slice(0, 2).map((req) => (
+          pending.slice(0, 3).map((req) => (
             <div
               key={req.id}
               className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E5EAF2] flex items-center justify-between gap-3 text-xs hover:bg-slate-100/70 transition-colors"

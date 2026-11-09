@@ -56,54 +56,58 @@ export const Sidebar = () => {
           </div>
         </div>
 
-        {/* Navigation Items (62px Tiles, space-y-2.5 gap, Smooth Hidden Scrollbar) */}
-        <nav className="flex flex-col items-center space-y-2.5 w-full px-1.5 overflow-y-auto no-scrollbar flex-1 py-1">
+        {/* Navigation Items (62px Tiles with divider lines between items) */}
+        <nav className="flex flex-col items-center w-full px-1.5 overflow-y-auto no-scrollbar flex-1 py-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) =>
-                  `group relative w-[62px] h-[54px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${isActive
-                    ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
-                    : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {/* Badge Pill */}
+              <React.Fragment key={item.name}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `group relative w-[62px] h-[52px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${
+                      isActive
+                        ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
+                        : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {/* Red Dot Indicator */}
+                      {item.redDot && !item.badge && (
+                        <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ring-[#060A18] animate-pulse" />
+                      )}
 
-
-                    {/* Red Dot Indicator */}
-                    {item.redDot && !item.badge && (
-                      <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ring-[#060A18] animate-pulse" />
-                    )}
-
-                    {/* Icon */}
-                    <Icon
-                      className={`w-[18px] h-[18px] mb-1 transition-transform group-hover:scale-105 stroke-[1.8] ${isActive ? 'text-[#3B82F6]' : 'text-[#e8eaed] group-hover:text-white'
+                      {/* Icon */}
+                      <Icon
+                        className={`w-[18px] h-[18px] mb-1 transition-transform group-hover:scale-105 stroke-[1.8] ${
+                          isActive ? 'text-[#3B82F6]' : 'text-[#e8eaed] group-hover:text-white'
                         }`}
-                    />
+                      />
 
-                    {/* Short Label */}
-                    <span
-                      className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${isActive
-                        ? 'font-semibold text-[#93C5FD]'
-                        : 'font-medium text-[#e8eaed] group-hover:text-[#E2E8F0]'
+                      {/* Short Label */}
+                      <span
+                        className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${
+                          isActive
+                            ? 'font-semibold text-[#93C5FD]'
+                            : 'font-medium text-[#e8eaed] group-hover:text-[#E2E8F0]'
                         }`}
-                    >
-                      {item.name}
-                    </span>
+                      >
+                        {item.name}
+                      </span>
 
-                    {/* Hover Tooltip */}
-                    <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#0D152D] text-white text-[11px] font-semibold rounded-md shadow-xl border border-[#1A2544] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
-                      {item.name}
-                    </div>
-                  </>
-                )}
-              </NavLink>
+                      {/* Hover Tooltip */}
+                      <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#0D152D] text-white text-[11px] font-semibold rounded-md shadow-xl border border-[#1A2544] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
+                        {item.name}
+                      </div>
+                    </>
+                  )}
+                </NavLink>
+
+                {/* Divider Line after navbar item */}
+                <div className="w-8 h-[1px] bg-[#141E38] my-1 flex-shrink-0" />
+              </React.Fragment>
             );
           })}
         </nav>

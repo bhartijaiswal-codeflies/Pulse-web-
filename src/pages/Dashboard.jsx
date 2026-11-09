@@ -81,67 +81,19 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12 w-full">
-      {/* Top Header Row: Dashboard | Candidate + Apply Leave button */}
-      <div className="flex items-center justify-between border-b border-[#E5EAF2] pb-3 -mt-2">
-        <div className="flex items-center gap-6">
-          <button
-            onClick={() => setActiveTab('DASHBOARD')}
-            className={`text-xs font-extrabold uppercase tracking-wider pb-2 transition-colors relative ${
-              activeTab === 'DASHBOARD'
-                ? 'text-[#2563EB]'
-                : 'text-[#8292AD] hover:text-[#172033]'
-            }`}
-          >
-            <span>Dashboard</span>
-            {activeTab === 'DASHBOARD' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-full" />
-            )}
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveTab('CANDIDATE');
-              window.location.href = '/candidates';
-            }}
-            className="text-xs font-bold uppercase tracking-wider pb-2 text-[#8292AD] hover:text-[#172033] transition-colors"
-          >
-            Candidate
-          </button>
+      {/* Top Header: Only Dashboard text heading */}
+      <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2] -mt-1">
+        <div>
+          <h1 className="text-xl font-extrabold text-[#172033] tracking-tight">Dashboard</h1>
+          <p className="text-xs text-[#8292AD] mt-0.5">Admin Overview & Workforce Operations</p>
         </div>
-
-        <button
-          onClick={() => setShowApplyLeaveModal(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-xs transition-all active:scale-95 shadow-blue-500/20"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Apply Leave</span>
-        </button>
       </div>
 
-      {/* 3-Column Grid Layout: On Leave Today spans 2 rows, Holidays spans 2 cols, CheckIns in Row 3 */}
+      {/* 3-Column Grid Layout: Equal Alignment Across All Rows */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full">
-        {/* ROW 1 & 2: Col 1 -> On leave Today (Spans 2 rows with rich roster) */}
-        <div className="w-full lg:col-start-1 lg:row-start-1 lg:row-span-2 flex flex-col">
-          <OnLeaveTodayWidget onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
-        </div>
-
-        {/* ROW 1: Col 2 -> Celebrating Birthday */}
-        <div className="w-full lg:col-start-2 lg:row-start-1 flex flex-col">
-          <BirthdaysCard />
-        </div>
-
-        {/* ROW 1: Col 3 -> Working Remotely */}
-        <div className="w-full lg:col-start-3 lg:row-start-1 flex flex-col">
-          <WorkingRemotelyWidget />
-        </div>
-
-        {/* ROW 2: Col 2 -> Celebrating Work Anniversary */}
-        <div className="w-full lg:col-start-2 lg:row-start-2 flex flex-col">
-          <WorkAnniversariesCard />
-        </div>
-
-        {/* ROW 2: Col 3 -> Inbox leave requests */}
-        <div className="w-full lg:col-start-3 lg:row-start-2 flex flex-col">
+        {/* ROW 1 */}
+        {/* Col 1 -> Inbox leave requests (Moved above Today's Leaves) */}
+        <div className="w-full flex flex-col">
           <InboxLeaveRequestsCard
             requests={leaveRequests}
             onApprove={handleApproveLeave}
@@ -149,13 +101,34 @@ export const Dashboard = () => {
           />
         </div>
 
-        {/* ROW 3: Col 1 -> Checkins */}
-        <div className="w-full lg:col-start-1 lg:row-start-3 flex flex-col">
-          <CheckInsCard onAttendanceChange={loadData} />
+        {/* Col 2 -> Celebrating Birthday */}
+        <div className="w-full flex flex-col">
+          <BirthdaysCard />
         </div>
 
-        {/* ROW 3: Col 2 & 3 -> Upcoming Holidays (Spans 2 Columns, 3 Cards View) */}
-        <div className="w-full lg:col-start-2 lg:col-span-2 lg:row-start-3 flex flex-col">
+        {/* Col 3 -> Working Remotely */}
+        <div className="w-full flex flex-col">
+          <WorkingRemotelyWidget />
+        </div>
+
+        {/* ROW 2 */}
+        {/* Col 1 -> Today's Leaves */}
+        <div className="w-full flex flex-col">
+          <OnLeaveTodayWidget onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
+        </div>
+
+        {/* Col 2 -> Celebrating Work Anniversary */}
+        <div className="w-full flex flex-col">
+          <WorkAnniversariesCard />
+        </div>
+
+        {/* Col 3 -> Check-in / Check-out (Admin Roster List View) */}
+        <div className="w-full flex flex-col">
+          <CheckInsCard />
+        </div>
+
+        {/* ROW 3 -> Upcoming Holidays (Spans all 3 Columns with 3 Cards View) */}
+        <div className="w-full lg:col-span-3 flex flex-col">
           <Holidays3CardsView />
         </div>
       </div>

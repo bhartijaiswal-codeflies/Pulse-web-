@@ -78,10 +78,10 @@ export const Profile = () => {
     <div className="space-y-6 animate-fade-in pb-12">
       {/* Header */}
       <PageHeader
-        title="My Profile"
-        badgeText="Account Verified"
-        subtitle="View and edit your employee profile, organizational records, and portal credentials."
-        breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Profile' }]}
+        title="Admin Profile"
+        badgeText="Super Administrator"
+        subtitle="Manage administrator profile, security permissions, and enterprise access credentials."
+        breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Admin Profile' }]}
         actions={
           <button
             onClick={() => setShowEditModal(true)}

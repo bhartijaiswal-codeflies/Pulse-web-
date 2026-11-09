@@ -178,9 +178,9 @@ export const MyFinances = () => {
     <div className="space-y-6 animate-fade-in pb-12">
       {/* Header */}
       <PageHeader
-        title="My Finances"
-        badgeText="Payroll & Expenses"
-        subtitle="Access official payroll slips, tax deductions breakdown, and reimbursement claims."
+        title="Payroll & Finances"
+        badgeText="Admin Finance Hub"
+        subtitle="Manage company payroll distributions, tax compliance, and team expense reimbursements."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Finances' }]}
         actions={
           <button
@@ -188,7 +188,7 @@ export const MyFinances = () => {
             className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Claim Expense</span>
+            <span>Process Reimbursement</span>
           </button>
         }
       />

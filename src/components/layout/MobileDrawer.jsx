@@ -53,53 +53,46 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Links with 10px gap and hidden scrollbar */}
-        <div className="flex-1 py-3 flex flex-col items-center space-y-2.5 w-full px-1.5 overflow-y-auto no-scrollbar">
+        {/* Links with divider line after each item */}
+        <div className="flex-1 py-3 flex flex-col items-center w-full px-1.5 overflow-y-auto no-scrollbar">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                className={({ isActive }) =>
-                  `relative w-[62px] h-[54px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all ${
-                    isActive
-                      ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
-                      : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
-                  }`
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    {item.badge && (
+              <React.Fragment key={item.name}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `relative w-[62px] h-[52px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all ${
+                      isActive
+                        ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
+                        : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {item.redDot && !item.badge && (
+                        <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ring-[#060A18]" />
+                      )}
+                      <Icon
+                        className={`w-[18px] h-[18px] mb-1 stroke-[1.8] ${
+                          isActive ? 'text-[#3B82F6]' : 'text-[#e8eaed]'
+                        }`}
+                      />
                       <span
-                        className={`absolute -top-1 -right-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-xs ${
-                          isActive
-                            ? 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
-                            : 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
+                        className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${
+                          isActive ? 'font-semibold text-[#93C5FD]' : 'font-medium text-[#e8eaed]'
                         }`}
                       >
-                        {item.badge}
+                        {item.name}
                       </span>
-                    )}
-                    {item.redDot && !item.badge && (
-                      <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ring-[#060A18]" />
-                    )}
-                    <Icon
-                      className={`w-[18px] h-[18px] mb-1 stroke-[1.8] ${
-                        isActive ? 'text-[#3B82F6]' : 'text-[#76849D]'
-                      }`}
-                    />
-                    <span
-                      className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${
-                        isActive ? 'font-semibold text-[#93C5FD]' : 'font-medium text-[#76849D]'
-                      }`}
-                    >
-                      {item.name}
-                    </span>
-                  </>
-                )}
-              </NavLink>
+                    </>
+                  )}
+                </NavLink>
+
+                {/* Divider Line */}
+                <div className="w-8 h-[1px] bg-[#141E38] my-1 flex-shrink-0" />
+              </React.Fragment>
             );
           })}
         </div>

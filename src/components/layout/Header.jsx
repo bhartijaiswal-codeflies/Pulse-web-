@@ -260,7 +260,7 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#172033] hover:bg-[#F7F9FC] rounded-lg transition-colors"
                 >
                   <UserIcon className="w-4 h-4 text-[#8292AD]" />
-                  <span>My Profile</span>
+                  <span>Admin Profile</span>
                 </button>
 
                 <button
@@ -271,7 +271,7 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[#172033] hover:bg-[#F7F9FC] rounded-lg transition-colors"
                 >
                   <Settings className="w-4 h-4 text-[#8292AD]" />
-                  <span>Account Settings</span>
+                  <span>System Settings</span>
                 </button>
               </div>
 
