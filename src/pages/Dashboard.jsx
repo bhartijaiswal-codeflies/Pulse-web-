@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { OnLeaveTodayWidget } from '../components/dashboard/OnLeaveTodayWidget';
 import { CheckInsCard } from '../components/dashboard/CheckInsCard';
-import { LeaveBalancesCard } from '../components/dashboard/LeaveBalancesCard';
 import { BirthdaysCard } from '../components/dashboard/BirthdaysCard';
 import { WorkAnniversariesCard } from '../components/dashboard/WorkAnniversariesCard';
 import { Holidays3CardsView } from '../components/dashboard/Holidays3CardsView';
@@ -119,37 +118,30 @@ export const Dashboard = () => {
         </button>
       </div>
 
-      {/* 3-Column Grid Layout with 2-Span Holidays and 1-Col Leave Balances */}
+      {/* 3-Column Grid Layout: On Leave Today spans 2 rows, Holidays spans 2 cols, CheckIns in Row 3 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full">
-        {/* ROW 1 */}
-        {/* Col 1: On leave Today */}
-        <div className="w-full">
+        {/* ROW 1 & 2: Col 1 -> On leave Today (Spans 2 rows with rich roster) */}
+        <div className="w-full lg:col-start-1 lg:row-start-1 lg:row-span-2 flex flex-col">
           <OnLeaveTodayWidget onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
         </div>
 
-        {/* Col 2: Celebrating Birthday */}
-        <div className="w-full">
+        {/* ROW 1: Col 2 -> Celebrating Birthday */}
+        <div className="w-full lg:col-start-2 lg:row-start-1 flex flex-col">
           <BirthdaysCard />
         </div>
 
-        {/* Col 3: Working Remotely */}
-        <div className="w-full">
+        {/* ROW 1: Col 3 -> Working Remotely */}
+        <div className="w-full lg:col-start-3 lg:row-start-1 flex flex-col">
           <WorkingRemotelyWidget />
         </div>
 
-        {/* ROW 2 */}
-        {/* Col 1: Checkins */}
-        <div className="w-full">
-          <CheckInsCard onAttendanceChange={loadData} />
-        </div>
-
-        {/* Col 2: Celebrating Work Anniversary */}
-        <div className="w-full">
+        {/* ROW 2: Col 2 -> Celebrating Work Anniversary */}
+        <div className="w-full lg:col-start-2 lg:row-start-2 flex flex-col">
           <WorkAnniversariesCard />
         </div>
 
-        {/* Col 3: Inbox leave requests */}
-        <div className="w-full">
+        {/* ROW 2: Col 3 -> Inbox leave requests */}
+        <div className="w-full lg:col-start-3 lg:row-start-2 flex flex-col">
           <InboxLeaveRequestsCard
             requests={leaveRequests}
             onApprove={handleApproveLeave}
@@ -157,14 +149,13 @@ export const Dashboard = () => {
           />
         </div>
 
-        {/* ROW 3 */}
-        {/* Col 1 (1 column): Balance Leave */}
-        <div className="w-full">
-          <LeaveBalancesCard onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
+        {/* ROW 3: Col 1 -> Checkins */}
+        <div className="w-full lg:col-start-1 lg:row-start-3 flex flex-col">
+          <CheckInsCard onAttendanceChange={loadData} />
         </div>
 
-        {/* Col 2 & 3 (Grid 2 Span): Upcoming Holidays with 3 Cards View */}
-        <div className="w-full lg:col-span-2">
+        {/* ROW 3: Col 2 & 3 -> Upcoming Holidays (Spans 2 Columns, 3 Cards View) */}
+        <div className="w-full lg:col-start-2 lg:col-span-2 lg:row-start-3 flex flex-col">
           <Holidays3CardsView />
         </div>
       </div>

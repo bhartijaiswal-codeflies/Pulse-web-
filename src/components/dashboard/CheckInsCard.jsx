@@ -69,10 +69,16 @@ export const CheckInsCard = ({ onAttendanceChange }) => {
       </div>
 
       {/* Clock and Status Display */}
-      <div className="my-3">
-        <div className="text-2xl font-black font-mono tracking-tight text-[#172033]">
-          {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+      <div className="my-2.5">
+        <div className="flex items-baseline justify-between">
+          <div className="text-2xl font-black font-mono tracking-tight text-[#172033]">
+            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </div>
+          <span className="text-[11px] font-semibold text-[#2563EB] bg-blue-50 px-2 py-0.5 rounded-md">
+            5h 46m logged
+          </span>
         </div>
+
         <p className="text-xs text-[#8292AD] mt-1 flex items-center gap-1">
           {isCheckedIn ? (
             <>
@@ -83,10 +89,21 @@ export const CheckInsCard = ({ onAttendanceChange }) => {
             <span>Not currently clocked in for shift</span>
           )}
         </p>
+
+        {/* Shift progress indicator */}
+        <div className="mt-2.5">
+          <div className="flex items-center justify-between text-[10px] text-[#8292AD] mb-1">
+            <span>Progress: 72% of 8h 00m</span>
+            <span>Ends 05:30 PM</span>
+          </div>
+          <div className="w-full bg-[#E5EAF2] h-1.5 rounded-full overflow-hidden">
+            <div className="bg-[#2563EB] h-full rounded-full transition-all duration-500" style={{ width: '72%' }} />
+          </div>
+        </div>
       </div>
 
       {/* Location Selector & Check In / Out Button */}
-      <div className="flex items-center gap-2 pt-2 border-t border-[#E5EAF2]">
+      <div className="flex items-center gap-2 pt-2.5 border-t border-[#E5EAF2]">
         <select
           value={workLocation}
           onChange={(e) => setWorkLocation(e.target.value)}
