@@ -38,12 +38,12 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="hidden md:flex flex-col items-center w-[68px] h-screen sticky top-0 bg-[#060A18] border-r border-[#131B33] py-4 select-none z-30 flex-shrink-0 justify-between overflow-hidden">
+    <aside className="hidden md:flex flex-col items-center w-[76px] h-screen sticky top-0 bg-[#060A18] border-r border-[#131B33] py-4 select-none z-30 flex-shrink-0 justify-between overflow-hidden">
       {/* Top Section: Logo & Menu Tiles */}
       <div className="flex flex-col items-center w-full flex-1 overflow-hidden">
         {/* Brand Circular Glowing Logo */}
-        <div className="relative group cursor-pointer mb-3 flex-shrink-0">
-          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-1.5 ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105">
+        <div className="relative group cursor-pointer mb-4 flex-shrink-0">
+          <div className="w-[46px] h-[46px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 ring-2 ring-[#3B82F6]/70 shadow-[0_0_16px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105">
             <img
               src="/logo.png"
               alt="Pulse HR Logo"
@@ -56,8 +56,8 @@ export const Sidebar = () => {
           </div>
         </div>
 
-        {/* Navigation Items (Fixed Height, Gap of 8px, Smooth Hidden Scrollbar) */}
-        <nav className="flex flex-col items-center space-y-2 w-full px-1.5 overflow-y-auto no-scrollbar flex-1 py-1">
+        {/* Navigation Items (62px Tiles, space-y-2.5 gap, Smooth Hidden Scrollbar) */}
+        <nav className="flex flex-col items-center space-y-2.5 w-full px-1.5 overflow-y-auto no-scrollbar flex-1 py-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -65,10 +65,10 @@ export const Sidebar = () => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `group relative w-[54px] h-[48px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${
+                  `group relative w-[62px] h-[54px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${
                     isActive
-                      ? 'bg-[#0D1938] border border-blue-500/40 text-white shadow-[0_0_12px_rgba(37,99,235,0.25)]'
-                      : 'text-[#68758D] hover:text-white hover:bg-[#0D152D]'
+                      ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
+                      : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
                   }`
                 }
               >
@@ -77,10 +77,10 @@ export const Sidebar = () => {
                     {/* Badge Pill */}
                     {item.badge && (
                       <span
-                        className={`absolute -top-1 -right-0.5 text-[8.5px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight shadow-xs transition-colors ${
+                        className={`absolute -top-1 -right-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-xs transition-colors ${
                           isActive
-                            ? 'bg-[#2563EB] text-white'
-                            : 'bg-[#1D3268] text-blue-200 border border-blue-400/25'
+                            ? 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
+                            : 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
                         }`}
                       >
                         {item.badge}
@@ -89,22 +89,22 @@ export const Sidebar = () => {
 
                     {/* Red Dot Indicator */}
                     {item.redDot && !item.badge && (
-                      <span className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 ring-1 ring-[#060A18] animate-pulse" />
+                      <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ring-[#060A18] animate-pulse" />
                     )}
 
                     {/* Icon */}
                     <Icon
-                      className={`w-[17px] h-[17px] mb-0.5 transition-transform group-hover:scale-105 stroke-[1.9] ${
-                        isActive ? 'text-[#3B82F6]' : 'text-[#68758D] group-hover:text-white'
+                      className={`w-[18px] h-[18px] mb-1 transition-transform group-hover:scale-105 stroke-[1.8] ${
+                        isActive ? 'text-[#3B82F6]' : 'text-[#76849D] group-hover:text-white'
                       }`}
                     />
 
                     {/* Short Label */}
                     <span
-                      className={`text-[9.5px] tracking-tight leading-none truncate max-w-[50px] ${
+                      className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${
                         isActive
-                          ? 'font-bold text-[#93C5FD]'
-                          : 'font-medium text-[#68758D] group-hover:text-[#CBD5E1]'
+                          ? 'font-semibold text-[#93C5FD]'
+                          : 'font-medium text-[#76849D] group-hover:text-[#E2E8F0]'
                       }`}
                     >
                       {item.name}
@@ -126,11 +126,11 @@ export const Sidebar = () => {
       <div className="w-full px-1.5 pt-2 border-t border-[#131B33] flex-shrink-0 mt-1">
         <button
           onClick={handleLogout}
-          className="group relative w-[54px] h-[46px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#68758D] hover:text-rose-400 hover:bg-[#1A1222] transition-all duration-150"
+          className="group relative w-[62px] h-[50px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#76849D] hover:text-rose-400 hover:bg-[#1A1222] transition-all duration-150"
           title="Sign out"
         >
-          <LogOut className="w-[17px] h-[17px] mb-0.5 group-hover:scale-105 transition-transform stroke-[1.9]" />
-          <span className="text-[9.5px] font-medium leading-none">Logout</span>
+          <LogOut className="w-[18px] h-[18px] mb-1 group-hover:scale-105 transition-transform stroke-[1.8]" />
+          <span className="text-[10px] font-medium leading-none">Logout</span>
 
           {/* Hover Tooltip */}
           <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#1A1222] text-rose-300 text-[11px] font-semibold rounded-md shadow-xl border border-rose-900/50 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">

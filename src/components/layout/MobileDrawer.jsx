@@ -44,7 +44,7 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
             <X className="w-4 h-4" />
           </button>
 
-          <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-1.5 ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+          <div className="w-[46px] h-[46px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 ring-2 ring-[#3B82F6]/70 shadow-[0_0_16px_rgba(37,99,235,0.4)]">
             <img
               src="/logo.png"
               alt="Pulse HR Logo"
@@ -53,8 +53,8 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Links with 8px gap and hidden scrollbar */}
-        <div className="flex-1 py-3 flex flex-col items-center space-y-2 w-full px-1.5 overflow-y-auto no-scrollbar">
+        {/* Links with 10px gap and hidden scrollbar */}
+        <div className="flex-1 py-3 flex flex-col items-center space-y-2.5 w-full px-1.5 overflow-y-auto no-scrollbar">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -62,10 +62,10 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `relative w-[54px] h-[48px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all ${
+                  `relative w-[62px] h-[54px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all ${
                     isActive
-                      ? 'bg-[#0D1938] border border-blue-500/40 text-white shadow-[0_0_12px_rgba(37,99,235,0.25)]'
-                      : 'text-[#68758D] hover:text-white hover:bg-[#0D152D]'
+                      ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
+                      : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
                   }`
                 }
               >
@@ -73,26 +73,26 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
                   <>
                     {item.badge && (
                       <span
-                        className={`absolute -top-1 -right-0.5 text-[8.5px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight shadow-xs ${
+                        className={`absolute -top-1 -right-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-xs ${
                           isActive
-                            ? 'bg-[#2563EB] text-white'
-                            : 'bg-[#1D3268] text-blue-200 border border-blue-400/25'
+                            ? 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
+                            : 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
                         }`}
                       >
                         {item.badge}
                       </span>
                     )}
                     {item.redDot && !item.badge && (
-                      <span className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-rose-500 ring-1 ring-[#060A18]" />
+                      <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ring-[#060A18]" />
                     )}
                     <Icon
-                      className={`w-[17px] h-[17px] mb-0.5 ${
-                        isActive ? 'text-[#3B82F6]' : 'text-[#68758D]'
+                      className={`w-[18px] h-[18px] mb-1 stroke-[1.8] ${
+                        isActive ? 'text-[#3B82F6]' : 'text-[#76849D]'
                       }`}
                     />
                     <span
-                      className={`text-[9.5px] tracking-tight leading-none truncate max-w-[50px] ${
-                        isActive ? 'font-bold text-[#93C5FD]' : 'font-medium text-[#68758D]'
+                      className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${
+                        isActive ? 'font-semibold text-[#93C5FD]' : 'font-medium text-[#76849D]'
                       }`}
                     >
                       {item.name}
@@ -108,10 +108,10 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
         <div className="w-full px-1.5 pt-2 border-t border-[#131B33] flex-shrink-0">
           <button
             onClick={handleLogout}
-            className="w-[54px] h-[46px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#68758D] hover:text-rose-400 hover:bg-[#1A1222] transition-colors"
+            className="w-[62px] h-[50px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#76849D] hover:text-rose-400 hover:bg-[#1A1222] transition-colors"
           >
-            <LogOut className="w-[17px] h-[17px] mb-0.5" />
-            <span className="text-[9.5px] font-medium leading-none">Logout</span>
+            <LogOut className="w-[18px] h-[18px] mb-1 stroke-[1.8]" />
+            <span className="text-[10px] font-medium leading-none">Logout</span>
           </button>
         </div>
       </div>
