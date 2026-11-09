@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { OnLeaveTodayWidget } from '../components/dashboard/OnLeaveTodayWidget';
 import { CheckInsCard } from '../components/dashboard/CheckInsCard';
+import { LeaveBalancesCard } from '../components/dashboard/LeaveBalancesCard';
 import { BirthdaysCard } from '../components/dashboard/BirthdaysCard';
 import { WorkAnniversariesCard } from '../components/dashboard/WorkAnniversariesCard';
-import { HolidaysSliderCard } from '../components/dashboard/HolidaysSliderCard';
+import { Holidays3CardsView } from '../components/dashboard/Holidays3CardsView';
 import { WorkingRemotelyWidget } from '../components/dashboard/WorkingRemotelyWidget';
 import { InboxLeaveRequestsCard } from '../components/dashboard/InboxLeaveRequestsCard';
 import { Modal } from '../components/common/Modal';
@@ -81,7 +82,7 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12 w-full">
-      {/* Top Header Row matching Wireframe: Dashboard | Candidate + Apply Leave button */}
+      {/* Top Header Row: Dashboard | Candidate + Apply Leave button */}
       <div className="flex items-center justify-between border-b border-[#E5EAF2] pb-3 -mt-2">
         <div className="flex items-center gap-6">
           <button
@@ -118,32 +119,53 @@ export const Dashboard = () => {
         </button>
       </div>
 
-      {/* 3-Column Dashboard Layout as requested:
-          Column 1: on leave today & checkin and checkout
-          Column 2: celebrating birthday, celebrating work anniversary, and holidays slider of 3 cards
-          Column 3: working remotely & inbox having leave request */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full">
-        {/* Column 1: On Leave Today & Checkin and Checkout */}
-        <div className="flex flex-col gap-6 w-full">
+      {/* 3-Column Grid Layout with 2-Span Holidays and 1-Col Leave Balances */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full">
+        {/* ROW 1 */}
+        {/* Col 1: On leave Today */}
+        <div className="w-full">
           <OnLeaveTodayWidget onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
+        </div>
+
+        {/* Col 2: Celebrating Birthday */}
+        <div className="w-full">
+          <BirthdaysCard />
+        </div>
+
+        {/* Col 3: Working Remotely */}
+        <div className="w-full">
+          <WorkingRemotelyWidget />
+        </div>
+
+        {/* ROW 2 */}
+        {/* Col 1: Checkins */}
+        <div className="w-full">
           <CheckInsCard onAttendanceChange={loadData} />
         </div>
 
-        {/* Column 2: Celebrating Birthday, Celebrating Work Anniversary, and Holidays Slider */}
-        <div className="flex flex-col gap-6 w-full">
-          <BirthdaysCard />
+        {/* Col 2: Celebrating Work Anniversary */}
+        <div className="w-full">
           <WorkAnniversariesCard />
-          <HolidaysSliderCard />
         </div>
 
-        {/* Column 3: Working Remotely & Inbox Having Leave Request */}
-        <div className="flex flex-col gap-6 w-full">
-          <WorkingRemotelyWidget />
+        {/* Col 3: Inbox leave requests */}
+        <div className="w-full">
           <InboxLeaveRequestsCard
             requests={leaveRequests}
             onApprove={handleApproveLeave}
             onReject={handleRejectLeave}
           />
+        </div>
+
+        {/* ROW 3 */}
+        {/* Col 1 (1 column): Balance Leave */}
+        <div className="w-full">
+          <LeaveBalancesCard onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
+        </div>
+
+        {/* Col 2 & 3 (Grid 2 Span): Upcoming Holidays with 3 Cards View */}
+        <div className="w-full lg:col-span-2">
+          <Holidays3CardsView />
         </div>
       </div>
 
