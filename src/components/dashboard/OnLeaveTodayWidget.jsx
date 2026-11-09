@@ -78,7 +78,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-[#172033] text-sm">On leave Today</h3>
+                <h3 className="font-bold text-[#172033] text-sm">Today's Leaves</h3>
                 <span className="text-[10px] font-semibold text-[#8292AD] bg-[#F7F9FC] px-2 py-0.5 rounded border border-[#E5EAF2]">
                   leave requests
                 </span>
@@ -125,15 +125,12 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
                 <div className="min-w-0">
                   <p className="font-bold text-[#172033] truncate">{staff.name}</p>
                   <p className="text-[10px] text-[#8292AD] truncate">
-                    {staff.department} • <span className="font-medium text-[#4E5D78]">{staff.type}</span>
+                    {staff.dates} ({staff.duration})
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5 flex-shrink-0">
-                <span className="text-[11px] text-[#4E5D78] font-medium hidden sm:inline">
-                  {staff.dates} ({staff.duration})
-                </span>
                 <StatusBadge status={staff.status} size="xs" />
               </div>
             </div>
@@ -144,15 +141,8 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#E5EAF2] text-xs">
         <span className="text-[#8292AD] text-[11px]">
-          3 employees currently absent • 3 scheduled upcoming
+          3 employees currently absent
         </span>
-        <Link
-          to="/attendance"
-          className="text-[#2563EB] hover:underline font-semibold text-xs flex items-center gap-1"
-        >
-          <span>Attendance Register</span>
-          <ExternalLink className="w-3 h-3" />
-        </Link>
       </div>
     </div>
   );

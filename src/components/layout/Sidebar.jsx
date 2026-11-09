@@ -74,16 +74,7 @@ export const Sidebar = () => {
                 {({ isActive }) => (
                   <>
                     {/* Badge Pill */}
-                    {item.badge && (
-                      <span
-                        className={`absolute -top-1 -right-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none shadow-xs transition-colors ${isActive
-                            ? 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
-                            : 'bg-[#2563EB] text-white ring-1 ring-[#060A18]'
-                          }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
+
 
                     {/* Red Dot Indicator */}
                     {item.redDot && !item.badge && (
@@ -92,15 +83,15 @@ export const Sidebar = () => {
 
                     {/* Icon */}
                     <Icon
-                      className={`w-[18px] h-[18px] mb-1 transition-transform group-hover:scale-105 stroke-[1.8] ${isActive ? 'text-[#3B82F6]' : 'text-[#76849D] group-hover:text-white'
+                      className={`w-[18px] h-[18px] mb-1 transition-transform group-hover:scale-105 stroke-[1.8] ${isActive ? 'text-[#3B82F6]' : 'text-[#e8eaed] group-hover:text-white'
                         }`}
                     />
 
                     {/* Short Label */}
                     <span
                       className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${isActive
-                          ? 'font-semibold text-[#93C5FD]'
-                          : 'font-medium text-[#76849D] group-hover:text-[#E2E8F0]'
+                        ? 'font-semibold text-[#93C5FD]'
+                        : 'font-medium text-[#e8eaed] group-hover:text-[#E2E8F0]'
                         }`}
                     >
                       {item.name}
