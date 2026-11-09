@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Users,
   UserCheck,
@@ -7,46 +8,44 @@ import {
   Plus,
   Calendar,
   Sparkles,
-  Bell,
+  Inbox,
+  Award,
+  Cake,
+  Laptop,
 } from 'lucide-react';
-import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
-import { InboxCard } from '../components/dashboard/InboxCard';
-import { HolidayBannerCard } from '../components/dashboard/HolidayBannerCard';
-import { OnLeaveTodayCard } from '../components/dashboard/OnLeaveTodayCard';
-import { WorkingRemotelyCard } from '../components/dashboard/WorkingRemotelyCard';
-import { TimeTodayCard } from '../components/dashboard/TimeTodayCard';
-import { LeaveBalancesCard } from '../components/dashboard/LeaveBalancesCard';
-import { CelebrationCards } from '../components/dashboard/CelebrationCards';
+import { SketchInboxLeaveRequests } from '../components/dashboard/SketchInboxLeaveRequests';
+import { SketchCheckIns } from '../components/dashboard/SketchCheckIns';
+import { SketchOnLeaveToday } from '../components/dashboard/SketchOnLeaveToday';
+import { SketchWorkingRemotely } from '../components/dashboard/SketchWorkingRemotely';
+import { SketchBirthdays } from '../components/dashboard/SketchBirthdays';
+import { SketchAnniversaries } from '../components/dashboard/SketchAnniversaries';
+import { SketchNewJoinees } from '../components/dashboard/SketchNewJoinees';
+import { SketchHolidays } from '../components/dashboard/SketchHolidays';
 import { EmployeeChecklist } from '../components/dashboard/EmployeeChecklist';
-import { RecentActivities } from '../components/dashboard/RecentActivities';
 import { Modal } from '../components/common/Modal';
 import { employeeService } from '../services/employeeService';
-import {
-  dashboardStats,
-  currentUser,
-} from '../data/mockData';
+import { dashboardStats, currentUser } from '../data/mockData';
 import { useToast } from '../context/NotificationContext';
 
 export const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('DASHBOARD');
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('Dashboard');
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [checklist, setChecklist] = useState([]);
-  const [activities, setActivities] = useState([]);
   const [showApplyLeaveModal, setShowApplyLeaveModal] = useState(false);
   const { addToast } = useToast();
 
   // Apply leave form state
-  const [leaveType, setLeaveType] = useState('Privilege Leave');
+  const [leaveType, setLeaveType] = useState('Casual Leave');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [days, setDays] = useState(2);
+  const [days, setDays] = useState(1);
   const [reason, setReason] = useState('');
 
   const loadData = () => {
     setLeaveRequests(employeeService.getLeaveRequests());
     setChecklist(employeeService.getChecklist());
-    setActivities(employeeService.getActivities());
   };
 
   useEffect(() => {
@@ -113,56 +112,40 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12 w-full">
-      {/* Sub-header Tab Bar matching Reference Image 4 ("DASHBOARD" | "KEKA UPDATES") */}
-      <div className="flex items-center justify-between border-b border-[#E5EAF2] pb-1 -mt-2">
-        <div className="flex items-center gap-6">
+      {/* Top Header / Tabs matching Handwritten Sketch: [Dashboard] / Candidate */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E5EAF2] pb-3">
+        <div className="flex items-center gap-3">
+          {/* [Dashboard] tab pill from sketch */}
           <button
-            onClick={() => setActiveTab('DASHBOARD')}
-            className={`text-xs font-extrabold uppercase tracking-wider pb-3 transition-colors relative ${
-              activeTab === 'DASHBOARD'
-                ? 'text-[#2563EB]'
-                : 'text-[#8292AD] hover:text-[#172033]'
+            onClick={() => setActiveTab('Dashboard')}
+            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+              activeTab === 'Dashboard'
+                ? 'bg-[#2563EB] text-white shadow-blue-500/20'
+                : 'bg-white text-[#8292AD] border border-[#E5EAF2] hover:text-[#172033]'
             }`}
           >
-            <span>DASHBOARD</span>
-            {activeTab === 'DASHBOARD' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-full" />
-            )}
+            Dashboard
           </button>
 
+          {/* Candidate button / link from sketch */}
           <button
-            onClick={() => {
-              setActiveTab('UPDATES');
-              addToast({
-                title: 'System Updates',
-                message: 'All HR systems and payroll sync services are operating normally.',
-                type: 'info',
-              });
-            }}
-            className={`text-xs font-extrabold uppercase tracking-wider pb-3 transition-colors relative flex items-center gap-1.5 ${
-              activeTab === 'UPDATES'
-                ? 'text-[#2563EB]'
-                : 'text-[#8292AD] hover:text-[#172033]'
-            }`}
+            onClick={() => navigate('/candidates')}
+            className="px-4 py-1.5 rounded-xl text-xs font-bold text-[#8292AD] bg-white border border-[#E5EAF2] hover:text-[#172033] hover:bg-[#F8FAFC] transition-colors"
           >
-            <span>PULSE UPDATES</span>
-            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-            {activeTab === 'UPDATES' && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2563EB] rounded-full" />
-            )}
+            Candidate
           </button>
         </div>
 
         <button
           onClick={() => setShowApplyLeaveModal(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-xs transition-all active:scale-95 shadow-blue-500/20"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 self-start sm:self-auto"
         >
-          <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Apply Leave</span>
         </button>
       </div>
 
-      {/* Row 1: Top Statistics Cards from Reference Image 3 */}
+      {/* Row 1: Key Statistics Cards from Reference Image 3 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total Employees"
@@ -205,51 +188,50 @@ export const Dashboard = () => {
         />
       </div>
 
-      {/* Row 2: Main Dashboard Grid Layout matching Reference Image 4 & Reference Image 1 Wireframe */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 w-full">
-        {/* Left / Center Grid Region (7 Cols on large displays) */}
-        <div className="lg:col-span-7 space-y-5">
-          {/* 2-Column Card Grid (Inbox, Holidays, On Leave, Working Remotely, Time Today, Leave Balances) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* 1. Inbox Card */}
-            <InboxCard
-              requests={leaveRequests}
-              onApprove={handleApproveLeave}
-              onReject={handleRejectLeave}
-            />
+      {/* Row 2: Handwritten Sketch Core Section 1: Inbox Leave Requests & CheckIns */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 w-full">
+        {/* 1. Inbox Leave Requests (from sketch: "Inbox leave requests") */}
+        <SketchInboxLeaveRequests
+          requests={leaveRequests}
+          onApprove={handleApproveLeave}
+          onReject={handleRejectLeave}
+        />
 
-            {/* 2. Holidays Green Banner Card */}
-            <HolidayBannerCard />
+        {/* 2. CheckIns (from sketch: "CheckIns") */}
+        <SketchCheckIns onAttendanceChange={loadData} />
+      </div>
 
-            {/* 3. On Leave Today Card */}
-            <OnLeaveTodayCard />
+      {/* Row 3: Handwritten Sketch Core Section 2: On leave Today, Working Remotely, Celebrating Birthdays */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
+        {/* 3. On Leave Today (from sketch: "On leave Today" [leave requests]) */}
+        <SketchOnLeaveToday onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
 
-            {/* 4. Working Remotely Card */}
-            <WorkingRemotelyCard />
+        {/* 4. Working Remotely (from sketch: "working remotely") */}
+        <SketchWorkingRemotely />
 
-            {/* 5. Time Today Purple Live Clock Card */}
-            <TimeTodayCard onAttendanceChange={loadData} />
+        {/* 5. Celebrating Birthdays (from sketch: "celebrating birthdays" with circle O, Name, Date) */}
+        <SketchBirthdays />
+      </div>
 
-            {/* 6. Leave Balances Card */}
-            <LeaveBalancesCard onApplyLeaveClick={() => setShowApplyLeaveModal(true)} />
-          </div>
+      {/* Row 4: Handwritten Sketch Core Section 3: Anniversaries, New Joinee, Holidays */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
+        {/* 6. Celebrating Work Anniversaries (from sketch: "celebrating work anniversaries" with O O O) */}
+        <SketchAnniversaries />
 
-          {/* 7. Employee Checklist / CheckIns (from Reference Image 1 Wireframe) */}
-          <EmployeeChecklist
-            tasks={checklist}
-            onToggleTask={handleToggleChecklist}
-            onAddTask={handleAddChecklistTask}
-          />
-        </div>
+        {/* 7. New Joinee (from sketch: "New Joinee") */}
+        <SketchNewJoinees />
 
-        {/* Right Region: Wide Cards Stack (5 Cols on large displays) */}
-        <div className="lg:col-span-5 space-y-5">
-          {/* Celebration Cards: Birthdays, Work Anniversaries, New Joinees (Reference Image 4) */}
-          <CelebrationCards />
+        {/* 8. Holidays (from sketch: "Holidays") */}
+        <SketchHolidays />
+      </div>
 
-          {/* Recent Activities Stream */}
-          <RecentActivities activities={activities} />
-        </div>
+      {/* Row 5: Checklist / CheckIns Tasks (from sketch: CheckIns workflow) */}
+      <div className="w-full">
+        <EmployeeChecklist
+          tasks={checklist}
+          onToggleTask={handleToggleChecklist}
+          onAddTask={handleAddChecklistTask}
+        />
       </div>
 
       {/* Apply Leave Modal */}
@@ -270,8 +252,8 @@ export const Dashboard = () => {
                 onChange={(e) => setLeaveType(e.target.value)}
                 className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
               >
-                <option value="Privilege Leave">Privilege Leave (Balance: 18 days)</option>
                 <option value="Casual Leave">Casual Leave (Balance: 10 days)</option>
+                <option value="Privilege Leave">Privilege Leave (Balance: 18 days)</option>
                 <option value="Sick Leave">Sick Leave (Balance: 7 days)</option>
                 <option value="Compensatory Off">Compensatory Off (Balance: 2 days)</option>
               </select>

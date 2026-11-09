@@ -169,3 +169,4 @@ export const InboxCard = ({ requests, onApprove, onReject }) => {
     </div>
   );
 };
+
