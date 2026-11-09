@@ -55,9 +55,9 @@ export const Dashboard = () => {
           <BirthdaysCard />
         </div>
 
-        {/* ROW 1: Col 3 -> Working Remotely */}
+        {/* ROW 1: Col 3 -> Celebrating Work Anniversary */}
         <div className="w-full lg:col-start-3 lg:row-start-1 flex flex-col">
-          <WorkingRemotelyWidget />
+          <WorkAnniversariesCard />
         </div>
 
         {/* ROW 2 & 3: Col 1 -> Today's Leaves (Spans 2 Rows alongside Anniversary & Holidays) */}
@@ -65,9 +65,9 @@ export const Dashboard = () => {
           <OnLeaveTodayWidget />
         </div>
 
-        {/* ROW 2: Col 2 -> Celebrating Work Anniversary */}
+        {/* ROW 2: Col 2 -> Working Remotely */}
         <div className="w-full lg:col-start-2 lg:row-start-2 flex flex-col">
-          <WorkAnniversariesCard />
+          <WorkingRemotelyWidget />
         </div>
 
         {/* ROW 2: Col 3 -> Check-in / Check-out (Admin Roster List View) */}
