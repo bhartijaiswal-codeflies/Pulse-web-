@@ -3,7 +3,7 @@ import { OnLeaveTodayWidget } from '../components/dashboard/OnLeaveTodayWidget';
 import { CheckInsCard } from '../components/dashboard/CheckInsCard';
 import { BirthdaysCard } from '../components/dashboard/BirthdaysCard';
 import { WorkAnniversariesCard } from '../components/dashboard/WorkAnniversariesCard';
-import { HolidaysSliderCard } from '../components/dashboard/HolidaysSliderCard';
+import { Holidays3CardsView } from '../components/dashboard/Holidays3CardsView';
 import { WorkingRemotelyWidget } from '../components/dashboard/WorkingRemotelyWidget';
 import { InboxLeaveRequestsCard } from '../components/dashboard/InboxLeaveRequestsCard';
 import { employeeService } from '../services/employeeService';
@@ -39,36 +39,45 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* 3-Column Dashboard Grid: No separate row for holidays */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full">
-        {/* COLUMN 1 */}
-        <div className="flex flex-col space-y-6 w-full">
-          {/* Inbox leave requests (Above Today's Leaves) */}
+      {/* 3-Column Grid: Upcoming Holidays in 2 columns using previous 3 cards view */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full">
+        {/* ROW 1: Col 1 -> Inbox leave requests (Above Today's Leaves) */}
+        <div className="w-full lg:col-start-1 lg:row-start-1 flex flex-col">
           <InboxLeaveRequestsCard
             requests={leaveRequests}
             onApprove={handleApproveLeave}
             onReject={handleRejectLeave}
           />
-          {/* Today's Leaves */}
+        </div>
+
+        {/* ROW 1: Col 2 -> Celebrating Birthday */}
+        <div className="w-full lg:col-start-2 lg:row-start-1 flex flex-col">
+          <BirthdaysCard />
+        </div>
+
+        {/* ROW 1: Col 3 -> Working Remotely */}
+        <div className="w-full lg:col-start-3 lg:row-start-1 flex flex-col">
+          <WorkingRemotelyWidget />
+        </div>
+
+        {/* ROW 2 & 3: Col 1 -> Today's Leaves (Spans 2 Rows alongside Anniversary & Holidays) */}
+        <div className="w-full lg:col-start-1 lg:row-start-2 lg:row-span-2 flex flex-col">
           <OnLeaveTodayWidget />
         </div>
 
-        {/* COLUMN 2 */}
-        <div className="flex flex-col space-y-6 w-full">
-          {/* Celebrating Birthday */}
-          <BirthdaysCard />
-          {/* Celebrating Work Anniversary */}
+        {/* ROW 2: Col 2 -> Celebrating Work Anniversary */}
+        <div className="w-full lg:col-start-2 lg:row-start-2 flex flex-col">
           <WorkAnniversariesCard />
-          {/* Upcoming Holidays (Inside Column 2 Slider - Not in a new row) */}
-          <HolidaysSliderCard />
         </div>
 
-        {/* COLUMN 3 */}
-        <div className="flex flex-col space-y-6 w-full">
-          {/* Working Remotely */}
-          <WorkingRemotelyWidget />
-          {/* Check-in / Check-out (Admin Roster List View) */}
+        {/* ROW 2: Col 3 -> Check-in / Check-out (Admin Roster List View) */}
+        <div className="w-full lg:col-start-3 lg:row-start-2 flex flex-col">
           <CheckInsCard />
+        </div>
+
+        {/* ROW 3: Col 2 & 3 -> Upcoming Holidays (Spans 2 Columns with Previous 3 Cards View) */}
+        <div className="w-full lg:col-start-2 lg:col-span-2 lg:row-start-3 flex flex-col">
+          <Holidays3CardsView />
         </div>
       </div>
     </div>
