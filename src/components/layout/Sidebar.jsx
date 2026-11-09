@@ -38,11 +38,11 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="hidden md:flex flex-col items-center w-[68px] bg-[#060A18] border-r border-[#131B33] py-3.5 select-none z-30 flex-shrink-0 h-screen justify-between">
+    <aside className="hidden md:flex flex-col items-center w-[68px] h-screen sticky top-0 bg-[#060A18] border-r border-[#131B33] py-4 select-none z-30 flex-shrink-0 justify-between overflow-hidden">
       {/* Top Section: Logo & Menu Tiles */}
-      <div className="flex flex-col items-center w-full space-y-3">
-        {/* Brand Circular Glowing Logo matching Reference Image */}
-        <div className="relative group cursor-pointer mb-1">
+      <div className="flex flex-col items-center w-full flex-1 overflow-hidden">
+        {/* Brand Circular Glowing Logo */}
+        <div className="relative group cursor-pointer mb-3 flex-shrink-0">
           <div className="w-[38px] h-[38px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white ring-2 ring-[#3B82F6]/70 shadow-[0_0_15px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105">
             <svg
               className="w-[18px] h-[18px] text-white stroke-[2.2]"
@@ -56,13 +56,13 @@ export const Sidebar = () => {
             </svg>
           </div>
           {/* Tooltip */}
-          <div className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 px-2 py-1 bg-[#0D152D] text-white text-[11px] font-semibold rounded-md shadow-xl border border-[#1A2544] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
+          <div className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-[#0D152D] text-white text-[11px] font-semibold rounded-md shadow-xl border border-[#1A2544] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
             Pulse HR
           </div>
         </div>
 
-        {/* Navigation Items (Stacked Icon + Small Label) */}
-        <nav className="flex flex-col items-center space-y-1 w-full px-1.5 overflow-y-auto max-h-[calc(100vh-140px)] scrollbar-none">
+        {/* Navigation Items (Fixed Height, Gap of 8px, Smooth Hidden Scrollbar) */}
+        <nav className="flex flex-col items-center space-y-2 w-full px-1.5 overflow-y-auto no-scrollbar flex-1 py-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -70,7 +70,7 @@ export const Sidebar = () => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `group relative w-[54px] h-[48px] flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${
+                  `group relative w-[54px] h-[48px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all duration-150 ${
                     isActive
                       ? 'bg-[#0D1938] border border-blue-500/40 text-white shadow-[0_0_12px_rgba(37,99,235,0.25)]'
                       : 'text-[#68758D] hover:text-white hover:bg-[#0D152D]'
@@ -116,7 +116,7 @@ export const Sidebar = () => {
                     </span>
 
                     {/* Hover Tooltip */}
-                    <div className="absolute left-full ml-2.5 px-2 py-1 bg-[#0D152D] text-white text-[11px] font-semibold rounded-md shadow-xl border border-[#1A2544] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
+                    <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#0D152D] text-white text-[11px] font-semibold rounded-md shadow-xl border border-[#1A2544] opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
                       {item.name}
                     </div>
                   </>
@@ -128,7 +128,7 @@ export const Sidebar = () => {
       </div>
 
       {/* Bottom Section: Logout Tile */}
-      <div className="w-full px-1.5 pt-1.5 border-t border-[#131B33]">
+      <div className="w-full px-1.5 pt-2 border-t border-[#131B33] flex-shrink-0 mt-1">
         <button
           onClick={handleLogout}
           className="group relative w-[54px] h-[46px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#68758D] hover:text-rose-400 hover:bg-[#1A1222] transition-all duration-150"
@@ -138,7 +138,7 @@ export const Sidebar = () => {
           <span className="text-[9.5px] font-medium leading-none">Logout</span>
 
           {/* Hover Tooltip */}
-          <div className="absolute left-full ml-2.5 px-2 py-1 bg-[#1A1222] text-rose-300 text-[11px] font-semibold rounded-md shadow-xl border border-rose-900/50 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
+          <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#1A1222] text-rose-300 text-[11px] font-semibold rounded-md shadow-xl border border-rose-900/50 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap">
             Logout
           </div>
         </button>

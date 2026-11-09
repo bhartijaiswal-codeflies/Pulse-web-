@@ -34,9 +34,9 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
       />
 
       {/* Drawer */}
-      <div className="relative flex flex-col w-[76px] bg-[#060A18] text-[#8292AD] h-full shadow-2xl z-10 animate-fade-in border-r border-[#131B33] items-center py-3.5 justify-between">
+      <div className="relative flex flex-col w-[76px] bg-[#060A18] text-[#8292AD] h-full shadow-2xl z-10 animate-fade-in border-r border-[#131B33] items-center py-4 justify-between overflow-hidden">
         {/* Top Header */}
-        <div className="flex flex-col items-center gap-2.5 w-full">
+        <div className="flex flex-col items-center gap-2.5 w-full flex-shrink-0">
           <button
             onClick={onClose}
             className="self-end mr-2 p-1 text-[#68758D] hover:text-white rounded-lg hover:bg-[#121A33] transition-colors"
@@ -58,8 +58,8 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Links */}
-        <div className="flex-1 py-3 flex flex-col items-center space-y-1 w-full px-1.5 overflow-y-auto scrollbar-none">
+        {/* Links with 8px gap and hidden scrollbar */}
+        <div className="flex-1 py-3 flex flex-col items-center space-y-2 w-full px-1.5 overflow-y-auto no-scrollbar">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -67,7 +67,7 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
                 key={item.name}
                 to={item.path}
                 className={({ isActive }) =>
-                  `relative w-[54px] h-[48px] flex flex-col items-center justify-center rounded-xl transition-all ${
+                  `relative w-[54px] h-[48px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all ${
                     isActive
                       ? 'bg-[#0D1938] border border-blue-500/40 text-white shadow-[0_0_12px_rgba(37,99,235,0.25)]'
                       : 'text-[#68758D] hover:text-white hover:bg-[#0D152D]'
@@ -110,7 +110,7 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
         </div>
 
         {/* Logout */}
-        <div className="w-full px-1.5 pt-1.5 border-t border-[#131B33]">
+        <div className="w-full px-1.5 pt-2 border-t border-[#131B33] flex-shrink-0">
           <button
             onClick={handleLogout}
             className="w-[54px] h-[46px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#68758D] hover:text-rose-400 hover:bg-[#1A1222] transition-colors"
