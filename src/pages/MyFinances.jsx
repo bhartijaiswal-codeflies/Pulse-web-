@@ -176,6 +176,21 @@ export const MyFinances = () => {
     },
   ];
 
+  const financeTabs = [
+    {
+      id: 'payslips',
+      label: 'Monthly Payslips',
+      count: finances.payslips.length,
+      icon: <FileText className="w-3 h-3 text-[#2563EB]" />,
+    },
+    {
+      id: 'expenses',
+      label: 'Expense Claims',
+      count: finances.expenses.length,
+      icon: <Receipt className="w-3 h-3 text-purple-600" />,
+    },
+  ];
+
   return (
     <div className="space-y-6 animate-fade-in pb-12">
       {/* Header */}
@@ -235,38 +250,16 @@ export const MyFinances = () => {
         />
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center justify-between border-b border-[#E5EAF2] pb-3">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveTab('payslips')}
-            className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-              activeTab === 'payslips'
-                ? 'bg-[#2563EB] text-white shadow-sm'
-                : 'text-[#8292AD] hover:text-[#172033] hover:bg-white'
-            }`}
-          >
-            Monthly Payslips ({finances.payslips.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('expenses')}
-            className={`px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition-all ${
-              activeTab === 'expenses'
-                ? 'bg-[#2563EB] text-white shadow-sm'
-                : 'text-[#8292AD] hover:text-[#172033] hover:bg-white'
-            }`}
-          >
-            Expense Claims ({finances.expenses.length})
-          </button>
-        </div>
-      </div>
-
-      {/* Table Content */}
+      {/* Table Content with Tab Pills & Pagination matching Reference Image */}
       {activeTab === 'payslips' ? (
         <DataTable
           columns={payslipColumns}
           data={finances.payslips}
           pageSize={6}
+          tabs={financeTabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          entityName="statements"
           actions={(row) => (
             <div className="inline-flex items-center justify-end gap-1.5">
               <button
@@ -284,6 +277,10 @@ export const MyFinances = () => {
           columns={expenseColumns}
           data={finances.expenses}
           pageSize={6}
+          tabs={financeTabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          entityName="claims"
           actions={(row) => (
             <div className="inline-flex items-center justify-end gap-1.5">
               <button

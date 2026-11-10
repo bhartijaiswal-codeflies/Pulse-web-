@@ -280,19 +280,7 @@ export const Users = () => {
         />
       </div>
 
-      {/* Search Header */}
-      <div className="flex justify-end">
-        <div className="w-full sm:w-72">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            placeholder="Search by name, ID, title..."
-          />
-        </div>
-      </div>
-
-      {/* Table with Tab Pills & Circular Action Buttons matching Reference Image */}
+      {/* Table with Tab Pills, Search & Circular Action Buttons matching Reference Image */}
       <DataTable
         columns={columns}
         data={filteredEmployees}
@@ -301,6 +289,15 @@ export const Users = () => {
         activeTab={departmentFilter}
         onTabChange={setDepartmentFilter}
         filterInfo={`Filtered: ${filteredEmployees.length} Shown of ${employees.length}`}
+        entityName="employees"
+        searchBar={
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            placeholder="Search by name, ID, title..."
+          />
+        }
         emptyMessage="No employees found"
         emptySubtext="Try selecting another department or clearing search query."
         actions={(row) => (

@@ -74,14 +74,25 @@ export const Attendance = () => {
 
   const attendanceTabs = [
     { id: 'All', label: 'All Punches', count: records.length },
-    { id: 'On Time', label: '• On Time', count: presentCount },
+    {
+      id: 'On Time',
+      label: 'On Time',
+      count: presentCount,
+      icon: <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />,
+    },
     {
       id: 'Late',
       label: 'Late Arrivals',
       count: lateCount,
+      icon: <Clock className="w-3 h-3 text-rose-500" />,
       badgeColor: 'bg-rose-50 text-rose-600 border border-rose-200',
     },
-    { id: 'On Leave', label: 'On Leave', count: onLeaveCount },
+    {
+      id: 'On Leave',
+      label: 'On Leave',
+      count: onLeaveCount,
+      icon: <span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />,
+    },
   ];
 
   const columns = [
@@ -178,21 +189,19 @@ export const Attendance = () => {
             <div className="inline-flex rounded-xl p-1 bg-white border border-[#E5EAF2]">
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                  viewMode === 'table'
-                    ? 'bg-[#2563EB] text-white shadow-xs'
-                    : 'text-[#8292AD] hover:text-[#172033]'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${viewMode === 'table'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'text-[#8292AD] hover:text-[#172033]'
+                  }`}
               >
                 Table View
               </button>
               <button
                 onClick={() => setViewMode('calendar')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                  viewMode === 'calendar'
-                    ? 'bg-[#2563EB] text-white shadow-xs'
-                    : 'text-[#8292AD] hover:text-[#172033]'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${viewMode === 'calendar'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'text-[#8292AD] hover:text-[#172033]'
+                  }`}
               >
                 Calendar View
               </button>
@@ -250,50 +259,44 @@ export const Attendance = () => {
       </div>
 
       {viewMode === 'table' ? (
-        <div className="space-y-4">
-          {/* Top Search bar */}
-          <div className="flex justify-end">
-            <div className="w-full sm:w-72">
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onClear={() => setSearchQuery('')}
-                placeholder="Search by name, department, ID..."
-              />
+        <DataTable
+          columns={columns}
+          data={filteredRecords}
+          pageSize={6}
+          tabs={attendanceTabs}
+          activeTab={statusFilter}
+          onTabChange={setStatusFilter}
+          filterInfo={`Filtered: ${filteredRecords.length} Shown of ${records.length}`}
+          entityName="records"
+          searchBar={
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onClear={() => setSearchQuery('')}
+              placeholder="Search by name, dept, ID..."
+            />
+          }
+          actions={(row) => (
+            <div className="inline-flex items-center justify-end gap-1.5">
+              <button
+                onClick={() => handleVerifyShift(row)}
+                title="Verify Punch"
+                className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
+              >
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+              <button
+                onClick={() => handleFlagShift(row)}
+                title="Flag Shift"
+                className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
+              >
+                <X className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
             </div>
-          </div>
-
-          {/* Table with Tab Pills & Circular Action Buttons */}
-          <DataTable
-            columns={columns}
-            data={filteredRecords}
-            pageSize={6}
-            tabs={attendanceTabs}
-            activeTab={statusFilter}
-            onTabChange={setStatusFilter}
-            filterInfo={`Filtered: ${filteredRecords.length} Shown of ${records.length}`}
-            actions={(row) => (
-              <div className="inline-flex items-center justify-end gap-1.5">
-                <button
-                  onClick={() => handleVerifyShift(row)}
-                  title="Verify Punch"
-                  className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
-                >
-                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                </button>
-                <button
-                  onClick={() => handleFlagShift(row)}
-                  title="Flag Shift"
-                  className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
-                >
-                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
-                </button>
-              </div>
-            )}
-            emptyMessage="No attendance records found"
-            emptySubtext="Try selecting another filter or adjusting your search term."
-          />
-        </div>
+          )}
+          emptyMessage="No attendance records found"
+          emptySubtext="Try selecting another filter or adjusting your search term."
+        />
       ) : (
         /* Monthly Attendance Calendar View */
         <div className="bg-white border border-[#E5EAF2] rounded-2xl p-6 shadow-card">
@@ -333,7 +336,7 @@ export const Attendance = () => {
                       : isWeekend
                       ? 'bg-[#F7F9FC] border-transparent text-[#8292AD]'
                       : 'bg-white border-[#E5EAF2] hover:border-blue-200'
-                  }`}
+                    }`}
                 >
                   <span className={`text-xs ${isToday ? 'text-[#2563EB]' : 'text-[#172033]'}`}>
                     {day}

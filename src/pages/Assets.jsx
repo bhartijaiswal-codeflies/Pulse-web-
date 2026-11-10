@@ -170,13 +170,33 @@ export const Assets = () => {
     return matchesSearch && matchesCat;
   });
 
-  const categories = ['All', 'Laptops', 'Monitors', 'Mobile Devices', 'Peripherals'];
-
-  const assetTabs = categories.map((cat) => ({
-    id: cat,
-    label: cat === 'All' ? 'All Hardware' : cat,
-    count: cat === 'All' ? assets.length : assets.filter((a) => a.category.toLowerCase() === cat.toLowerCase()).length,
-  }));
+  const assetTabs = [
+    { id: 'All', label: 'All Hardware', count: assets.length },
+    {
+      id: 'Laptops',
+      label: 'Laptops',
+      count: assets.filter((a) => a.category.toLowerCase() === 'laptops').length,
+      icon: <Laptop className="w-3 h-3 text-[#2563EB]" />,
+    },
+    {
+      id: 'Monitors',
+      label: 'Monitors',
+      count: assets.filter((a) => a.category.toLowerCase() === 'monitors').length,
+      icon: <Monitor className="w-3 h-3 text-[#64748B]" />,
+    },
+    {
+      id: 'Mobile Devices',
+      label: 'Mobile Devices',
+      count: assets.filter((a) => a.category.toLowerCase() === 'mobile devices').length,
+      icon: <Smartphone className="w-3 h-3 text-emerald-600" />,
+    },
+    {
+      id: 'Peripherals',
+      label: 'Peripherals',
+      count: assets.filter((a) => a.category.toLowerCase() === 'peripherals').length,
+      icon: <Headphones className="w-3 h-3 text-purple-600" />,
+    },
+  ];
 
   const columns = [
     {
@@ -368,19 +388,7 @@ export const Assets = () => {
         />
       </div>
 
-      {/* Search Header */}
-      <div className="flex justify-end">
-        <div className="w-full sm:w-72">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            placeholder="Search tag, model, serial..."
-          />
-        </div>
-      </div>
-
-      {/* Table with Tab Pills & Circular Action Buttons matching Reference Image */}
+      {/* Table with Tab Pills, Search & Circular Action Buttons matching Reference Image */}
       <DataTable
         columns={columns}
         data={filteredAssets}
@@ -389,6 +397,15 @@ export const Assets = () => {
         activeTab={categoryFilter}
         onTabChange={setCategoryFilter}
         filterInfo={`Filtered: ${filteredAssets.length} Shown of ${assets.length}`}
+        entityName="devices"
+        searchBar={
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            placeholder="Search tag, model, serial..."
+          />
+        }
         emptyMessage="No assets match your search"
         emptySubtext="Try selecting another category or clearing search query."
         actions={(row) => (

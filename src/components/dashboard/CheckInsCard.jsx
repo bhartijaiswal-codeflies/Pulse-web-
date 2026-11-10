@@ -150,10 +150,10 @@ export const CheckInsCard = () => {
                 >
                   <span>{t.label}</span>
                   <span
-                    className={`text-[9.5px] font-bold px-1.5 py-0.1 rounded-full ${
+                    className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded-full ml-0.5 ${
                       isActive
-                        ? 'bg-white/25 text-white'
-                        : t.badgeColor || 'bg-slate-100 text-slate-600'
+                        ? 'bg-[#1D4ED8] text-white'
+                        : t.badgeColor || 'bg-[#F1F5F9] text-[#64748B]'
                     }`}
                   >
                     {t.count}

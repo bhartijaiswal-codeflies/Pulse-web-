@@ -113,11 +113,36 @@ export const Candidates = () => {
 
   const candidateTabs = [
     { id: 'All', label: 'All Pipeline', count: candidates.length },
-    { id: 'Under Review', label: 'Under Review', count: candidates.filter((c) => c.stage === 'Under Review').length },
-    { id: 'Interview Scheduled', label: 'Interview Scheduled', count: candidates.filter((c) => c.stage === 'Interview Scheduled').length },
-    { id: 'Shortlisted', label: 'Shortlisted', count: candidates.filter((c) => c.stage === 'Shortlisted').length },
-    { id: 'Offer Extended', label: 'Offer Extended', count: candidates.filter((c) => c.stage === 'Offer Extended').length, badgeColor: 'bg-emerald-50 text-emerald-700' },
-    { id: 'Hired', label: 'Hired', count: candidates.filter((c) => c.stage === 'Hired').length, badgeColor: 'bg-blue-50 text-blue-700' },
+    {
+      id: 'Under Review',
+      label: 'Under Review',
+      count: candidates.filter((c) => c.stage === 'Under Review').length,
+      icon: <Clock className="w-3 h-3 text-[#64748B]" />,
+    },
+    {
+      id: 'Interview Scheduled',
+      label: 'Interview Scheduled',
+      count: candidates.filter((c) => c.stage === 'Interview Scheduled').length,
+      icon: <Calendar className="w-3 h-3 text-[#2563EB]" />,
+    },
+    {
+      id: 'Shortlisted',
+      label: 'Shortlisted',
+      count: candidates.filter((c) => c.stage === 'Shortlisted').length,
+      icon: <Star className="w-3 h-3 fill-amber-400 text-amber-400" />,
+    },
+    {
+      id: 'Offer Extended',
+      label: 'Offer Extended',
+      count: candidates.filter((c) => c.stage === 'Offer Extended').length,
+      badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+    },
+    {
+      id: 'Hired',
+      label: 'Hired',
+      count: candidates.filter((c) => c.stage === 'Hired').length,
+      badgeColor: 'bg-blue-50 text-blue-700 border border-blue-200',
+    },
   ];
 
   const columns = [
@@ -240,19 +265,7 @@ export const Candidates = () => {
         />
       </div>
 
-      {/* Search Header */}
-      <div className="flex justify-end">
-        <div className="w-full sm:w-72">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            placeholder="Search candidates, roles, emails..."
-          />
-        </div>
-      </div>
-
-      {/* Table with Tab Pills & Circular Action Buttons matching Reference Image */}
+      {/* Table with Tab Pills, Integrated Search & Circular Action Buttons */}
       <DataTable
         columns={columns}
         data={filteredCandidates}
@@ -261,6 +274,15 @@ export const Candidates = () => {
         activeTab={stageFilter}
         onTabChange={setStageFilter}
         filterInfo={`Filtered: ${filteredCandidates.length} Shown of ${candidates.length}`}
+        entityName="candidates"
+        searchBar={
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            placeholder="Search candidates, roles..."
+          />
+        }
         emptyMessage="No candidates match your criteria"
         emptySubtext="Try filtering by another stage or search query."
         actions={(row) => (
