@@ -10,13 +10,11 @@ import {
   Calendar,
   User,
   LogOut,
-  Flame,
 } from 'lucide-react';
 import { useToast } from '../../context/NotificationContext';
 
 export const navigationItems = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { name: 'Leads', path: '/leads', icon: Flame, badge: '142' },
   { name: 'Attendance', path: '/attendance', icon: Clock, badge: '92%' },
   { name: 'Candidates', path: '/candidates', icon: Briefcase, badge: '5' },
   { name: 'Finances', path: '/finances', icon: CreditCard },

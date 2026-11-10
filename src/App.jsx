@@ -10,7 +10,6 @@ import { Users } from './pages/Users';
 import { Assets } from './pages/Assets';
 import { Calendar } from './pages/Calendar';
 import { Profile } from './pages/Profile';
-import { Leads } from './pages/Leads';
 
 export default function App() {
   return (
@@ -19,7 +18,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="leads" element={<Leads />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="candidates" element={<Candidates />} />
             <Route path="finances" element={<MyFinances />} />

@@ -6,11 +6,9 @@ import {
   X,
   RotateCw,
   MoreHorizontal,
-  Skull,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../common/StatusBadge';
-import { ActionDropdown } from '../common/ActionDropdown';
 import { useToast } from '../../context/NotificationContext';
 
 export const CheckInsCard = () => {
@@ -247,43 +245,34 @@ export const CheckInsCard = () => {
                     </span>
                   </td>
 
-                  {/* Options Pill Badge with Dropdown Indicator */}
+                  {/* Options Pill Badge (Clean Static Badge) */}
                   <td className="py-2.5 px-2 align-middle text-center whitespace-nowrap">
                     <StatusBadge
                       status={p.status}
                       size="xs"
-                      showChevron={true}
-                      onStatusChange={(newStatus) =>
-                        handleStatusChange(p.id, newStatus)
-                      }
+                      showChevron={false}
+                      interactive={false}
                     />
                   </td>
 
-                  {/* Circular Action Dropdown matching Reference Image 1 & 3 */}
+                  {/* Circular Action Buttons */}
                   <td className="py-2.5 px-2 align-middle text-right whitespace-nowrap">
-                    <ActionDropdown
-                      currentAction={p.action || 'qualified'}
-                      onActionChange={(newAction) =>
-                        handleActionChange(p.id, newAction)
-                      }
-                      actions={[
-                        {
-                          id: 'qualified',
-                          label: 'Qualified / Verified',
-                          icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
-                        },
-                        {
-                          id: 'dead',
-                          label: 'Dead / Flag Issue',
-                          icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
-                        },
-                        {
-                          id: 'not-qualified',
-                          label: 'Not Qualified / Reject',
-                          icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
-                        },
-                      ]}
-                    />
+                    <div className="inline-flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => handleApprovePunch(p)}
+                        title="Verify Punch"
+                        className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs cursor-pointer"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+                      <button
+                        onClick={() => handleFlagPunch(p)}
+                        title="Flag Issue"
+                        className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

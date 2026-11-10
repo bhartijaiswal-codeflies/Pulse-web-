@@ -254,12 +254,12 @@ export const Attendance = () => {
         }
       />
 
-      {/* Row: Stats Cards matching Reference Image */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Row: Stats Cards matching Reference Image with compact spacing */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatsCard
           title="TOTAL PRESENT"
           value={presentCount}
-          subtext="On-time shift arrival"
+          subtext={<span className="text-emerald-600 font-semibold">+8 today</span>}
           badgeText="92% Rate"
           badgeType="success"
           icon={UserCheck}
@@ -268,7 +268,7 @@ export const Attendance = () => {
         <StatsCard
           title="LATE ARRIVALS"
           value={lateCount}
-          subtext="After 9:00 AM cutoff"
+          subtext={<span className="text-rose-600 font-semibold">1 overdue</span>}
           badgeText="ACTION NEEDED"
           badgeType="danger"
           icon={AlertTriangle}
@@ -277,7 +277,7 @@ export const Attendance = () => {
         <StatsCard
           title="ON LEAVE TODAY"
           value={onLeaveCount}
-          subtext="Casual & Sick leaves"
+          subtext="Casual & Sick"
           badgeText="Scheduled"
           badgeType="default"
           icon={Clock}
@@ -285,8 +285,8 @@ export const Attendance = () => {
         />
         <StatsCard
           title="AVG WORK HOURS"
-          value="8.4 hrs"
-          subtext="⚡ top 5% compliance"
+          value="8.4h"
+          subtext={<span className="text-emerald-600 font-semibold">⚡ top 5% rep SLA</span>}
           badgeText="+0.2 hrs"
           badgeType="success"
           icon={CalendarIcon}

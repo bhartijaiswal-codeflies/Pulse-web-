@@ -1,5 +1,16 @@
 import React from 'react';
 
+const getValueColorClass = (iconBg, customColor) => {
+  if (customColor) return customColor;
+  if (!iconBg) return 'text-[#172033]';
+  if (iconBg.includes('rose') || iconBg.includes('red')) return 'text-[#DC2626]';
+  if (iconBg.includes('emerald') || iconBg.includes('green')) return 'text-[#059669]';
+  if (iconBg.includes('amber') || iconBg.includes('orange') || iconBg.includes('yellow')) return 'text-[#D97706]';
+  if (iconBg.includes('blue') || iconBg.includes('[#2563EB]')) return 'text-[#2563EB]';
+  if (iconBg.includes('purple') || iconBg.includes('violet')) return 'text-[#7C3AED]';
+  return 'text-[#172033]';
+};
+
 export const StatsCard = ({
   title,
   value,
@@ -8,48 +19,57 @@ export const StatsCard = ({
   badgeType = 'default',
   icon: Icon,
   iconBg = 'bg-blue-50 text-[#2563EB]',
+  valueColor,
+  className = '',
 }) => {
+  const numberColor = getValueColorClass(iconBg, valueColor);
+
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle hover:border-blue-200 transition-all group flex flex-col justify-between">
-      <div className="flex items-start justify-between">
-        <div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#8292AD]">
+    <div
+      className={`bg-white border border-[#E5EAF2] rounded-2xl p-3.5 sm:p-4 shadow-card hover:border-blue-200 hover:shadow-subtle transition-all group flex flex-col justify-between ${className}`}
+    >
+      {/* 1st Row: Title on left side, Icon on right side */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+          <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#8292AD] truncate">
             {title}
           </span>
           {badgeText && (
             <span
-              className={`ml-2 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+              className={`text-[9.5px] font-bold px-1.5 py-0.5 rounded-md leading-none whitespace-nowrap ${
                 badgeType === 'danger'
-                  ? 'bg-rose-50 text-rose-600 border border-rose-100'
+                  ? 'bg-rose-50 text-rose-600 border border-rose-200'
                   : badgeType === 'success'
-                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                  : 'bg-blue-50 text-[#2563EB] border border-blue-100'
+                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                  : 'bg-blue-50 text-[#2563EB] border border-blue-200'
               }`}
             >
               {badgeText}
             </span>
           )}
         </div>
+
+        {/* Icon container on right side */}
         <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0 ${iconBg}`}
+          className={`w-9 h-9 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 flex-shrink-0 shadow-2xs ${iconBg}`}
         >
-          {Icon && <Icon className="w-5 h-5 stroke-[2]" />}
+          {Icon && <Icon className="w-4 h-4 stroke-[2.2]" />}
         </div>
       </div>
 
-      <div className="mt-4">
-        <div className="flex items-baseline gap-2">
-          <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#172033]">
-            {value}
-          </span>
-        </div>
+      {/* 2nd Row: Below the title - Number in matching color and side the text */}
+      <div className="mt-1.5 flex items-baseline gap-2 flex-wrap">
+        <span
+          className={`text-2xl font-black tracking-tight leading-tight ${numberColor}`}
+        >
+          {value}
+        </span>
         {subtext && (
-          <p className="text-xs text-[#8292AD] mt-1 flex items-center gap-1">
+          <span className="text-xs font-medium text-[#8292AD] flex items-center gap-1 leading-tight">
             {subtext}
-          </p>
+          </span>
         )}
       </div>
     </div>
   );
 };
-

@@ -157,11 +157,15 @@ export const StatusBadge = ({
   className = '',
   options,
   onStatusChange,
+  interactive,
 }) => {
   const [currentStatus, setCurrentStatus] = useState(initialStatus);
   const [isOpen, setIsOpen] = useState(false);
   const [openUpward, setOpenUpward] = useState(false);
   const dropdownRef = useRef(null);
+
+  const isDropdownEnabled =
+    interactive !== false && (Boolean(onStatusChange) || showChevron);
 
   // Sync internal state when prop changes
   useEffect(() => {
@@ -172,6 +176,7 @@ export const StatusBadge = ({
 
   // Close dropdown on click outside
   useEffect(() => {
+    if (!isDropdownEnabled) return;
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsOpen(false);
@@ -183,7 +188,7 @@ export const StatusBadge = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, isDropdownEnabled]);
 
   const styles = getStatusColorClasses(currentStatus);
   const defaultIcon = getStatusIcon(currentStatus);
@@ -194,6 +199,21 @@ export const StatusBadge = ({
       : size === 'md'
       ? 'text-xs px-3.5 py-1.5 gap-1.5'
       : 'text-[11px] px-2.5 py-1 gap-1.5';
+
+  if (!isDropdownEnabled) {
+    return (
+      <span
+        className={`inline-flex items-center font-semibold rounded-full border ${styles} ${sizeClasses} whitespace-nowrap select-none ${className}`}
+      >
+        {icon ? (
+          <span className="flex-shrink-0">{icon}</span>
+        ) : (
+          defaultIcon && <span className="flex-shrink-0">{defaultIcon}</span>
+        )}
+        <span className="leading-tight">{currentStatus}</span>
+      </span>
+    );
+  }
 
   const handleToggle = (e) => {
     e.stopPropagation();
