@@ -21,6 +21,9 @@ import {
   Trash2,
   RotateCcw,
   RotateCw,
+  ChevronDown,
+  ChevronUp,
+  XCircle,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -63,6 +66,25 @@ export const Attendance = () => {
   const [deptFilter, setDeptFilter] = useState('All');
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
   const [selectedRecord, setSelectedRecord] = useState(null);
+
+  // Punches Dropdown Popover
+  const [showPunchDropdown, setShowPunchDropdown] = useState(false);
+  const punchDropdownRef = useRef(null);
+
+  // Close punch dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (punchDropdownRef.current && !punchDropdownRef.current.contains(e.target)) {
+        setShowPunchDropdown(false);
+      }
+    };
+    if (showPunchDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPunchDropdown]);
 
   // Create Attendance Modal States (matching media_1794294290231_6c5fd112.png)
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -326,6 +348,14 @@ export const Attendance = () => {
     deptFilter !== 'All' ||
     statusFilter !== 'All';
 
+  const handleApplyFilters = () => {
+    addToast({
+      title: 'Filters Applied',
+      message: `Showing ${filteredRecords.length} of ${records.length} attendance records.`,
+      type: 'info',
+    });
+  };
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setPeriodFilter('all');
@@ -333,6 +363,11 @@ export const Attendance = () => {
     setToDate('');
     setDeptFilter('All');
     setStatusFilter('All');
+    addToast({
+      title: 'Filters Cleared',
+      message: 'All filter criteria have been reset.',
+      type: 'info',
+    });
   };
 
   // Calculate live counts for the 4 clean cards
@@ -479,28 +514,118 @@ export const Attendance = () => {
     },
   ];
 
+  const punchStatusConfig = {
+    All: {
+      label: 'All Punches',
+      count: records.length,
+      icon: <UserCheck className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.2]" />,
+      pillClass: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE] hover:bg-blue-100/70',
+      badgeClass: 'bg-[#DBEAFE] text-[#1D4ED8]',
+    },
+    Present: {
+      label: 'Present',
+      count: presentCount,
+      icon: <Check className="w-3.5 h-3.5 text-[#059669] stroke-[2.5]" />,
+      pillClass: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0] hover:bg-emerald-100/70',
+      badgeClass: 'bg-[#D1FAE5] text-[#047857]',
+    },
+    Absent: {
+      label: 'Absent',
+      count: absentCount,
+      icon: <XCircle className="w-3.5 h-3.5 text-[#DC2626] stroke-[2]" />,
+      pillClass: 'bg-[#FEF2F2] text-[#DC2626] border-[#FECACA] hover:bg-rose-100/70',
+      badgeClass: 'bg-[#FEE2E2] text-[#B91C1C]',
+    },
+    'First Half Leave': {
+      label: 'First Half Leave',
+      count: firstHalfCount,
+      icon: <Clock className="w-3.5 h-3.5 text-[#D97706] stroke-[2.2]" />,
+      pillClass: 'bg-[#FFFBEB] text-[#D97706] border-[#FDE68A] hover:bg-amber-100/70',
+      badgeClass: 'bg-[#FEF3C7] text-[#B45309]',
+    },
+    'Second Half Leave': {
+      label: 'Second Half Leave',
+      count: secondHalfCount,
+      icon: <Clock className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.2]" />,
+      pillClass: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE] hover:bg-blue-100/70',
+      badgeClass: 'bg-[#DBEAFE] text-[#1D4ED8]',
+    },
+    'Half Day Marked': {
+      label: 'Half Day Marked',
+      count: halfDayCount,
+      icon: <AlertTriangle className="w-3.5 h-3.5 text-[#7C3AED] stroke-[2.2]" />,
+      pillClass: 'bg-[#FAF5FF] text-[#7C3AED] border-[#E9D5FF] hover:bg-purple-100/70',
+      badgeClass: 'bg-[#F3E8FF] text-[#6D28D9]',
+    },
+  };
+
+  const currentPunchConfig = punchStatusConfig[statusFilter] || punchStatusConfig.All;
+
   const attendanceFilterBar = (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
       {/* Left: All Filters in 1 Row */}
       <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
-        {/* 1. All Punches in 1 Dropdown */}
-        <div className="relative min-w-[170px] flex-shrink-0">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-bold rounded-xl border border-[#E5EAF2] bg-[#F8FAFC] hover:bg-white text-[#172033] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+        {/* 1. All Punches in 1 Styled Colored Pill Dropdown (matching Image 2) */}
+        <div className="relative flex-shrink-0" ref={punchDropdownRef}>
+          <button
+            type="button"
+            onClick={() => setShowPunchDropdown((prev) => !prev)}
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentPunchConfig.pillClass}`}
           >
-            <option value="All">All Punches ({records.length})</option>
-            <option value="Present">Present ({presentCount})</option>
-            <option value="Absent">Absent ({absentCount})</option>
-            <option value="First Half Leave">First Half Leave ({firstHalfCount})</option>
-            <option value="Second Half Leave">Second Half Leave ({secondHalfCount})</option>
-            <option value="Half Day Marked">Half Day Marked ({halfDayCount})</option>
-          </select>
-          <UserCheck className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
-            ▼
-          </span>
+            <span className="flex-shrink-0">{currentPunchConfig.icon}</span>
+            <span>
+              {currentPunchConfig.label} ({currentPunchConfig.count})
+            </span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                showPunchDropdown ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Punch Options Popover */}
+          {showPunchDropdown && (
+            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[220px] animate-fade-in text-left">
+              <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider border-b border-[#F1F5F9] mb-1">
+                Filter by Punch Status
+              </div>
+              {Object.entries(punchStatusConfig).map(([key, cfg]) => {
+                const isSelected = statusFilter === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(key);
+                      setShowPunchDropdown(false);
+                    }}
+                    className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#F8FAFC] font-bold'
+                        : 'hover:bg-[#F8FAFC] font-medium text-[#4E5D78]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="flex-shrink-0">{cfg.icon}</span>
+                      <span className={isSelected ? 'text-[#172033]' : ''}>
+                        {cfg.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.badgeClass}`}
+                      >
+                        {cfg.count}
+                      </span>
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.5]" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* 2. Search Employee / ID */}
@@ -525,7 +650,7 @@ export const Attendance = () => {
                 setToDate('');
               }
             }}
-            className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+            className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
           >
             <option value="all">📅 All Dates</option>
             <option value="today">Today</option>
@@ -542,23 +667,23 @@ export const Attendance = () => {
 
         {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
         {periodFilter === 'custom' && (
-          <div className="flex items-center gap-1.5 animate-fade-in bg-[#F8FAFC] p-1 rounded-xl border border-[#E5EAF2] flex-shrink-0">
-            <div className="flex items-center gap-1 text-[11px] font-semibold text-[#64748B] px-1">
-              <span>From:</span>
+          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 py-1 rounded-xl border border-[#E5EAF2] flex-shrink-0">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
+              <span className="text-[11px] text-[#8292AD]">From:</span>
               <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="px-2 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="px-2.5 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
-            <div className="flex items-center gap-1 text-[11px] font-semibold text-[#64748B] px-1">
-              <span>To:</span>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
+              <span className="text-[11px] text-[#8292AD]">To:</span>
               <input
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="px-2 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="px-2.5 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
           </div>
@@ -569,7 +694,7 @@ export const Attendance = () => {
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+            className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
           >
             {departments.map((dept) => (
               <option key={dept} value={dept}>
@@ -582,31 +707,48 @@ export const Attendance = () => {
             ▼
           </span>
         </div>
-
-        {/* 6. Reset Filters Button */}
-        {isAnyFilterActive && (
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            title="Reset all filters"
-            className="inline-flex items-center gap-1 px-2.5 py-2 text-xs font-semibold rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer whitespace-nowrap flex-shrink-0"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset</span>
-          </button>
-        )}
       </div>
 
-      {/* Right: Live Filter Counter + Refresh */}
-      <div className="text-xs text-[#8292AD] font-medium flex items-center justify-between lg:justify-end gap-2 whitespace-nowrap select-none flex-shrink-0 pt-1 lg:pt-0 border-t lg:border-t-0 border-[#F1F5F9]">
-        <span>Filtered: {filteredRecords.length} Shown of {records.length}</span>
+      {/* Right: Reset + Apply + Live Filter Counter + Refresh */}
+      <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
+        {/* Reset Button (Moved to right) */}
         <button
-          onClick={() => loadRecords()}
-          title="Refresh Records"
-          className="p-1 hover:bg-[#F8FAFC] rounded-lg transition-transform active:rotate-180 cursor-pointer"
+          type="button"
+          onClick={handleResetFilters}
+          title="Reset all filters"
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
         >
-          <RotateCw className="w-3.5 h-3.5 text-[#8292AD] hover:text-[#2563EB] transition-colors" />
+          <RotateCcw className="w-3.5 h-3.5 text-[#DC2626]" />
+          <span>Reset</span>
         </button>
+
+        {/* Apply Button (Added on right) */}
+        <button
+          type="button"
+          onClick={handleApplyFilters}
+          title="Apply current filters"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white transition-all active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer whitespace-nowrap"
+        >
+          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span>Apply</span>
+        </button>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-[#E5EAF2] hidden sm:block mx-0.5" />
+
+        {/* Live Filter Counter + Refresh */}
+        <div className="text-xs text-[#8292AD] font-medium flex items-center gap-1.5 whitespace-nowrap select-none">
+          <span>
+            Filtered: {filteredRecords.length} Shown of {records.length}
+          </span>
+          <button
+            onClick={() => loadRecords()}
+            title="Refresh Records"
+            className="p-1 hover:bg-[#F8FAFC] rounded-lg transition-transform active:rotate-180 cursor-pointer"
+          >
+            <RotateCw className="w-3.5 h-3.5 text-[#8292AD] hover:text-[#2563EB] transition-colors" />
+          </button>
+        </div>
       </div>
     </div>
   );
