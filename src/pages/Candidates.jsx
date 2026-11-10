@@ -62,6 +62,85 @@ const parseCandidateDate = (dateStr) => {
   return null;
 };
 
+const MONTH_NAMES = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+
+const MONTH_MAP = {
+  jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+  jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+};
+
+const parseDateTimeParts = (dateTimeStr) => {
+  if (!dateTimeStr) {
+    const today = new Date().toISOString().split('T')[0];
+    return { date: today, time: '11:00' };
+  }
+
+  let dateVal = '';
+  let timeVal = '11:00';
+
+  const isoMatch = dateTimeStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) {
+    dateVal = `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+  } else {
+    const dmMatch = dateTimeStr.match(/(\d{1,2})[- ]+([A-Za-z]{3})[, -]+(\d{2,4})/);
+    if (dmMatch) {
+      const day = dmMatch[1].padStart(2, '0');
+      const monthKey = dmMatch[2].toLowerCase().substring(0, 3);
+      const month = MONTH_MAP[monthKey] || '11';
+      let year = dmMatch[3];
+      if (year.length === 2) year = `20${year}`;
+      dateVal = `${year}-${month}-${day}`;
+    }
+  }
+
+  if (!dateVal) {
+    dateVal = '2026-11-14';
+  }
+
+  const timeMatch = dateTimeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM|am|pm)?/i);
+  if (timeMatch) {
+    let hours = parseInt(timeMatch[1], 10);
+    const minutes = timeMatch[2];
+    const ampm = timeMatch[3]?.toUpperCase();
+
+    if (ampm === 'PM' && hours < 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+
+    timeVal = `${String(hours).padStart(2, '0')}:${minutes}`;
+  }
+
+  return { date: dateVal, time: timeVal };
+};
+
+const formatDateTimeParts = (dateStr, timeStr) => {
+  if (!dateStr) return 'Pending Schedule';
+
+  const parts = dateStr.split('-');
+  let dateFormatted = dateStr;
+  if (parts.length === 3) {
+    const year = parts[0].slice(-2);
+    const monthIdx = parseInt(parts[1], 10) - 1;
+    const monthName = MONTH_NAMES[monthIdx] || 'Nov';
+    const day = parts[2].padStart(2, '0');
+    dateFormatted = `${day}-${monthName}-${year}`;
+  }
+
+  if (!timeStr) return dateFormatted;
+
+  const [hStr, mStr] = timeStr.split(':');
+  let h = parseInt(hStr || '11', 10);
+  const m = mStr || '00';
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if (h === 0) h = 12;
+  const timeFormatted = `${String(h).padStart(2, '0')}:${m} ${ampm}`;
+
+  return `${dateFormatted} ${timeFormatted}`;
+};
+
 export const Candidates = () => {
   const [candidates, setCandidates] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -104,7 +183,9 @@ export const Candidates = () => {
   const [newReasonForChange, setNewReasonForChange] = useState('Career Growth');
   const [newRecruiter, setNewRecruiter] = useState('Saurabh H.');
   const [newStage, setNewStage] = useState('Under Review');
-  const [newInterviewDate, setNewInterviewDate] = useState('');
+  const [newInterviewDate, setNewInterviewDate] = useState('14-Nov-26 02:30 PM');
+  const [newInterviewDateVal, setNewInterviewDateVal] = useState('2026-11-14');
+  const [newInterviewTimeVal, setNewInterviewTimeVal] = useState('14:30');
   const [newInterviewer, setNewInterviewer] = useState('Saurabh H.');
   const [newRound, setNewRound] = useState('Technical Round');
   const [newOffer, setNewOffer] = useState('');
@@ -113,28 +194,36 @@ export const Candidates = () => {
       id: 'RND-1',
       round: 'HR Screening',
       interviewer: 'HR',
-      interviewAt: '12 Nov, 2026 - 11:00 AM',
+      interviewDate: '2026-11-12',
+      interviewTime: '11:00',
+      interviewAt: '12-Nov-26 11:00 AM',
       status: 'Scheduled',
     },
     {
       id: 'RND-2',
       round: 'Technical Round 1',
       interviewer: 'Vivek Sir',
-      interviewAt: '13 Nov, 2026 - 03:00 PM',
+      interviewDate: '2026-11-13',
+      interviewTime: '15:00',
+      interviewAt: '13-Nov-26 03:00 PM',
       status: 'Scheduled',
     },
     {
       id: 'RND-3',
       round: 'Technical Round 2',
       interviewer: 'Someone',
-      interviewAt: '14 Nov, 2026 - 11:30 AM',
+      interviewDate: '2026-11-14',
+      interviewTime: '11:30',
+      interviewAt: '14-Nov-26 11:30 AM',
       status: 'Scheduled',
     },
     {
       id: 'RND-4',
       round: 'Final Round',
       interviewer: 'Bhupender Singh',
-      interviewAt: '14 Nov, 2026 - 02:30 PM',
+      interviewDate: '2026-11-14',
+      interviewTime: '14:30',
+      interviewAt: '14-Nov-26 02:30 PM',
       status: 'Pending',
     },
   ]);
@@ -156,6 +245,8 @@ export const Candidates = () => {
   const [editRecruiter, setEditRecruiter] = useState('');
   const [editStage, setEditStage] = useState('Under Review');
   const [editInterviewDate, setEditInterviewDate] = useState('');
+  const [editInterviewDateVal, setEditInterviewDateVal] = useState('2026-11-04');
+  const [editInterviewTimeVal, setEditInterviewTimeVal] = useState('14:30');
   const [editInterviewer, setEditInterviewer] = useState('');
   const [editRound, setEditRound] = useState('Technical Round');
   const [editRoundStatus, setEditRoundStatus] = useState('Pending');
@@ -174,7 +265,8 @@ export const Candidates = () => {
   const [roundModalIndex, setRoundModalIndex] = useState(null);
   const [roundModalName, setRoundModalName] = useState('Technical Round');
   const [roundModalInterviewer, setRoundModalInterviewer] = useState('Vivek Sir');
-  const [roundModalDate, setRoundModalDate] = useState('12 Nov, 2026 - 03:00 PM');
+  const [roundModalDate, setRoundModalDate] = useState('2026-11-14');
+  const [roundModalTime, setRoundModalTime] = useState('14:30');
   const [roundModalStatus, setRoundModalStatus] = useState('Scheduled');
 
   const loadCandidates = () => {
@@ -200,25 +292,29 @@ export const Candidates = () => {
       nextNum === 1
         ? 'HR'
         : nextNum === 2
-        ? 'Vivek Sir'
-        : nextNum === 3
-        ? 'Someone'
-        : 'Bhupender Singh';
+          ? 'Vivek Sir'
+          : nextNum === 3
+            ? 'Someone'
+            : 'Bhupender Singh';
     const defaultTitle =
       nextNum === 1
         ? 'HR Screening'
         : nextNum === 2
-        ? 'Technical Round 1'
-        : nextNum === 3
-        ? 'Technical Round 2'
-        : 'Final Round';
+          ? 'Technical Round 1'
+          : nextNum === 3
+            ? 'Technical Round 2'
+            : 'Final Round';
+    const date = '2026-11-14';
+    const time = '14:30';
     setNewRounds([
       ...newRounds,
       {
         id: `RND-${Date.now()}`,
         round: defaultTitle,
         interviewer: defaultInterviewer,
-        interviewAt: '14 Nov, 2026 - 02:30 PM',
+        interviewDate: date,
+        interviewTime: time,
+        interviewAt: formatDateTimeParts(date, time),
         status: 'Scheduled',
       },
     ]);
@@ -226,7 +322,16 @@ export const Candidates = () => {
 
   const handleUpdateNewRoundItem = (index, field, value) => {
     setNewRounds((prev) =>
-      prev.map((r, i) => (i === index ? { ...r, [field]: value } : r))
+      prev.map((r, i) => {
+        if (i !== index) return r;
+        const updated = { ...r, [field]: value };
+        if (field === 'interviewDate' || field === 'interviewTime') {
+          const d = field === 'interviewDate' ? value : (r.interviewDate || '2026-11-14');
+          const t = field === 'interviewTime' ? value : (r.interviewTime || '14:30');
+          updated.interviewAt = formatDateTimeParts(d, t);
+        }
+        return updated;
+      })
     );
   };
 
@@ -241,25 +346,29 @@ export const Candidates = () => {
       nextNum === 1
         ? 'HR'
         : nextNum === 2
-        ? 'Vivek Sir'
-        : nextNum === 3
-        ? 'Someone'
-        : 'Bhupender Singh';
+          ? 'Vivek Sir'
+          : nextNum === 3
+            ? 'Someone'
+            : 'Bhupender Singh';
     const defaultTitle =
       nextNum === 1
         ? 'HR Round'
         : nextNum === 2
-        ? 'Technical Round 1'
-        : nextNum === 3
-        ? 'Technical Round 2'
-        : 'Final Round';
+          ? 'Technical Round 1'
+          : nextNum === 3
+            ? 'Technical Round 2'
+            : 'Final Round';
+    const date = '2026-11-14';
+    const time = '14:30';
     setEditRounds([
       ...editRounds,
       {
         id: `RND-${Date.now()}`,
         round: defaultTitle,
         interviewer: defaultInterviewer,
-        interviewAt: '14 Nov, 2026 - 02:30 PM',
+        interviewDate: date,
+        interviewTime: time,
+        interviewAt: formatDateTimeParts(date, time),
         status: 'Scheduled',
         lastUpdated: 'Just now',
       },
@@ -268,7 +377,16 @@ export const Candidates = () => {
 
   const handleUpdateEditRound = (index, field, value) => {
     setEditRounds((prev) =>
-      prev.map((r, i) => (i === index ? { ...r, [field]: value, lastUpdated: 'Just now' } : r))
+      prev.map((r, i) => {
+        if (i !== index) return r;
+        const updated = { ...r, [field]: value, lastUpdated: 'Just now' };
+        if (field === 'interviewDate' || field === 'interviewTime') {
+          const d = field === 'interviewDate' ? value : (r.interviewDate || '2026-11-14');
+          const t = field === 'interviewTime' ? value : (r.interviewTime || '14:30');
+          updated.interviewAt = formatDateTimeParts(d, t);
+        }
+        return updated;
+      })
     );
   };
 
@@ -292,7 +410,12 @@ export const Candidates = () => {
     setEditReasonForChange(cand.reasonForChange || 'Career Growth');
     setEditRecruiter(cand.recruiter || cand.interviewer || 'Komal Thapliyal');
     setEditStage(cand.stage || 'Under Review');
-    setEditInterviewDate(cand.interviewDate || 'Wed, 04-Nov-26 02:30 PM');
+
+    const { date: candDate, time: candTime } = parseDateTimeParts(cand.interviewDate);
+    setEditInterviewDateVal(candDate);
+    setEditInterviewTimeVal(candTime);
+    setEditInterviewDate(cand.interviewDate || formatDateTimeParts(candDate, candTime));
+
     setEditInterviewer(cand.interviewer || 'Bhupinderjit Singh');
     setEditRound(cand.round || 'Technical Round');
     setEditRoundStatus(cand.roundStatus || 'Pending');
@@ -301,48 +424,61 @@ export const Candidates = () => {
     // Populate multi-round list
     const candidateRounds =
       cand.rounds && cand.rounds.length > 0
-        ? cand.rounds.map((r, i) => ({
+        ? cand.rounds.map((r, i) => {
+          const { date, time } = parseDateTimeParts(r.interviewAt);
+          return {
             id: r.id || `RND-${i + 1}`,
             round: r.round || `Round ${i + 1}`,
             interviewer: r.interviewer || 'Interviewer',
-            interviewAt: r.interviewAt || 'Pending Schedule',
+            interviewDate: date,
+            interviewTime: time,
+            interviewAt: r.interviewAt || formatDateTimeParts(date, time),
             status: r.status || 'Pending',
             lastUpdated: r.lastUpdated || 'Today',
-          }))
+          };
+        })
         : [
-            {
-              id: 'RND-1',
-              round: 'HR Screening',
-              interviewer: 'HR (Komal Thapliyal)',
-              interviewAt: '02-Nov-26 11:30 AM',
-              status: 'Passed',
-              lastUpdated: '02-Nov-26 12:15 PM',
-            },
-            {
-              id: 'RND-2',
-              round: 'Technical Round 1',
-              interviewer: 'Vivek Sir',
-              interviewAt: '03-Nov-26 03:00 PM',
-              status: 'Passed',
-              lastUpdated: '03-Nov-26 03:50 PM',
-            },
-            {
-              id: 'RND-3',
-              round: 'Technical Round 2',
-              interviewer: 'Someone (Technical Lead)',
-              interviewAt: '04-Nov-26 11:00 AM',
-              status: 'Passed',
-              lastUpdated: '04-Nov-26 11:45 AM',
-            },
-            {
-              id: 'RND-4',
-              round: 'Final Round',
-              interviewer: 'Bhupender Singh',
-              interviewAt: '04-Nov-26 02:30 PM',
-              status: 'Pending',
-              lastUpdated: '04-Nov-26 01:41 PM',
-            },
-          ];
+          {
+            id: 'RND-1',
+            round: 'HR Screening',
+            interviewer: 'HR (Komal Thapliyal)',
+            interviewDate: '2026-11-02',
+            interviewTime: '11:30',
+            interviewAt: '02-Nov-26 11:30 AM',
+            status: 'Passed',
+            lastUpdated: '02-Nov-26 12:15 PM',
+          },
+          {
+            id: 'RND-2',
+            round: 'Technical Round 1',
+            interviewer: 'Vivek Sir',
+            interviewDate: '2026-11-03',
+            interviewTime: '15:00',
+            interviewAt: '03-Nov-26 03:00 PM',
+            status: 'Passed',
+            lastUpdated: '03-Nov-26 03:50 PM',
+          },
+          {
+            id: 'RND-3',
+            round: 'Technical Round 2',
+            interviewer: 'Someone (Technical Lead)',
+            interviewDate: '2026-11-04',
+            interviewTime: '11:00',
+            interviewAt: '04-Nov-26 11:00 AM',
+            status: 'Passed',
+            lastUpdated: '04-Nov-26 11:45 AM',
+          },
+          {
+            id: 'RND-4',
+            round: 'Final Round',
+            interviewer: 'Bhupender Singh',
+            interviewDate: '2026-11-04',
+            interviewTime: '14:30',
+            interviewAt: '04-Nov-26 02:30 PM',
+            status: 'Pending',
+            lastUpdated: '04-Nov-26 01:41 PM',
+          },
+        ];
     setEditRounds(candidateRounds);
     setShowEditModal(true);
   };
@@ -400,18 +536,18 @@ export const Candidates = () => {
       nextNum === 1
         ? 'HR'
         : nextNum === 2
-        ? 'Vivek Sir'
-        : nextNum === 3
-        ? 'Someone'
-        : 'Bhupender Singh';
+          ? 'Vivek Sir'
+          : nextNum === 3
+            ? 'Someone'
+            : 'Bhupender Singh';
     const defaultTitle =
       nextNum === 1
         ? 'HR Screening'
         : nextNum === 2
-        ? 'Technical Round 1'
-        : nextNum === 3
-        ? 'Technical Round 2'
-        : 'Final Round';
+          ? 'Technical Round 1'
+          : nextNum === 3
+            ? 'Technical Round 2'
+            : 'Final Round';
     setRoundModalName(defaultTitle);
     setRoundModalInterviewer(defaultInterviewer);
     setRoundModalDate('14 Nov, 2026 - 02:30 PM');
@@ -628,7 +764,7 @@ export const Candidates = () => {
       'Department',
       'Experience',
       'CTC',
-      'ECTC',
+      'ETC',
       'Interview Date',
       'Recruiter',
       'Stage',
@@ -892,9 +1028,8 @@ export const Candidates = () => {
               {currentStageConfig.label} ({currentStageConfig.count})
             </span>
             <ChevronDown
-              className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                showStageDropdown ? 'rotate-180' : ''
-              }`}
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${showStageDropdown ? 'rotate-180' : ''
+                }`}
             />
           </button>
 
@@ -914,11 +1049,10 @@ export const Candidates = () => {
                       setStageFilter(key);
                       setShowStageDropdown(false);
                     }}
-                    className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#F8FAFC] font-bold'
-                        : 'hover:bg-[#F8FAFC] font-medium text-[#4E5D78]'
-                    }`}
+                    className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer ${isSelected
+                      ? 'bg-[#F8FAFC] font-bold'
+                      : 'hover:bg-[#F8FAFC] font-medium text-[#4E5D78]'
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <span className="flex-shrink-0">{cfg.icon}</span>
@@ -1140,7 +1274,7 @@ export const Candidates = () => {
             <span className="font-bold text-[#111827]">{formatSalary(row.ctc)}</span>
           </div>
           <div className="text-xs font-semibold text-emerald-700">
-            <span className="text-[11px] font-bold text-[#6B7280]">ECTC: </span>
+            <span className="text-[11px] font-bold text-[#6B7280]">ETC: </span>
             <span className="font-bold text-emerald-600">{formatSalary(row.ectc)}</span>
           </div>
         </div>
@@ -1536,16 +1670,39 @@ export const Candidates = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Interview Date / Time
+                <label className="block text-xs font-bold text-[#172033] mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
+                    <span>Interview Schedule (Date & Time)</span>
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#2563EB]">
+                    {newInterviewDate || formatDateTimeParts(newInterviewDateVal, newInterviewTimeVal)}
+                  </span>
                 </label>
-                <input
-                  type="text"
-                  value={newInterviewDate}
-                  onChange={(e) => setNewInterviewDate(e.target.value)}
-                  placeholder="e.g. Wed, 04-Nov-26 02:30 PM"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="date"
+                    value={newInterviewDateVal}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setNewInterviewDateVal(val);
+                      setNewInterviewDate(formatDateTimeParts(val, newInterviewTimeVal));
+                    }}
+                    onClick={(e) => e.target.showPicker?.()}
+                    className="w-full px-2.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium text-[#172033] cursor-pointer"
+                  />
+                  <input
+                    type="time"
+                    value={newInterviewTimeVal}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setNewInterviewTimeVal(val);
+                      setNewInterviewDate(formatDateTimeParts(newInterviewDateVal, val));
+                    }}
+                    onClick={(e) => e.target.showPicker?.()}
+                    className="w-full px-2.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium text-[#172033] cursor-pointer"
+                  />
+                </div>
               </div>
             </div>
 
@@ -1595,7 +1752,7 @@ export const Candidates = () => {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
                       <div>
                         <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
                           Round Name
@@ -1623,15 +1780,30 @@ export const Candidates = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
-                          Date & Time
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Calendar className="w-2.5 h-2.5 text-[#2563EB]" />
+                          <span>Date</span>
                         </label>
                         <input
-                          type="text"
-                          value={rnd.interviewAt}
-                          onChange={(e) => handleUpdateNewRoundItem(idx, 'interviewAt', e.target.value)}
-                          placeholder="e.g. 14 Nov, 2026 - 02:30 PM"
-                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                          type="date"
+                          value={rnd.interviewDate || parseDateTimeParts(rnd.interviewAt).date}
+                          onChange={(e) => handleUpdateNewRoundItem(idx, 'interviewDate', e.target.value)}
+                          onClick={(e) => e.target.showPicker?.()}
+                          className="w-full px-2 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Clock className="w-2.5 h-2.5 text-[#2563EB]" />
+                          <span>Time</span>
+                        </label>
+                        <input
+                          type="time"
+                          value={rnd.interviewTime || parseDateTimeParts(rnd.interviewAt).time}
+                          onChange={(e) => handleUpdateNewRoundItem(idx, 'interviewTime', e.target.value)}
+                          onClick={(e) => e.target.showPicker?.()}
+                          className="w-full px-2 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
                         />
                       </div>
 
@@ -1642,7 +1814,7 @@ export const Candidates = () => {
                         <select
                           value={rnd.status}
                           onChange={(e) => handleUpdateNewRoundItem(idx, 'status', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
                         >
                           <option value="Scheduled">Scheduled</option>
                           <option value="Pending">Pending</option>
@@ -1891,16 +2063,39 @@ export const Candidates = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Interview Date / Schedule
+                <label className="block text-xs font-bold text-[#172033] mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
+                    <span>Interview Schedule (Date & Time)</span>
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#2563EB]">
+                    {editInterviewDate || formatDateTimeParts(editInterviewDateVal, editInterviewTimeVal)}
+                  </span>
                 </label>
-                <input
-                  type="text"
-                  value={editInterviewDate}
-                  onChange={(e) => setEditInterviewDate(e.target.value)}
-                  placeholder="e.g. Wed, 04-Nov-26 02:30 PM"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="date"
+                    value={editInterviewDateVal}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditInterviewDateVal(val);
+                      setEditInterviewDate(formatDateTimeParts(val, editInterviewTimeVal));
+                    }}
+                    onClick={(e) => e.target.showPicker?.()}
+                    className="w-full px-2.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium text-[#172033] cursor-pointer"
+                  />
+                  <input
+                    type="time"
+                    value={editInterviewTimeVal}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setEditInterviewTimeVal(val);
+                      setEditInterviewDate(formatDateTimeParts(editInterviewDateVal, val));
+                    }}
+                    onClick={(e) => e.target.showPicker?.()}
+                    className="w-full px-2.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium text-[#172033] cursor-pointer"
+                  />
+                </div>
               </div>
             </div>
 
@@ -1950,7 +2145,7 @@ export const Candidates = () => {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
                       <div>
                         <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
                           Round Name
@@ -1978,15 +2173,30 @@ export const Candidates = () => {
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
-                          Date & Time
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Calendar className="w-2.5 h-2.5 text-[#2563EB]" />
+                          <span>Date</span>
                         </label>
                         <input
-                          type="text"
-                          value={rnd.interviewAt}
-                          onChange={(e) => handleUpdateEditRound(idx, 'interviewAt', e.target.value)}
-                          placeholder="e.g. 04-Nov-26 02:30 PM"
-                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                          type="date"
+                          value={rnd.interviewDate || parseDateTimeParts(rnd.interviewAt).date}
+                          onChange={(e) => handleUpdateEditRound(idx, 'interviewDate', e.target.value)}
+                          onClick={(e) => e.target.showPicker?.()}
+                          className="w-full px-2 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <Clock className="w-2.5 h-2.5 text-[#2563EB]" />
+                          <span>Time</span>
+                        </label>
+                        <input
+                          type="time"
+                          value={rnd.interviewTime || parseDateTimeParts(rnd.interviewAt).time}
+                          onChange={(e) => handleUpdateEditRound(idx, 'interviewTime', e.target.value)}
+                          onClick={(e) => e.target.showPicker?.()}
+                          className="w-full px-2 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
                         />
                       </div>
 
@@ -1997,7 +2207,7 @@ export const Candidates = () => {
                         <select
                           value={rnd.status}
                           onChange={(e) => handleUpdateEditRound(idx, 'status', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
                         >
                           <option value="Scheduled">Scheduled</option>
                           <option value="Pending">Pending</option>
@@ -2090,11 +2300,10 @@ export const Candidates = () => {
           title={roundModalIndex !== null ? 'Edit Interview Round' : 'Add New Interview Round'}
           subtitle={
             selectedCandidate
-              ? `Candidate: ${selectedCandidate.name} (Round ${
-                  roundModalIndex !== null
-                    ? roundModalIndex + 1
-                    : (selectedCandidate.rounds?.length || 0) + 1
-                })`
+              ? `Candidate: ${selectedCandidate.name} (Round ${roundModalIndex !== null
+                ? roundModalIndex + 1
+                : (selectedCandidate.rounds?.length || 0) + 1
+              })`
               : 'Configure interview schedule'
           }
           maxWidth="max-w-md"
@@ -2120,11 +2329,10 @@ export const Candidates = () => {
                       key={rName}
                       type="button"
                       onClick={() => setRoundModalName(rName)}
-                      className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
-                        roundModalName === rName
-                          ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                          : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
-                      }`}
+                      className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${roundModalName === rName
+                        ? 'bg-[#2563EB] text-white border-[#2563EB]'
+                        : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
+                        }`}
                     >
                       {rName}
                     </button>
@@ -2151,11 +2359,10 @@ export const Candidates = () => {
                     key={interviewer}
                     type="button"
                     onClick={() => setRoundModalInterviewer(interviewer)}
-                    className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
-                      roundModalInterviewer === interviewer
-                        ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                        : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
-                    }`}
+                    className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${roundModalInterviewer === interviewer
+                      ? 'bg-[#2563EB] text-white border-[#2563EB]'
+                      : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
+                      }`}
                   >
                     {interviewer}
                   </button>
@@ -2165,34 +2372,69 @@ export const Candidates = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Interview Date & Time
+                <label className="block text-xs font-bold text-[#172033] mb-1.5 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>Interview Date *</span>
                 </label>
-                <input
-                  type="text"
-                  value={roundModalDate}
-                  onChange={(e) => setRoundModalDate(e.target.value)}
-                  placeholder="e.g. 14 Nov, 2026 - 02:30 PM"
-                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    required
+                    value={roundModalDate}
+                    onChange={(e) => setRoundModalDate(e.target.value)}
+                    onClick={(e) => e.target.showPicker?.()}
+                    className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-semibold text-[#172033] cursor-pointer shadow-2xs"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Round Status
+                <label className="block text-xs font-bold text-[#172033] mb-1.5 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>Interview Time *</span>
                 </label>
-                <select
-                  value={roundModalStatus}
-                  onChange={(e) => setRoundModalStatus(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-semibold"
-                >
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Passed">Passed</option>
-                  <option value="Failed">Failed</option>
-                  <option value="Completed">Completed</option>
-                </select>
+                <div className="relative">
+                  <input
+                    type="time"
+                    required
+                    value={roundModalTime}
+                    onChange={(e) => setRoundModalTime(e.target.value)}
+                    onClick={(e) => e.target.showPicker?.()}
+                    className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-semibold text-[#172033] cursor-pointer shadow-2xs"
+                  />
+                </div>
               </div>
+            </div>
+
+            {/* Live Schedule Preview */}
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-50/70 border border-blue-100 text-xs">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5 text-[#2563EB] flex-shrink-0" />
+                <span className="text-[#1E40AF] font-medium">Scheduled:</span>
+                <span className="font-bold text-[#1D4ED8]">
+                  {formatDateTimeParts(roundModalDate, roundModalTime)}
+                </span>
+              </div>
+              <span className="text-[10px] text-blue-600 font-semibold bg-blue-100/70 px-2 py-0.5 rounded-md">
+                Live Preview
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Round Status
+              </label>
+              <select
+                value={roundModalStatus}
+                onChange={(e) => setRoundModalStatus(e.target.value)}
+                className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-semibold cursor-pointer"
+              >
+                <option value="Scheduled">Scheduled</option>
+                <option value="Pending">Pending</option>
+                <option value="Passed">Passed</option>
+                <option value="Failed">Failed</option>
+                <option value="Completed">Completed</option>
+              </select>
             </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
@@ -2448,12 +2690,12 @@ export const Candidates = () => {
                           rnd.status === 'Passed'
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : rnd.status === 'Failed'
-                            ? 'bg-rose-50 text-rose-700 border-rose-200'
-                            : rnd.status === 'Scheduled'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : rnd.status === 'Completed'
-                            ? 'bg-purple-50 text-purple-700 border-purple-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200';
+                              ? 'bg-rose-50 text-rose-700 border-rose-200'
+                              : rnd.status === 'Scheduled'
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : rnd.status === 'Completed'
+                                  ? 'bg-purple-50 text-purple-700 border-purple-200'
+                                  : 'bg-amber-50 text-amber-700 border-amber-200';
 
                         return (
                           <tr key={rnd.id || idx} className="hover:bg-[#F8FAFC]">
