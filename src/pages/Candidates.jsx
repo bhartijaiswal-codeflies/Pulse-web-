@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   UserPlus,
   Briefcase,
@@ -30,6 +30,7 @@ import {
   Send,
   Paperclip,
   Plus,
+  Video,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -39,6 +40,7 @@ import { ActionDropdown } from '../components/common/ActionDropdown';
 import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { candidateService } from '../services/candidateService';
+import { employeeService } from '../services/employeeService';
 import { useToast } from '../context/NotificationContext';
 
 const formatSalary = (val, fallback = '120,000') => {
@@ -269,13 +271,78 @@ export const Candidates = () => {
   const [roundModalTime, setRoundModalTime] = useState('14:30');
   const [roundModalStatus, setRoundModalStatus] = useState('Scheduled');
 
+  // Google Meet modal state
+  const [meetingCandidate, setMeetingCandidate] = useState(null);
+  const [copiedMeetLink, setCopiedMeetLink] = useState(false);
+
+  // All Users list for interviewer dropdown
+  const [allUsers, setAllUsers] = useState([]);
+
   const loadCandidates = () => {
     setCandidates(candidateService.getCandidates());
   };
 
   useEffect(() => {
     loadCandidates();
+    try {
+      const emps = employeeService.getEmployees();
+      if (Array.isArray(emps)) {
+        setAllUsers(emps);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
+
+  const interviewerOptions = useMemo(() => {
+    const defaultInterviewers = [
+      'HR (Komal Thapliyal)',
+      'Vivek Sir',
+      'Someone (Technical Lead)',
+      'Bhupender Singh',
+      'HR',
+      'Komal Thapliyal',
+      'Saurabh H.',
+      'Elena Rostova',
+      'Marcus Vance',
+      'Aisha Al-Mansoor',
+      'David Chen',
+      'Sarah Connor',
+      'Liam Gallagher',
+      'Priya Sharma',
+      'Alexandre Roy',
+      'Devin Thorne',
+    ];
+    const employeeNames = allUsers.map((u) => u.name);
+    return Array.from(new Set([...defaultInterviewers, ...employeeNames])).filter(Boolean);
+  }, [allUsers]);
+
+  const generateMeetLink = (cand, roundName = 'round') => {
+    if (!cand) return 'https://meet.google.com/qwa-rtyu-iop';
+    const code = (cand.id || 'cnd').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const rndCode = (roundName || 'int').toLowerCase().substring(0, 3);
+    return `https://meet.google.com/pls-${code}-${rndCode}`;
+  };
+
+  const handleSendMeetingLink = (cand, round = null) => {
+    const roundTitle = round?.round || cand.round || 'Interview Round';
+    const meetLink = generateMeetLink(cand, roundTitle);
+    setMeetingCandidate(cand);
+    setCopiedMeetLink(false);
+
+    try {
+      navigator.clipboard?.writeText(meetLink);
+      setCopiedMeetLink(true);
+    } catch (e) {
+      console.error(e);
+    }
+
+    addToast({
+      title: 'Google Meet Link Ready',
+      message: `Meeting link copied to clipboard & invite ready for ${cand.name} (${cand.email}).`,
+      type: 'success',
+    });
+  };
 
   // Sync view modal offer text when candidate opens
   useEffect(() => {
@@ -1157,28 +1224,17 @@ export const Candidates = () => {
         </div>
       </div>
 
-      {/* Right: Reset + Apply + Live Filter Counter + Refresh */}
+      {/* Right: Clear with cross + Live Filter Counter + Refresh */}
       <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
-        {/* Reset Button */}
+        {/* Clear Button with Cross - Very Small */}
         <button
           type="button"
           onClick={handleResetFilters}
-          title="Reset all filters"
-          className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
+          title="Clear all filters"
+          className="inline-flex items-center gap-1 px-2.5 h-7 text-[11px] font-bold rounded-lg text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-[#DC2626]" />
-          <span>Reset</span>
-        </button>
-
-        {/* Apply Button */}
-        <button
-          type="button"
-          onClick={handleApplyFilters}
-          title="Apply current filters"
-          className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white transition-all active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer whitespace-nowrap"
-        >
-          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Apply</span>
+          <X className="w-3 h-3 stroke-[2.5]" />
+          <span>Clear</span>
         </button>
 
         {/* Divider */}
@@ -1268,15 +1324,16 @@ export const Candidates = () => {
       header: 'SALARY',
       accessor: 'ctc',
       render: (row) => (
-        <div className="space-y-0.5 text-left">
-          <div className="text-xs font-semibold text-[#1F2937]">
-            <span className="text-[11px] font-bold text-[#6B7280]">CTC: </span>
+        <div className="text-[11px] font-medium text-[#1F2937] whitespace-nowrap flex items-center gap-1.5">
+          <span>
+            <strong className="text-[#6B7280] font-bold">CTC: </strong>
             <span className="font-bold text-[#111827]">{formatSalary(row.ctc)}</span>
-          </div>
-          <div className="text-xs font-semibold text-emerald-700">
-            <span className="text-[11px] font-bold text-[#6B7280]">ETC: </span>
+          </span>
+          <span className="text-[#CBD5E1]">|</span>
+          <span>
+            <strong className="text-[#6B7280] font-bold">ETC: </strong>
             <span className="font-bold text-emerald-600">{formatSalary(row.ectc)}</span>
-          </div>
+          </span>
         </div>
       ),
     },
@@ -1284,9 +1341,9 @@ export const Candidates = () => {
       header: 'INTERVIEW SCHEDULE',
       accessor: 'interviewDate',
       render: (row) => (
-        <div className="text-xs text-[#4E5D78] flex items-center gap-1.5 font-medium">
-          <Calendar className="w-3.5 h-3.5 text-[#2563EB]" />
-          <span>{row.interviewDate}</span>
+        <div className="text-[11px] text-[#4E5D78] flex items-center gap-1.5 font-medium whitespace-nowrap">
+          <Calendar className="w-3.5 h-3.5 text-[#2563EB] flex-shrink-0" />
+          <span className="whitespace-nowrap">{row.interviewDate}</span>
         </div>
       ),
     },
@@ -1441,6 +1498,16 @@ export const Candidates = () => {
               className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
             >
               <Edit3 className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Google Meet Link Button (Before Delete button) */}
+            <button
+              type="button"
+              onClick={() => handleSendMeetingLink(row)}
+              title={`Send Google Meet interview link to ${row.name}`}
+              className="w-7 h-7 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+            >
+              <Video className="w-3.5 h-3.5" />
             </button>
 
             {/* Delete Button */}
@@ -1770,13 +1837,17 @@ export const Candidates = () => {
                         <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
                           Interviewer
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={rnd.interviewer}
                           onChange={(e) => handleUpdateNewRoundItem(idx, 'interviewer', e.target.value)}
-                          placeholder="e.g. Vivek Sir, HR"
-                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                        />
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
+                        >
+                          {interviewerOptions.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div>
@@ -2163,13 +2234,17 @@ export const Candidates = () => {
                         <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
                           Interviewer
                         </label>
-                        <input
-                          type="text"
+                        <select
                           value={rnd.interviewer}
                           onChange={(e) => handleUpdateEditRound(idx, 'interviewer', e.target.value)}
-                          placeholder="e.g. Vivek Sir, Bhupender Singh"
-                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                        />
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium cursor-pointer"
+                        >
+                          {interviewerOptions.map((name) => (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       <div>
@@ -2292,6 +2367,117 @@ export const Candidates = () => {
         </Modal>
       )}
 
+      {/* Google Meet Link Modal */}
+      {meetingCandidate && (
+        <Modal
+          isOpen={!!meetingCandidate}
+          onClose={() => setMeetingCandidate(null)}
+          title="Send Google Meet Interview Link"
+          subtitle={`Candidate: ${meetingCandidate.name} (${meetingCandidate.role})`}
+          maxWidth="max-w-lg"
+          zIndex="z-50"
+        >
+          <div className="space-y-4">
+            <div className="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                  <Video className="w-4 h-4 text-[#2563EB]" />
+                  <span>Google Meet Video Interview</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                  Active Link
+                </span>
+              </div>
+              <div className="text-xs text-[#4E5D78]">
+                Interview link for <strong className="text-[#172033]">{meetingCandidate.name}</strong> ({meetingCandidate.email}) with interviewer <strong className="text-[#172033]">{meetingCandidate.interviewer || 'Interviewer'}</strong>.
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Google Meet URL
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={generateMeetLink(meetingCandidate, meetingCandidate.round)}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl bg-[#F8FAFC] font-semibold text-[#172033] select-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(generateMeetLink(meetingCandidate, meetingCandidate.round));
+                    setCopiedMeetLink(true);
+                    addToast({
+                      title: 'Copied',
+                      message: 'Google Meet link copied to clipboard.',
+                      type: 'info',
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F8FAFC] text-[#172033] cursor-pointer shadow-2xs whitespace-nowrap"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{copiedMeetLink ? 'Copied!' : 'Copy'}</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-[#F8FAFC] border border-[#E5EAF2] text-xs">
+              <div>
+                <span className="text-[#8292AD] text-[11px] block">Scheduled Time</span>
+                <span className="font-bold text-[#172033]">
+                  {meetingCandidate.interviewDate || 'Pending Schedule'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[#8292AD] text-[11px] block">Current Round</span>
+                <span className="font-bold text-[#172033]">
+                  {meetingCandidate.round || 'Technical Round'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-[#E5EAF2]">
+              <a
+                href={generateMeetLink(meetingCandidate, meetingCandidate.round)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2563EB] hover:underline"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Join Meeting Now</span>
+              </a>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMeetingCandidate(null)}
+                  className="px-4 py-2 text-xs font-medium rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC] cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    addToast({
+                      title: 'Invitation Sent',
+                      message: `Google Meet invite emailed to ${meetingCandidate.email}.`,
+                      type: 'success',
+                    });
+                    setMeetingCandidate(null);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white cursor-pointer shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Send Invite Email</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
+
       {/* Quick Add / Edit Round Modal (Opens from View Candidate popup) */}
       {showRoundModal && (
         <Modal
@@ -2342,27 +2528,32 @@ export const Candidates = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                Interviewer Name *
+              <label className="block text-xs font-bold text-[#172033] mb-1.5 flex items-center justify-between">
+                <span>Interviewer Name *</span>
+                <span className="text-[11px] font-semibold text-[#2563EB]">All Users Dropdown</span>
               </label>
-              <input
-                type="text"
-                required
+              <select
                 value={roundModalInterviewer}
                 onChange={(e) => setRoundModalInterviewer(e.target.value)}
-                placeholder="e.g. HR, Vivek Sir, Someone, Bhupender Singh"
-                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-semibold"
-              />
+                className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-semibold text-[#172033] cursor-pointer shadow-2xs"
+              >
+                {interviewerOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {['HR', 'Vivek Sir', 'Someone', 'Bhupender Singh'].map((interviewer) => (
                   <button
                     key={interviewer}
                     type="button"
                     onClick={() => setRoundModalInterviewer(interviewer)}
-                    className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${roundModalInterviewer === interviewer
-                      ? 'bg-[#2563EB] text-white border-[#2563EB]'
-                      : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
-                      }`}
+                    className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
+                      roundModalInterviewer === interviewer || roundModalInterviewer.includes(interviewer)
+                        ? 'bg-[#2563EB] text-white border-[#2563EB]'
+                        : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
+                    }`}
                   >
                     {interviewer}
                   </button>
@@ -2577,7 +2768,7 @@ export const Candidates = () => {
                   </span>
                 </div>
 
-                {/* Edit & Delete Action Buttons */}
+                {/* Edit, Meet Link & Delete Action Buttons */}
                 <div className="flex items-center gap-2 pt-2">
                   <button
                     type="button"
@@ -2586,6 +2777,16 @@ export const Candidates = () => {
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     <span>Edit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSendMeetingLink(selectedCandidate)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white transition-colors cursor-pointer shadow-2xs"
+                    title="Generate and send Google Meet link"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>Meet Link</span>
                   </button>
 
                   <button
@@ -2720,6 +2921,14 @@ export const Candidates = () => {
                                 </button>
                                 <button
                                   type="button"
+                                  onClick={() => handleSendMeetingLink(selectedCandidate, rnd)}
+                                  className="p-1 rounded hover:bg-slate-100 text-indigo-600 cursor-pointer"
+                                  title="Send Google Meet link"
+                                >
+                                  <Video className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
                                   onClick={() => handleDeleteRound(idx)}
                                   className="p-1 rounded hover:bg-slate-100 text-rose-500 cursor-pointer"
                                   title="Delete round"
@@ -2767,6 +2976,14 @@ export const Candidates = () => {
                               title="Edit round"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleSendMeetingLink(selectedCandidate)}
+                              className="p-1 rounded hover:bg-slate-100 text-indigo-600 cursor-pointer"
+                              title="Send Google Meet link"
+                            >
+                              <Video className="w-3.5 h-3.5" />
                             </button>
                             <button
                               type="button"

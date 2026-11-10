@@ -725,28 +725,17 @@ export const Attendance = () => {
         </div>
       </div>
 
-      {/* Right: Reset + Apply + Live Filter Counter + Refresh */}
+      {/* Right: Clear with cross + Live Filter Counter + Refresh */}
       <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
-        {/* Reset Button (same rounded-xl shape) */}
+        {/* Clear Button with Cross - Very Small */}
         <button
           type="button"
           onClick={handleResetFilters}
-          title="Reset all filters"
-          className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
+          title="Clear all filters"
+          className="inline-flex items-center gap-1 px-2.5 h-7 text-[11px] font-bold rounded-lg text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-[#DC2626]" />
-          <span>Reset</span>
-        </button>
-
-        {/* Apply Button (same rounded-xl shape) */}
-        <button
-          type="button"
-          onClick={handleApplyFilters}
-          title="Apply current filters"
-          className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white transition-all active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer whitespace-nowrap"
-        >
-          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Apply</span>
+          <X className="w-3 h-3 stroke-[2.5]" />
+          <span>Clear</span>
         </button>
 
         {/* Divider */}
