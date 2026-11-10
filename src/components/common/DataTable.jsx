@@ -193,11 +193,7 @@ export const DataTable = ({
               to{' '}
               <span className="font-bold text-[#172033]">
                 {Math.min(currentPage * pageSize, data.length)}
-              </span>{' '}
-              active {entityName} (Page{' '}
-              <span className="font-bold text-[#172033]">{currentPage}</span> of{' '}
-              <span className="font-bold text-[#172033]">{totalPages}</span> • Total{' '}
-              <span className="font-bold text-[#172033]">{data.length}</span>)
+              </span>
             </div>
 
             {/* Right: Boxed Pagination Controls */}
