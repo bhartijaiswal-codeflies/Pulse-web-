@@ -164,19 +164,17 @@ export const CheckInsCard = () => {
                 <button
                   key={t.id}
                   onClick={() => setFilter(t.id)}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold transition-all ${
-                    isActive
-                      ? 'bg-[#2563EB] text-white shadow-2xs'
-                      : 'bg-white text-[#64748B] hover:text-[#172033] hover:bg-[#F8FAFC] border border-[#E5EAF2]'
-                  }`}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold transition-all ${isActive
+                    ? 'bg-[#2563EB] text-white shadow-2xs'
+                    : 'bg-white text-[#64748B] hover:text-[#172033] hover:bg-[#F8FAFC] border border-[#E5EAF2]'
+                    }`}
                 >
                   <span>{t.label}</span>
                   <span
-                    className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded-full ml-0.5 ${
-                      isActive
-                        ? 'bg-[#1D4ED8] text-white'
-                        : t.badgeColor || 'bg-[#F1F5F9] text-[#64748B]'
-                    }`}
+                    className={`text-[9.5px] font-bold px-1.5 py-0.2 rounded-full ml-0.5 ${isActive
+                      ? 'bg-[#1D4ED8] text-white'
+                      : t.badgeColor || 'bg-[#F1F5F9] text-[#64748B]'
+                      }`}
                   >
                     {t.count}
                   </span>
@@ -202,11 +200,8 @@ export const CheckInsCard = () => {
                 <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider">
                   PUNCH
                 </th>
-                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider text-center">
-                  OPTIONS
-                </th>
                 <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider text-right">
-                  ACTIONS
+                  OPTIONS
                 </th>
               </tr>
             </thead>
@@ -246,33 +241,13 @@ export const CheckInsCard = () => {
                   </td>
 
                   {/* Options Pill Badge (Clean Static Badge) */}
-                  <td className="py-2.5 px-2 align-middle text-center whitespace-nowrap">
+                  <td className="py-2.5 px-2 align-middle text-right whitespace-nowrap">
                     <StatusBadge
                       status={p.status}
                       size="xs"
                       showChevron={false}
                       interactive={false}
                     />
-                  </td>
-
-                  {/* Circular Action Buttons */}
-                  <td className="py-2.5 px-2 align-middle text-right whitespace-nowrap">
-                    <div className="inline-flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => handleApprovePunch(p)}
-                        title="Verify Punch"
-                        className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs cursor-pointer"
-                      >
-                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                      </button>
-                      <button
-                        onClick={() => handleFlagPunch(p)}
-                        title="Flag Issue"
-                        className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs cursor-pointer"
-                      >
-                        <X className="w-3.5 h-3.5 stroke-[2.5]" />
-                      </button>
-                    </div>
                   </td>
                 </tr>
               ))}

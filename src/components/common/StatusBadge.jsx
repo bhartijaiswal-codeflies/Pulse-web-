@@ -27,9 +27,21 @@ import {
 export const getStatusIcon = (statusName) => {
   const normalized = (statusName || '').toLowerCase().trim();
 
-  // Fresh Lead: Blue Star
-  if (['fresh lead', 'fresh', 'in office', 'assigned'].includes(normalized)) {
-    return <Star className="w-3.5 h-3.5 text-[#2563EB] fill-[#2563EB]" />;
+  // Attendance specific statuses
+  if (normalized === 'present' || normalized === 'on time') {
+    return <Check className="w-3.5 h-3.5 text-[#059669] stroke-[2.5]" />;
+  }
+  if (normalized === 'absent') {
+    return <XCircle className="w-3.5 h-3.5 text-[#DC2626] stroke-[2]" />;
+  }
+  if (normalized === 'first half leave') {
+    return <Clock className="w-3.5 h-3.5 text-[#D97706] stroke-[2.2]" />;
+  }
+  if (normalized === 'second half leave') {
+    return <Clock className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.2]" />;
+  }
+  if (normalized === 'half day marked' || normalized === 'half day') {
+    return <AlertTriangle className="w-3.5 h-3.5 text-[#7C3AED] stroke-[2.2]" />;
   }
   // Handled: ArrowUpRight / ExternalLink icon matching reference image 2
   if (normalized === 'handled') {
@@ -90,16 +102,16 @@ export const getStatusColorClasses = (statusName) => {
   if (['handled', 'active', 'approved', 'present', 'on time', 'paid', 'hired', 'available'].includes(normalized)) {
     return 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]';
   }
-  if (['fresh lead', 'fresh', 'in office', 'shortlisted', 'offer extended', 'interview scheduled', 'assigned'].includes(normalized)) {
+  if (['fresh lead', 'fresh', 'in office', 'shortlisted', 'offer extended', 'interview scheduled', 'assigned', 'second half leave'].includes(normalized)) {
     return 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]';
   }
-  if (['warm', 'pending', 'in review', 'under review', 'processing', 'in follow-up'].includes(normalized)) {
+  if (['warm', 'pending', 'in review', 'under review', 'processing', 'in follow-up', 'first half leave'].includes(normalized)) {
     return 'bg-[#FFFBEB] text-[#D97706] border-[#FDE68A]';
   }
   if (['hot', 'late', 'rejected', 'absent', 'terminated', 'high', 'urgent', 'overdue', 'dead leads', 'dead'].includes(normalized)) {
     return 'bg-[#FEF2F2] text-[#DC2626] border-[#FECACA]';
   }
-  if (['price ghost', 'on leave', 'maintenance', 'sick leave', 'privilege leave', 'casual leave'].includes(normalized)) {
+  if (['price ghost', 'on leave', 'maintenance', 'sick leave', 'privilege leave', 'casual leave', 'half day marked', 'half day'].includes(normalized)) {
     return 'bg-[#FAF5FF] text-[#7C3AED] border-[#E9D5FF]';
   }
   if (['cold', 'remote', 'checked out', 'returned (ready)'].includes(normalized)) {
@@ -130,8 +142,14 @@ export const getDefaultOptionsForStatus = (statusName) => {
     ];
   }
   // Attendance / Punches
-  if (['on time', 'present', 'late', 'on leave', 'remote', 'checked out', 'half day'].includes(normalized)) {
-    return ['On Time', 'Present', 'Late', 'Remote', 'On Leave', 'Checked Out'];
+  if (['on time', 'present', 'absent', 'first half leave', 'second half leave', 'half day marked', 'half day', 'late', 'on leave', 'remote', 'checked out'].includes(normalized)) {
+    return [
+      'Present',
+      'Absent',
+      'First Half Leave',
+      'Second Half Leave',
+      'Half Day Marked',
+    ];
   }
   // Candidates
   if (['under review', 'interview scheduled', 'shortlisted', 'offer extended', 'hired', 'rejected'].includes(normalized)) {

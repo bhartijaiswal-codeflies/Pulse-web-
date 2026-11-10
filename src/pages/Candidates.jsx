@@ -312,42 +312,37 @@ export const Candidates = () => {
         emptySubtext="Try filtering by another stage or search query."
         actions={(row) => (
           <div className="inline-flex items-center justify-end gap-1.5">
-            <ActionDropdown
-              currentAction={
-                row.action ||
-                (row.stage === 'Hired' || row.stage === 'Shortlisted'
-                  ? 'qualified'
-                  : row.stage === 'Rejected'
-                  ? 'not-qualified'
-                  : 'dead')
-              }
-              onActionChange={(newAction) =>
-                handleActionChange(row.id, newAction)
-              }
-              actions={[
-                {
-                  id: 'qualified',
-                  label: 'Qualified / Hired',
-                  icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
-                },
-                {
-                  id: 'dead',
-                  label: 'Dead / Under Review',
-                  icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
-                },
-                {
-                  id: 'not-qualified',
-                  label: 'Not Qualified / Rejected',
-                  icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
-                },
-              ]}
-            />
             <button
+              type="button"
               onClick={() => setSelectedCandidate(row)}
-              title="View Profile Details"
-              className="w-7 h-7 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
+              title={`View candidate details for ${row.name}`}
+              className="w-7 h-7 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleUpdateStage(row.id, 'Hired')}
+              title={`Hire candidate ${row.name}`}
+              className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+            >
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleUpdateStage(row.id, 'Interview Scheduled')}
+              title={`Schedule interview for ${row.name}`}
+              className="w-7 h-7 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleUpdateStage(row.id, 'Rejected')}
+              title={`Reject applicant ${row.name}`}
+              className="w-7 h-7 rounded-full bg-rose-50 text-rose-500 border border-rose-200 hover:bg-rose-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
           </div>
         )}

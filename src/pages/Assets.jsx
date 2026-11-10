@@ -445,43 +445,33 @@ export const Assets = () => {
         emptySubtext="Try selecting another category or clearing search query."
         actions={(row) => (
           <div className="inline-flex items-center justify-end gap-1.5">
-            <ActionDropdown
-              currentAction={
-                row.action ||
-                (row.status === 'Assigned' || row.status === 'Available'
-                  ? 'qualified'
-                  : row.status === 'Maintenance'
-                  ? 'dead'
-                  : 'not-qualified')
-              }
-              onActionChange={(newAction) =>
-                handleActionChange(row.id, newAction)
-              }
-              actions={[
-                {
-                  id: 'qualified',
-                  label: 'Qualified / In Service',
-                  icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
-                },
-                {
-                  id: 'dead',
-                  label: 'Dead / Maintenance',
-                  icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
-                },
-                {
-                  id: 'not-qualified',
-                  label: 'Not Qualified / Returned',
-                  icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
-                },
-              ]}
-            />
             <button
+              type="button"
               onClick={() => setSelectedAsset(row)}
-              title="View Hardware Specs"
-              className="w-7 h-7 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
+              title={`View hardware specs for ${row.name} (${row.tag})`}
+              className="w-7 h-7 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>
+            {row.status === 'Assigned' ? (
+              <button
+                type="button"
+                onClick={() => handleReturnAsset(row)}
+                title={`Process equipment return for ${row.name}`}
+                className="w-7 h-7 rounded-full bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAssigningAsset(row)}
+                title={`Assign ${row.name} to employee`}
+                className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              >
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            )}
           </div>
         )}
       />

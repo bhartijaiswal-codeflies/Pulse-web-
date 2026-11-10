@@ -88,6 +88,17 @@ export const Users = () => {
     resetForm();
   };
 
+  const handleEditEmployee = (emp) => {
+    setEditingEmployee(emp);
+    setName(emp.name);
+    setEmail(emp.email);
+    setPhone(emp.phone || '');
+    setDesignation(emp.designation || '');
+    setDepartment(emp.department || 'Engineering');
+    setRole(emp.role || 'Employee');
+    setShowAddModal(true);
+  };
+
   const handleToggleStatus = (employee) => {
     const newStatus = employee.status === 'Active' ? 'Inactive' : 'Active';
     employeeService.updateEmployee(employee.id, { status: newStatus });
@@ -329,42 +340,37 @@ export const Users = () => {
         emptySubtext="Try selecting another department or clearing search query."
         actions={(row) => (
           <div className="inline-flex items-center justify-end gap-1.5">
-            <ActionDropdown
-              currentAction={
-                row.action ||
-                (row.status === 'Active'
-                  ? 'qualified'
-                  : row.status === 'On Leave'
-                  ? 'dead'
-                  : 'not-qualified')
-              }
-              onActionChange={(newAction) =>
-                handleActionChange(row.id, newAction)
-              }
-              actions={[
-                {
-                  id: 'qualified',
-                  label: 'Qualified / Active',
-                  icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
-                },
-                {
-                  id: 'dead',
-                  label: 'Dead / On Leave',
-                  icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
-                },
-                {
-                  id: 'not-qualified',
-                  label: 'Not Qualified / Inactive',
-                  icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
-                },
-              ]}
-            />
             <button
+              type="button"
               onClick={() => setSelectedUser(row)}
-              title="View Profile Details"
-              className="w-7 h-7 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
+              title={`View employee profile for ${row.name}`}
+              className="w-7 h-7 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleToggleStatus(row)}
+              title={row.status === 'Active' ? `Deactivate ${row.name}` : `Activate ${row.name}`}
+              className={`w-7 h-7 rounded-full border flex items-center justify-center hover:scale-105 transition-all shadow-2xs cursor-pointer ${
+                row.status === 'Active'
+                  ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100'
+                  : 'bg-rose-50 text-rose-500 border-rose-200 hover:bg-rose-100'
+              }`}
+            >
+              {row.status === 'Active' ? (
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              ) : (
+                <X className="w-3.5 h-3.5 stroke-[2.5]" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleEditEmployee(row)}
+              title={`Edit details for ${row.name}`}
+              className="w-7 h-7 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
