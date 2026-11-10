@@ -11,17 +11,17 @@ export const SearchBar = ({
 }) => {
   return (
     <div className={`relative flex items-center ${className}`}>
-      <Search className="absolute left-3 w-3.5 h-3.5 text-[#8292AD] pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8292AD] pointer-events-none" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className={`w-full pl-8.5 ${
+        className={`w-full pl-10 ${
           showShortcut ? 'pr-12' : value && onClear ? 'pr-8' : 'pr-3'
         } py-1.5 h-9 bg-white text-xs text-[#172033] placeholder-[#8292AD] border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] transition-all shadow-2xs`}
       />
-      <div className="absolute right-2 flex items-center gap-1">
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
         {value && onClear && (
           <button
             type="button"
