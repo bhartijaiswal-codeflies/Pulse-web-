@@ -13,11 +13,13 @@ import {
   Check,
   X,
   Eye,
+  Skull,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { DataTable } from '../components/common/DataTable';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ActionDropdown } from '../components/common/ActionDropdown';
 import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { candidateService } from '../services/candidateService';
@@ -96,6 +98,22 @@ export const Candidates = () => {
     if (selectedCandidate) {
       setSelectedCandidate((prev) => ({ ...prev, stage: newStage }));
     }
+  };
+
+  const handleActionChange = (id, newAction) => {
+    setCandidates((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, action: newAction } : c))
+    );
+    const labelMap = {
+      qualified: 'Qualified / Hired',
+      dead: 'Under Review / Hold',
+      'not-qualified': 'Not Qualified / Rejected',
+    };
+    addToast({
+      title: 'Action Recorded',
+      message: `Candidate marked as ${labelMap[newAction] || newAction}.`,
+      type: newAction === 'qualified' ? 'success' : 'info',
+    });
   };
 
   const filteredCandidates = candidates.filter((c) => {
@@ -202,7 +220,14 @@ export const Candidates = () => {
       header: 'OPTIONS',
       accessor: 'stage',
       align: 'center',
-      render: (row) => <StatusBadge status={row.stage} size="xs" showChevron={true} />,
+      render: (row) => (
+        <StatusBadge
+          status={row.stage}
+          size="xs"
+          showChevron={true}
+          onStatusChange={(newStage) => handleUpdateStage(row.id, newStage)}
+        />
+      ),
     },
   ];
 
@@ -287,24 +312,40 @@ export const Candidates = () => {
         emptySubtext="Try filtering by another stage or search query."
         actions={(row) => (
           <div className="inline-flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => handleUpdateStage(row.id, 'Hired')}
-              title="Hire Candidate"
-              className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
-            >
-              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
-            <button
-              onClick={() => handleUpdateStage(row.id, 'Under Review')}
-              title="Hold / Review"
-              className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
-            >
-              <X className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
+            <ActionDropdown
+              currentAction={
+                row.action ||
+                (row.stage === 'Hired' || row.stage === 'Shortlisted'
+                  ? 'qualified'
+                  : row.stage === 'Rejected'
+                  ? 'not-qualified'
+                  : 'dead')
+              }
+              onActionChange={(newAction) =>
+                handleActionChange(row.id, newAction)
+              }
+              actions={[
+                {
+                  id: 'qualified',
+                  label: 'Qualified / Hired',
+                  icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
+                },
+                {
+                  id: 'dead',
+                  label: 'Dead / Under Review',
+                  icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
+                },
+                {
+                  id: 'not-qualified',
+                  label: 'Not Qualified / Rejected',
+                  icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
+                },
+              ]}
+            />
             <button
               onClick={() => setSelectedCandidate(row)}
               title="View Profile Details"
-              className="w-6 h-6 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
+              className="w-7 h-7 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>

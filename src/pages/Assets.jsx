@@ -16,11 +16,13 @@ import {
   Eye,
   Loader2,
   RefreshCw,
+  Skull,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { DataTable } from '../components/common/DataTable';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ActionDropdown } from '../components/common/ActionDropdown';
 import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { assetService } from '../services/assetService';
@@ -157,6 +159,32 @@ export const Assets = () => {
     loadAssets();
   };
 
+  const handleStatusChange = (id, newStatus) => {
+    assetService.updateAsset(id, { status: newStatus });
+    addToast({
+      title: 'Asset Status Updated',
+      message: `Equipment status changed to "${newStatus}".`,
+      type: 'info',
+    });
+    loadAssets();
+  };
+
+  const handleActionChange = (id, newAction) => {
+    setAssets((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, action: newAction } : a))
+    );
+    const labelMap = {
+      qualified: 'Assigned / Stock Ready',
+      dead: 'Under Maintenance',
+      'not-qualified': 'Decommissioned / Returned',
+    };
+    addToast({
+      title: 'Action Recorded',
+      message: `Equipment marked as ${labelMap[newAction] || newAction}.`,
+      type: newAction === 'qualified' ? 'success' : 'warning',
+    });
+  };
+
   const filteredAssets = assets.filter((a) => {
     const matchesSearch =
       a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -254,7 +282,14 @@ export const Assets = () => {
       header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
+      render: (row) => (
+        <StatusBadge
+          status={row.status}
+          size="xs"
+          showChevron={true}
+          onStatusChange={(newStatus) => handleStatusChange(row.id, newStatus)}
+        />
+      ),
     },
   ];
 
@@ -410,27 +445,40 @@ export const Assets = () => {
         emptySubtext="Try selecting another category or clearing search query."
         actions={(row) => (
           <div className="inline-flex items-center justify-end gap-1.5">
-            {row.status === 'Assigned' ? (
-              <button
-                onClick={() => handleReturnAsset(row)}
-                title="Process Equipment Return"
-                className="w-6 h-6 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center hover:bg-amber-100 hover:scale-105 transition-all shadow-2xs"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-            ) : (
-              <button
-                onClick={() => setAssigningAsset(row)}
-                title="Assign to Employee"
-                className="w-6 h-6 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 flex items-center justify-center hover:bg-blue-100 hover:scale-105 transition-all shadow-2xs"
-              >
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-            )}
+            <ActionDropdown
+              currentAction={
+                row.action ||
+                (row.status === 'Assigned' || row.status === 'Available'
+                  ? 'qualified'
+                  : row.status === 'Maintenance'
+                  ? 'dead'
+                  : 'not-qualified')
+              }
+              onActionChange={(newAction) =>
+                handleActionChange(row.id, newAction)
+              }
+              actions={[
+                {
+                  id: 'qualified',
+                  label: 'Qualified / In Service',
+                  icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
+                },
+                {
+                  id: 'dead',
+                  label: 'Dead / Maintenance',
+                  icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
+                },
+                {
+                  id: 'not-qualified',
+                  label: 'Not Qualified / Returned',
+                  icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
+                },
+              ]}
+            />
             <button
               onClick={() => setSelectedAsset(row)}
               title="View Hardware Specs"
-              className="w-6 h-6 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
+              className="w-7 h-7 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>

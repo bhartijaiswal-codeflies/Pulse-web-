@@ -37,6 +37,30 @@ export const MyFinances = () => {
     setFinances(financeService.getFinances());
   };
 
+  const handlePayslipStatusChange = (id, newStatus) => {
+    setFinances((prev) => ({
+      ...prev,
+      payslips: prev.payslips.map((p) => (p.id === id ? { ...p, status: newStatus } : p)),
+    }));
+    addToast({
+      title: 'Status Updated',
+      message: `Payslip status changed to "${newStatus}".`,
+      type: 'info',
+    });
+  };
+
+  const handleExpenseStatusChange = (id, newStatus) => {
+    setFinances((prev) => ({
+      ...prev,
+      expenses: prev.expenses.map((e) => (e.id === id ? { ...e, status: newStatus } : e)),
+    }));
+    addToast({
+      title: 'Status Updated',
+      message: `Expense claim status changed to "${newStatus}".`,
+      type: 'info',
+    });
+  };
+
   useEffect(() => {
     loadFinances();
   }, []);
@@ -130,7 +154,16 @@ export const MyFinances = () => {
       header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
+      render: (row) => (
+        <StatusBadge
+          status={row.status}
+          size="xs"
+          showChevron={true}
+          onStatusChange={(newStatus) =>
+            handlePayslipStatusChange(row.id, newStatus)
+          }
+        />
+      ),
     },
   ];
 
@@ -172,7 +205,16 @@ export const MyFinances = () => {
       header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
+      render: (row) => (
+        <StatusBadge
+          status={row.status}
+          size="xs"
+          showChevron={true}
+          onStatusChange={(newStatus) =>
+            handleExpenseStatusChange(row.id, newStatus)
+          }
+        />
+      ),
     },
   ];
 

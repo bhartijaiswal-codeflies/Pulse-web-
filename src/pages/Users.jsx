@@ -16,11 +16,13 @@ import {
   Check,
   X,
   Eye,
+  Skull,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { DataTable } from '../components/common/DataTable';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ActionDropdown } from '../components/common/ActionDropdown';
 import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { employeeService } from '../services/employeeService';
@@ -95,6 +97,32 @@ export const Users = () => {
       type: 'info',
     });
     loadEmployees();
+  };
+
+  const handleStatusChange = (id, newStatus) => {
+    employeeService.updateEmployee(id, { status: newStatus });
+    addToast({
+      title: 'Status Updated',
+      message: `Employee status changed to "${newStatus}".`,
+      type: 'info',
+    });
+    loadEmployees();
+  };
+
+  const handleActionChange = (id, newAction) => {
+    setEmployees((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, action: newAction } : e))
+    );
+    const labelMap = {
+      qualified: 'Active & Verified',
+      dead: 'Under Review / Hold',
+      'not-qualified': 'Deactivated / Flagged',
+    };
+    addToast({
+      title: 'Action Recorded',
+      message: `Employee marked as ${labelMap[newAction] || newAction}.`,
+      type: newAction === 'qualified' ? 'success' : 'warning',
+    });
   };
 
   const resetForm = () => {
@@ -210,13 +238,12 @@ export const Users = () => {
       accessor: 'status',
       align: 'center',
       render: (row) => (
-        <button
-          onClick={() => handleToggleStatus(row)}
-          title="Click to toggle active state"
-          className="focus:outline-none"
-        >
-          <StatusBadge status={row.status} size="xs" showChevron={true} />
-        </button>
+        <StatusBadge
+          status={row.status}
+          size="xs"
+          showChevron={true}
+          onStatusChange={(newStatus) => handleStatusChange(row.id, newStatus)}
+        />
       ),
     },
   ];
@@ -302,25 +329,40 @@ export const Users = () => {
         emptySubtext="Try selecting another department or clearing search query."
         actions={(row) => (
           <div className="inline-flex items-center justify-end gap-1.5">
-            <button
-              onClick={() => handleToggleStatus(row)}
-              title={row.status === 'Active' ? 'Deactivate User' : 'Activate User'}
-              className={`w-6 h-6 rounded-full border flex items-center justify-center hover:scale-105 transition-all shadow-2xs ${
-                row.status === 'Active'
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100'
-                  : 'bg-rose-50 text-rose-500 border-rose-200 hover:bg-rose-100'
-              }`}
-            >
-              {row.status === 'Active' ? (
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              ) : (
-                <X className="w-3.5 h-3.5 stroke-[2.5]" />
-              )}
-            </button>
+            <ActionDropdown
+              currentAction={
+                row.action ||
+                (row.status === 'Active'
+                  ? 'qualified'
+                  : row.status === 'On Leave'
+                  ? 'dead'
+                  : 'not-qualified')
+              }
+              onActionChange={(newAction) =>
+                handleActionChange(row.id, newAction)
+              }
+              actions={[
+                {
+                  id: 'qualified',
+                  label: 'Qualified / Active',
+                  icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
+                },
+                {
+                  id: 'dead',
+                  label: 'Dead / On Leave',
+                  icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
+                },
+                {
+                  id: 'not-qualified',
+                  label: 'Not Qualified / Inactive',
+                  icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
+                },
+              ]}
+            />
             <button
               onClick={() => setSelectedUser(row)}
               title="View Profile Details"
-              className="w-6 h-6 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
+              className="w-7 h-7 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>

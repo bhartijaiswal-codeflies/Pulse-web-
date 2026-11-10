@@ -8,11 +8,13 @@ import {
   Check,
   X,
   Search,
+  Skull,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { DataTable } from '../components/common/DataTable';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { ActionDropdown } from '../components/common/ActionDropdown';
 import { SearchBar } from '../components/common/SearchBar';
 import { attendanceService } from '../services/attendanceService';
 import { useToast } from '../context/NotificationContext';
@@ -53,6 +55,33 @@ export const Attendance = () => {
       title: 'Shift Flagged',
       message: `${row.name}'s attendance record flagged for HR review.`,
       type: 'warning',
+    });
+  };
+
+  const handleStatusChange = (id, newStatus) => {
+    setRecords((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
+    );
+    addToast({
+      title: 'Status Updated',
+      message: `Shift status changed to "${newStatus}".`,
+      type: 'info',
+    });
+  };
+
+  const handleActionChange = (id, newAction) => {
+    setRecords((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, action: newAction } : r))
+    );
+    const labelMap = {
+      qualified: 'Verified Shift',
+      dead: 'Flagged Discrepancy',
+      'not-qualified': 'Marked Absent',
+    };
+    addToast({
+      title: 'Action Recorded',
+      message: `Shift marked as ${labelMap[newAction] || newAction}.`,
+      type: newAction === 'qualified' ? 'success' : 'warning',
     });
   };
 
@@ -172,7 +201,14 @@ export const Attendance = () => {
       header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
+      render: (row) => (
+        <StatusBadge
+          status={row.status}
+          size="xs"
+          showChevron={true}
+          onStatusChange={(newStatus) => handleStatusChange(row.id, newStatus)}
+        />
+      ),
     },
   ];
 
@@ -277,22 +313,36 @@ export const Attendance = () => {
             />
           }
           actions={(row) => (
-            <div className="inline-flex items-center justify-end gap-1.5">
-              <button
-                onClick={() => handleVerifyShift(row)}
-                title="Verify Punch"
-                className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
-              >
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-              <button
-                onClick={() => handleFlagShift(row)}
-                title="Flag Shift"
-                className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
-              >
-                <X className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-            </div>
+            <ActionDropdown
+              currentAction={
+                row.action ||
+                (row.status === 'On Time' || row.status === 'Present'
+                  ? 'qualified'
+                  : row.status === 'Late'
+                  ? 'dead'
+                  : 'not-qualified')
+              }
+              onActionChange={(newAction) =>
+                handleActionChange(row.id, newAction)
+              }
+              actions={[
+                {
+                  id: 'qualified',
+                  label: 'Qualified / Verified Shift',
+                  icon: <Check className="w-4 h-4 text-[#059669] stroke-[2.5]" />,
+                },
+                {
+                  id: 'dead',
+                  label: 'Dead / Flag Issue',
+                  icon: <Skull className="w-4 h-4 text-[#172033] stroke-[1.8]" />,
+                },
+                {
+                  id: 'not-qualified',
+                  label: 'Not Qualified / Absent',
+                  icon: <X className="w-4 h-4 text-[#DC2626] stroke-[2]" />,
+                },
+              ]}
+            />
           )}
           emptyMessage="No attendance records found"
           emptySubtext="Try selecting another filter or adjusting your search term."
