@@ -3,6 +3,8 @@ import {
   UserPlus,
   Briefcase,
   Calendar,
+  Calendar as CalendarIcon,
+  Star,
   ExternalLink,
   Search,
   Filter,
@@ -18,6 +20,10 @@ import {
   Upload,
   Download,
   UserCheck,
+  Building,
+  RotateCcw,
+  RotateCw,
+  ChevronDown,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -29,14 +35,48 @@ import { Modal } from '../components/common/Modal';
 import { candidateService } from '../services/candidateService';
 import { useToast } from '../context/NotificationContext';
 
+const parseCandidateDate = (dateStr) => {
+  if (!dateStr) return null;
+  const match = dateStr.match(/(\d{1,2})\s+([A-Za-z]+),?\s*(\d{4})?/);
+  if (match) {
+    const day = parseInt(match[1], 10);
+    const monthStr = match[2];
+    const year = match[3] ? parseInt(match[3], 10) : 2026;
+    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const monthIndex = months.findIndex((m) => monthStr.toLowerCase().startsWith(m));
+    if (monthIndex >= 0) {
+      return new Date(year, monthIndex, day);
+    }
+  }
+  return null;
+};
+
 export const Candidates = () => {
   const [candidates, setCandidates] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [stageFilter, setStageFilter] = useState('All');
+  const [showStageDropdown, setShowStageDropdown] = useState(false);
+  const [periodFilter, setPeriodFilter] = useState('all');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [deptFilter, setDeptFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+
   const fileInputRef = useRef(null);
+  const stageDropdownRef = useRef(null);
   const { addToast } = useToast();
+
+  const departments = [
+    'All',
+    'Engineering',
+    'Product',
+    'Design',
+    'Marketing',
+    'Finances',
+    'HR & People',
+    'Infrastructure',
+  ];
 
   // New candidate form
   const [newName, setNewName] = useState('');
@@ -58,6 +98,46 @@ export const Candidates = () => {
   useEffect(() => {
     loadCandidates();
   }, []);
+
+  // Close stage dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        stageDropdownRef.current &&
+        !stageDropdownRef.current.contains(e.target)
+      ) {
+        setShowStageDropdown(false);
+      }
+    };
+    if (showStageDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showStageDropdown]);
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setStageFilter('All');
+    setPeriodFilter('all');
+    setFromDate('');
+    setToDate('');
+    setDeptFilter('All');
+    addToast({
+      title: 'Filters Reset',
+      message: 'All candidate filters have been cleared.',
+      type: 'info',
+    });
+  };
+
+  const handleApplyFilters = () => {
+    addToast({
+      title: 'Filters Applied',
+      message: `Showing ${filteredCandidates.length} matching candidates.`,
+      type: 'success',
+    });
+  };
 
   const handleCopyEmail = (e, email) => {
     e.stopPropagation();
@@ -221,53 +301,293 @@ export const Candidates = () => {
   };
 
   const filteredCandidates = candidates.filter((c) => {
+    const query = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.phone && c.phone.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (c.recruiter && c.recruiter.toLowerCase().includes(searchQuery.toLowerCase()));
+      !query ||
+      c.name.toLowerCase().includes(query) ||
+      c.role.toLowerCase().includes(query) ||
+      c.department.toLowerCase().includes(query) ||
+      c.email.toLowerCase().includes(query) ||
+      (c.phone && c.phone.toLowerCase().includes(query)) ||
+      ((c.recruiter || c.interviewer) &&
+        (c.recruiter || c.interviewer).toLowerCase().includes(query));
 
     const matchesStage =
       stageFilter === 'All' || c.stage.toLowerCase() === stageFilter.toLowerCase();
 
-    return matchesSearch && matchesStage;
+    const matchesDept =
+      deptFilter === 'All' || c.department.toLowerCase() === deptFilter.toLowerCase();
+
+    let matchesDate = true;
+    if (periodFilter === 'today') {
+      matchesDate =
+        c.interviewDate?.toLowerCase().includes('today') ||
+        c.interviewDate?.includes('10 Nov');
+    } else if (periodFilter === 'this-week') {
+      matchesDate =
+        c.interviewDate?.includes('Nov, 2026') ||
+        c.interviewDate?.includes('Joining');
+    } else if (periodFilter === 'this-month') {
+      matchesDate =
+        c.interviewDate?.includes('Nov') ||
+        c.interviewDate?.includes('Joining');
+    } else if (periodFilter === 'custom' || fromDate || toDate) {
+      const cDate = parseCandidateDate(c.interviewDate);
+      if (cDate) {
+        if (fromDate) {
+          const from = new Date(fromDate);
+          from.setHours(0, 0, 0, 0);
+          if (cDate < from) matchesDate = false;
+        }
+        if (toDate) {
+          const to = new Date(toDate);
+          to.setHours(23, 59, 59, 999);
+          if (cDate > to) matchesDate = false;
+        }
+      }
+    }
+
+    return matchesSearch && matchesStage && matchesDept && matchesDate;
   });
 
-  const candidateTabs = [
-    { id: 'All', label: 'All Pipeline', count: candidates.length },
-    {
-      id: 'Under Review',
+  const stageStatusConfig = {
+    All: {
+      label: 'All Pipeline',
+      count: candidates.length,
+      icon: <UserCheck className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.2]" />,
+      pillClass: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE] hover:bg-blue-100/70',
+      badgeClass: 'bg-[#DBEAFE] text-[#1D4ED8]',
+    },
+    'Under Review': {
       label: 'Under Review',
       count: candidates.filter((c) => c.stage === 'Under Review').length,
-      icon: <Clock className="w-3 h-3 text-[#64748B]" />,
+      icon: <Clock className="w-3.5 h-3.5 text-[#64748B] stroke-[2.2]" />,
+      pillClass: 'bg-[#F8FAFC] text-[#475569] border-[#CBD5E1] hover:bg-slate-100',
+      badgeClass: 'bg-[#E2E8F0] text-[#334155]',
     },
-    {
-      id: 'Interview Scheduled',
+    'Interview Scheduled': {
       label: 'Interview Scheduled',
       count: candidates.filter((c) => c.stage === 'Interview Scheduled').length,
-      icon: <Calendar className="w-3 h-3 text-[#2563EB]" />,
+      icon: <Calendar className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.2]" />,
+      pillClass: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE] hover:bg-blue-100/70',
+      badgeClass: 'bg-[#DBEAFE] text-[#1D4ED8]',
     },
-    {
-      id: 'Shortlisted',
+    Shortlisted: {
       label: 'Shortlisted',
       count: candidates.filter((c) => c.stage === 'Shortlisted').length,
-      badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200',
+      icon: <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />,
+      pillClass: 'bg-[#FFFBEB] text-[#D97706] border-[#FDE68A] hover:bg-amber-100/70',
+      badgeClass: 'bg-[#FEF3C7] text-[#B45309]',
     },
-    {
-      id: 'Offer Extended',
+    'Offer Extended': {
       label: 'Offer Extended',
       count: candidates.filter((c) => c.stage === 'Offer Extended').length,
-      badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+      icon: <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 stroke-[2.2]" />,
+      pillClass: 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0] hover:bg-emerald-100/70',
+      badgeClass: 'bg-[#D1FAE5] text-[#047857]',
     },
-    {
-      id: 'Hired',
+    Hired: {
       label: 'Hired',
       count: candidates.filter((c) => c.stage === 'Hired').length,
-      badgeColor: 'bg-blue-50 text-blue-700 border border-blue-200',
+      icon: <Check className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.5]" />,
+      pillClass: 'bg-[#EFF6FF] text-[#1D4ED8] border-[#93C5FD] hover:bg-blue-100',
+      badgeClass: 'bg-[#BFDBFE] text-[#1E40AF]',
     },
-  ];
+  };
+
+  const currentStageConfig = stageStatusConfig[stageFilter] || stageStatusConfig.All;
+
+  // Single-Row Filter Bar matching Attendance design (media_1794304412388_6a1f2742.png)
+  const candidateFilterBar = (
+    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+      {/* Left: All Filters in 1 Row */}
+      <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+        {/* 1. All Pipeline in 1 Styled Colored Dropdown */}
+        <div className="relative flex-shrink-0" ref={stageDropdownRef}>
+          <button
+            type="button"
+            onClick={() => setShowStageDropdown((prev) => !prev)}
+            className={`inline-flex items-center gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentStageConfig.pillClass}`}
+          >
+            <span className="flex-shrink-0">{currentStageConfig.icon}</span>
+            <span>
+              {currentStageConfig.label} ({currentStageConfig.count})
+            </span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                showStageDropdown ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          {/* Stage Options Popover */}
+          {showStageDropdown && (
+            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[220px] animate-fade-in text-left">
+              <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider border-b border-[#F1F5F9] mb-1">
+                Filter by Pipeline Stage
+              </div>
+              {Object.entries(stageStatusConfig).map(([key, cfg]) => {
+                const isSelected = stageFilter === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      setStageFilter(key);
+                      setShowStageDropdown(false);
+                    }}
+                    className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#F8FAFC] font-bold'
+                        : 'hover:bg-[#F8FAFC] font-medium text-[#4E5D78]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="flex-shrink-0">{cfg.icon}</span>
+                      <span className={isSelected ? 'text-[#172033]' : ''}>
+                        {cfg.label}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.badgeClass}`}
+                      >
+                        {cfg.count}
+                      </span>
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.5]" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 2. Search Candidate, Role, Recruiter */}
+        <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            placeholder="Search candidate, role, recruiter..."
+          />
+        </div>
+
+        {/* 3. Quick Period Dropdown */}
+        <div className="relative min-w-[150px] flex-shrink-0">
+          <select
+            value={periodFilter}
+            onChange={(e) => {
+              const val = e.target.value;
+              setPeriodFilter(val);
+              if (val !== 'custom') {
+                setFromDate('');
+                setToDate('');
+              }
+            }}
+            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+          >
+            <option value="all">All Dates</option>
+            <option value="today">Today</option>
+            <option value="this-week">This Week</option>
+            <option value="this-month">This Month</option>
+            <option value="custom">Custom Date Range...</option>
+          </select>
+          <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
+            ▼
+          </span>
+        </div>
+
+        {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
+        {periodFilter === 'custom' && (
+          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] flex-shrink-0">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
+              <span className="text-[11px] text-[#8292AD]">From:</span>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="px-2 py-1 h-7 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+              />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
+              <span className="text-[11px] text-[#8292AD]">To:</span>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="px-2 py-1 h-7 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 5. Department Filter */}
+        <div className="relative min-w-[145px] flex-shrink-0">
+          <select
+            value={deptFilter}
+            onChange={(e) => setDeptFilter(e.target.value)}
+            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+          >
+            {departments.map((dept) => (
+              <option key={dept} value={dept}>
+                {dept === 'All' ? 'All Departments' : dept}
+              </option>
+            ))}
+          </select>
+          <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
+            ▼
+          </span>
+        </div>
+      </div>
+
+      {/* Right: Reset + Apply + Live Filter Counter + Refresh */}
+      <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
+        {/* Reset Button */}
+        <button
+          type="button"
+          onClick={handleResetFilters}
+          title="Reset all filters"
+          className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
+        >
+          <RotateCcw className="w-3.5 h-3.5 text-[#DC2626]" />
+          <span>Reset</span>
+        </button>
+
+        {/* Apply Button */}
+        <button
+          type="button"
+          onClick={handleApplyFilters}
+          title="Apply current filters"
+          className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white transition-all active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer whitespace-nowrap"
+        >
+          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+          <span>Apply</span>
+        </button>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-[#E5EAF2] hidden sm:block mx-0.5" />
+
+        {/* Live Filter Counter + Refresh */}
+        <div className="text-xs text-[#8292AD] font-medium flex items-center gap-1.5 whitespace-nowrap select-none">
+          <span>
+            Filtered: {filteredCandidates.length} Shown of {candidates.length}
+          </span>
+          <button
+            onClick={() => loadCandidates()}
+            title="Refresh Candidates"
+            className="p-1 hover:bg-[#F8FAFC] rounded-lg transition-transform active:rotate-180 cursor-pointer"
+          >
+            <RotateCw className="w-3.5 h-3.5 text-[#8292AD] hover:text-[#2563EB] transition-colors" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   const columns = [
     {
@@ -372,7 +692,7 @@ export const Candidates = () => {
       },
     },
     {
-      header: 'OPTIONS',
+      header: 'STATUS',
       accessor: 'stage',
       align: 'center',
       render: (row) => (
@@ -388,7 +708,7 @@ export const Candidates = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      {/* Page Header with Import, Export and Add Candidate Buttons */}
+      {/* Page Header with Import, Export and Add Candidate Buttons - exact equal size as Attendance */}
       <PageHeader
         title="Candidate Management"
         badgeText="Recruitment Pipeline"
@@ -405,33 +725,33 @@ export const Candidates = () => {
               className="hidden"
             />
 
-            {/* Import Button */}
+            {/* Import Button - exact same size and shape as Attendance Export CSV */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
               title="Import candidates from CSV"
             >
               <Upload className="w-3.5 h-3.5 text-[#8292AD]" />
               <span>Import</span>
             </button>
 
-            {/* Export CSV Button */}
+            {/* Export CSV Button - exact same size and shape as Attendance Export CSV */}
             <button
               type="button"
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
               title="Export candidate pipeline to CSV"
             >
               <Download className="w-3.5 h-3.5 text-[#8292AD]" />
-              <span>Export</span>
+              <span>Export CSV</span>
             </button>
 
-            {/* Add Candidate Button */}
+            {/* Add Candidate Button - exact same size and shape as Attendance Create button */}
             <button
               type="button"
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
             >
               <UserPlus className="w-4 h-4 stroke-[2.5]" />
               <span>Add Candidate</span>
@@ -480,24 +800,13 @@ export const Candidates = () => {
         />
       </div>
 
-      {/* Table with Tab Pills, Integrated Search & Circular Action Buttons */}
+      {/* Table with Dedicated Fixed Filter Bar matching Attendance */}
       <DataTable
         columns={columns}
         data={filteredCandidates}
         pageSize={10}
-        tabs={candidateTabs}
-        activeTab={stageFilter}
-        onTabChange={setStageFilter}
-        filterInfo={`Filtered: ${filteredCandidates.length} Shown of ${candidates.length}`}
+        filterBar={candidateFilterBar}
         entityName="candidates"
-        searchBar={
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            placeholder="Search candidates, roles, recruiters..."
-          />
-        }
         emptyMessage="No candidates match your criteria"
         emptySubtext="Try filtering by another stage or search query."
         actions={(row) => (
@@ -858,4 +1167,3 @@ export const Candidates = () => {
     </div>
   );
 };
-
