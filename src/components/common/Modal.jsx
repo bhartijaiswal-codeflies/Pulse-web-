@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export const Modal = ({
@@ -30,7 +31,7 @@ export const Modal = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div className="fixed top-16 left-0 md:left-[76px] right-0 bottom-0 z-30 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
@@ -66,7 +67,8 @@ export const Modal = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Clock,
   UserCheck,
@@ -916,156 +917,51 @@ export const Attendance = () => {
       )}
 
       {/* CREATE ATTENDANCE POPUP MODAL (Matching exact design of media_1794294290231_6c5fd112.png) */}
-      {showCreateModal && (
-        <div
-          className="fixed top-16 left-0 md:left-[76px] right-0 bottom-0 z-30 overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 sm:p-6 animate-fade-in"
-          onClick={() => setShowCreateModal(false)}
-        >
+      {showCreateModal &&
+        createPortal(
           <div
-            className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in my-auto"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed top-16 left-0 md:left-[76px] right-0 bottom-0 z-30 overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+            onClick={() => setShowCreateModal(false)}
           >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#F1F5F9]">
-              <h3 className="text-base font-bold text-[#172033]">
-                Create Attendance
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-[#F8FAFC] transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            <div
+              className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in my-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#F1F5F9]">
+                <h3 className="text-base font-bold text-[#172033]">
+                  Create Attendance
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-            {/* Modal Body Form */}
-            <form onSubmit={handleCreateAttendance}>
-              <div className="px-6 py-4 space-y-4">
-                {/* 1. Employee / User * */}
-                <div>
-                  <label className="block text-xs font-bold text-[#374151] mb-1.5">
-                    Employee / User <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <select
-                      required
-                      value={createEmployee}
-                      onChange={(e) => setCreateEmployee(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
-                    >
-                      <option value="">-- Select --</option>
-                      {employeesList.map((emp) => (
-                        <option key={emp.id} value={emp.name}>
-                          {emp.name} ({emp.id}) - {emp.department}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                      <svg className="w-3 h-3 fill-slate-400" viewBox="0 0 24 24">
-                        <path d="M7 10l5 5 5-5z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. In Time * and Out Time */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Modal Body Form */}
+              <form onSubmit={handleCreateAttendance}>
+                <div className="px-6 py-4 space-y-4">
+                  {/* 1. Employee / User * */}
                   <div>
                     <label className="block text-xs font-bold text-[#374151] mb-1.5">
-                      In Time <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="time"
-                        required
-                        value={createInTime}
-                        onChange={(e) => setCreateInTime(e.target.value)}
-                        placeholder="--:-- --"
-                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
-                      Out Time
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="time"
-                        value={createOutTime}
-                        onChange={(e) => setCreateOutTime(e.target.value)}
-                        placeholder="--:-- --"
-                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Date * (+ Add More) and Status * */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <label className="text-xs font-bold text-[#374151]">
-                        Date <span className="text-red-500">*</span>
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleAddDateRow}
-                        className="text-[10px] font-bold bg-[#4F46E5] hover:bg-indigo-700 text-white px-2 py-0.5 rounded cursor-pointer transition-colors"
-                      >
-                        + Add More
-                      </button>
-                    </div>
-
-                    <div className="space-y-2">
-                      {createDates.map((dVal, dIdx) => (
-                        <div key={dIdx} className="relative flex items-center gap-1.5">
-                          <div className="relative flex-1">
-                            <input
-                              type="date"
-                              required
-                              value={dVal}
-                              onChange={(e) =>
-                                handleDateChange(dIdx, e.target.value)
-                              }
-                              placeholder="dd/mm/yyyy"
-                              className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
-                            />
-                          </div>
-                          {createDates.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveDateRow(dIdx)}
-                              className="text-slate-400 hover:text-rose-500 p-1"
-                              title="Remove date"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
-                      Status <span className="text-red-500">*</span>
+                      Employee / User <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <select
                         required
-                        value={createStatus}
-                        onChange={(e) => setCreateStatus(e.target.value)}
+                        value={createEmployee}
+                        onChange={(e) => setCreateEmployee(e.target.value)}
                         className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
                       >
                         <option value="">-- Select --</option>
-                        <option value="Present">Present</option>
-                        <option value="Absent">Absent</option>
-                        <option value="First Half Leave">First Half Leave</option>
-                        <option value="Second Half Leave">Second Half Leave</option>
-                        <option value="Half Day Marked">Half Day Marked</option>
+                        {employeesList.map((emp) => (
+                          <option key={emp.id} value={emp.name}>
+                            {emp.name} ({emp.id}) - {emp.department}
+                          </option>
+                        ))}
                       </select>
                       <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                         <svg className="w-3 h-3 fill-slate-400" viewBox="0 0 24 24">
@@ -1074,45 +970,152 @@ export const Attendance = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* 2. In Time * and Out Time */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                        In Time <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          required
+                          value={createInTime}
+                          onChange={(e) => setCreateInTime(e.target.value)}
+                          placeholder="--:-- --"
+                          className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                        Out Time
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="time"
+                          value={createOutTime}
+                          onChange={(e) => setCreateOutTime(e.target.value)}
+                          placeholder="--:-- --"
+                          className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Date * (+ Add More) and Status * */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <label className="text-xs font-bold text-[#374151]">
+                          Date <span className="text-red-500">*</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleAddDateRow}
+                          className="text-[10px] font-bold bg-[#4F46E5] hover:bg-indigo-700 text-white px-2 py-0.5 rounded cursor-pointer transition-colors"
+                        >
+                          + Add More
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {createDates.map((dVal, dIdx) => (
+                          <div key={dIdx} className="relative flex items-center gap-1.5">
+                            <div className="relative flex-1">
+                              <input
+                                type="date"
+                                required
+                                value={dVal}
+                                onChange={(e) =>
+                                  handleDateChange(dIdx, e.target.value)
+                                }
+                                placeholder="dd/mm/yyyy"
+                                className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
+                              />
+                            </div>
+                            {createDates.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveDateRow(dIdx)}
+                                className="text-slate-400 hover:text-rose-500 p-1"
+                                title="Remove date"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                        Status <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          required
+                          value={createStatus}
+                          onChange={(e) => setCreateStatus(e.target.value)}
+                          className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                        >
+                          <option value="">-- Select --</option>
+                          <option value="Present">Present</option>
+                          <option value="Absent">Absent</option>
+                          <option value="First Half Leave">First Half Leave</option>
+                          <option value="Second Half Leave">Second Half Leave</option>
+                          <option value="Half Day Marked">Half Day Marked</option>
+                        </select>
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <svg className="w-3 h-3 fill-slate-400" viewBox="0 0 24 24">
+                            <path d="M7 10l5 5 5-5z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Remarks */}
+                  <div>
+                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                      Remarks
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={createRemarks}
+                      onChange={(e) => setCreateRemarks(e.target.value)}
+                      placeholder=""
+                      className="w-full px-3.5 py-2 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] resize-y"
+                    />
+                  </div>
                 </div>
 
-                {/* 4. Remarks */}
-                <div>
-                  <label className="block text-xs font-bold text-[#374151] mb-1.5">
-                    Remarks
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={createRemarks}
-                    onChange={(e) => setCreateRemarks(e.target.value)}
-                    placeholder=""
-                    className="w-full px-3.5 py-2 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] resize-y"
-                  />
+                {/* Modal Footer matching exact image with light gray bg and teal Submit button */}
+                <div className="bg-[#ECEEF2] px-6 py-3.5 border-t border-[#E5EAF2] flex items-center justify-between">
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-md bg-[#00A896] hover:bg-[#008f80] text-white shadow-xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Save className="w-4 h-4 stroke-[2.2]" />
+                    <span>Submit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
                 </div>
-              </div>
-
-              {/* Modal Footer matching exact image with light gray bg and teal Submit button */}
-              <div className="bg-[#ECEEF2] px-6 py-3.5 border-t border-[#E5EAF2] flex items-center justify-between">
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-md bg-[#00A896] hover:bg-[#008f80] text-white shadow-xs transition-all active:scale-95 cursor-pointer"
-                >
-                  <Save className="w-4 h-4 stroke-[2.2]" />
-                  <span>Submit</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* Attendance Details Modal (Clicking on Employee) */}
       {selectedRecord && (
