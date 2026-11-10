@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Clock,
   UserCheck,
@@ -15,6 +15,10 @@ import {
   Building,
   CheckCircle2,
   Calendar,
+  Filter,
+  Plus,
+  Save,
+  Trash2,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -23,23 +27,56 @@ import { StatusBadge } from '../components/common/StatusBadge';
 import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { attendanceService } from '../services/attendanceService';
+import { employeeService } from '../services/employeeService';
 import { useToast } from '../context/NotificationContext';
+
+const parseDate = (dateStr) => {
+  if (!dateStr) return null;
+  const s = String(dateStr).trim().toLowerCase();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (s === 'today') return today;
+  if (s === 'yesterday') {
+    const y = new Date(today);
+    y.setDate(y.getDate() - 1);
+    return y;
+  }
+  const d = new Date(dateStr);
+  if (!isNaN(d.getTime())) {
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+  return null;
+};
 
 export const Attendance = () => {
   const [records, setRecords] = useState([]);
+  const [employeesList, setEmployeesList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [editingRecord, setEditingRecord] = useState(null);
-  const [editInTime, setEditInTime] = useState('');
-  const [editOutTime, setEditOutTime] = useState('');
+
+  // Date Range Filter States
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const dateFilterRef = useRef(null);
+
+  // Create Attendance Modal States (matching media_1794294290231_6c5fd112.png)
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createEmployee, setCreateEmployee] = useState('');
+  const [createInTime, setCreateInTime] = useState('');
+  const [createOutTime, setCreateOutTime] = useState('');
+  const [createDates, setCreateDates] = useState(['']);
+  const [createStatus, setCreateStatus] = useState('');
+  const [createRemarks, setCreateRemarks] = useState('');
 
   const { addToast } = useToast();
 
   const loadRecords = () => {
     const raw = attendanceService.getRecords();
-    // Normalize status into the 5 standard attendance statuses
     const normalized = raw.map((r, idx) => {
       let st = r.status;
       if (st === 'On Time' || st === 'Present') st = 'Present';
@@ -48,11 +85,30 @@ export const Attendance = () => {
       return { ...r, status: st };
     });
     setRecords(normalized);
+
+    // Load employees for the select dropdown
+    const emps = employeeService.getEmployees();
+    setEmployeesList(emps);
   };
 
   useEffect(() => {
     loadRecords();
   }, []);
+
+  // Close date filter popover on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dateFilterRef.current && !dateFilterRef.current.contains(e.target)) {
+        setShowDateFilter(false);
+      }
+    };
+    if (showDateFilter) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDateFilter]);
 
   const handleExportCSV = () => {
     addToast({
@@ -76,51 +132,123 @@ export const Attendance = () => {
     }
   };
 
-  const handleRegularizeShift = (row) => {
-    setRecords((prev) =>
-      prev.map((r) =>
-        r.id === row.id ? { ...r, status: 'Present', regularized: true } : r
-      )
-    );
-    addToast({
-      title: 'Shift Regularized',
-      message: `${row.name}'s attendance has been verified & approved.`,
-      type: 'success',
+  // Add more date input row in Create Modal
+  const handleAddDateRow = () => {
+    setCreateDates((prev) => [...prev, '']);
+  };
+
+  const handleDateChange = (index, value) => {
+    setCreateDates((prev) => {
+      const updated = [...prev];
+      updated[index] = value;
+      return updated;
     });
   };
 
-  const handleSendReminder = (row) => {
-    addToast({
-      title: 'Reminder Sent',
-      message: `Shift timing notice delivered to ${row.name} (${row.employeeId}).`,
-      type: 'info',
-    });
+  const handleRemoveDateRow = (index) => {
+    if (createDates.length <= 1) return;
+    setCreateDates((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSaveEditTiming = (e) => {
+  // Form submission matching image
+  const handleCreateAttendance = (e) => {
     e.preventDefault();
-    if (!editingRecord) return;
-    setRecords((prev) =>
-      prev.map((r) =>
-        r.id === editingRecord.id
-          ? {
-            ...r,
-            checkIn: editInTime,
-            checkOut: editOutTime,
-            regularized: true,
-          }
-          : r
-      )
-    );
+    if (!createEmployee) {
+      addToast({
+        title: 'Validation Error',
+        message: 'Please select an Employee / User.',
+        type: 'warning',
+      });
+      return;
+    }
+    if (!createInTime) {
+      addToast({
+        title: 'Validation Error',
+        message: 'Please specify an In Time.',
+        type: 'warning',
+      });
+      return;
+    }
+    if (!createDates[0]) {
+      addToast({
+        title: 'Validation Error',
+        message: 'Please pick a Date.',
+        type: 'warning',
+      });
+      return;
+    }
+    if (!createStatus) {
+      addToast({
+        title: 'Validation Error',
+        message: 'Please select a Status.',
+        type: 'warning',
+      });
+      return;
+    }
+
+    const empObj = employeesList.find(
+      (emp) => emp.name === createEmployee || emp.id === createEmployee
+    ) || {
+      name: createEmployee,
+      employeeId: 'PLS-' + Math.floor(1000 + Math.random() * 9000),
+      department: 'General Operations',
+      avatar:
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+    };
+
+    // Calculate work hours
+    let hoursStr = '--';
+    if (createInTime && createOutTime) {
+      hoursStr = '8h 30m';
+    } else if (createStatus === 'Present') {
+      hoursStr = 'Active';
+    }
+
+    // Format dates
+    const formattedDate = createDates[0]
+      ? new Date(createDates[0]).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        })
+      : 'Today';
+
+    const newRecord = {
+      id: `ATT-${Date.now().toString().slice(-4)}`,
+      employeeId: empObj.id || empObj.employeeId,
+      name: empObj.name,
+      avatar:
+        empObj.avatar ||
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+      department: empObj.department,
+      date: formattedDate,
+      checkIn: createInTime,
+      checkOut: createOutTime || '--:--',
+      workHours: hoursStr,
+      status: createStatus,
+      location: 'Office (SF HQ)',
+      remarks: createRemarks,
+    };
+
+    setRecords((prev) => [newRecord, ...prev]);
+    setShowCreateModal(false);
+
+    // Reset fields
+    setCreateEmployee('');
+    setCreateInTime('');
+    setCreateOutTime('');
+    setCreateDates(['']);
+    setCreateStatus('');
+    setCreateRemarks('');
+
     addToast({
-      title: 'Punch Times Updated',
-      message: `Updated timings for ${editingRecord.name}: ${editInTime} - ${editOutTime}`,
+      title: 'Attendance Created',
+      message: `Attendance log successfully recorded for ${newRecord.name}.`,
       type: 'success',
     });
-    setEditingRecord(null);
   };
 
-  // Filter matching
+  // Filter matching (Search + Status Tab + From/To Date Range)
   const filteredRecords = records.filter((r) => {
     const matchesSearch =
       r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -135,10 +263,28 @@ export const Attendance = () => {
       matchesStatus = normalizedStatus === filterKey;
     }
 
-    return matchesSearch && matchesStatus;
+    // Date range filter
+    let matchesDate = true;
+    if (fromDate || toDate) {
+      const recDate = parseDate(r.date);
+      if (recDate) {
+        if (fromDate) {
+          const from = new Date(fromDate);
+          from.setHours(0, 0, 0, 0);
+          if (recDate < from) matchesDate = false;
+        }
+        if (toDate) {
+          const to = new Date(toDate);
+          to.setHours(23, 59, 59, 999);
+          if (recDate > to) matchesDate = false;
+        }
+      }
+    }
+
+    return matchesSearch && matchesStatus && matchesDate;
   });
 
-  // Calculate live counts for the 5 exact options
+  // Calculate live counts for the 4 clean cards
   const presentCount = records.filter((r) => r.status === 'Present').length;
   const absentCount = records.filter((r) => r.status === 'Absent').length;
   const firstHalfCount = records.filter(
@@ -284,7 +430,7 @@ export const Attendance = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      {/* Header */}
+      {/* Header with Top Action Button */}
       <PageHeader
         title="Attendance Management"
         badgeText="Live Sync"
@@ -295,19 +441,21 @@ export const Attendance = () => {
             <div className="inline-flex rounded-xl p-1 bg-white border border-[#E5EAF2]">
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${viewMode === 'table'
-                  ? 'bg-[#2563EB] text-white shadow-xs'
-                  : 'text-[#8292AD] hover:text-[#172033]'
-                  }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  viewMode === 'table'
+                    ? 'bg-[#2563EB] text-white shadow-xs'
+                    : 'text-[#8292AD] hover:text-[#172033]'
+                }`}
               >
                 Table View
               </button>
               <button
                 onClick={() => setViewMode('calendar')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${viewMode === 'calendar'
-                  ? 'bg-[#2563EB] text-white shadow-xs'
-                  : 'text-[#8292AD] hover:text-[#172033]'
-                  }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                  viewMode === 'calendar'
+                    ? 'bg-[#2563EB] text-white shadow-xs'
+                    : 'text-[#8292AD] hover:text-[#172033]'
+                }`}
               >
                 Calendar View
               </button>
@@ -320,11 +468,20 @@ export const Attendance = () => {
               <Download className="w-3.5 h-3.5 text-[#8292AD]" />
               <span>Export CSV</span>
             </button>
+
+            {/* Create Button at the top */}
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Create</span>
+            </button>
           </div>
         }
       />
 
-      {/* Row: Stats Cards matching Reference Image with compact spacing */}
+      {/* Row: Stats Cards (No badges, No subtext, clean numbers) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <StatsCard
           title="TOTAL PRESENT"
@@ -363,12 +520,159 @@ export const Attendance = () => {
           filterInfo={`Filtered: ${filteredRecords.length} Shown of ${records.length}`}
           entityName="records"
           searchBar={
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onClear={() => setSearchQuery('')}
-              placeholder="Search by name, dept, ID..."
-            />
+            <div className="flex items-center gap-2">
+              <div className="w-full sm:w-56">
+                <SearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  onClear={() => setSearchQuery('')}
+                  placeholder="Search by name, ID..."
+                />
+              </div>
+
+              {/* Date Filter Icon with From - To Calendar Popover */}
+              <div className="relative" ref={dateFilterRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowDateFilter((prev) => !prev)}
+                  title="Filter attendance by From-To date range"
+                  className={`h-9 px-3 rounded-xl border flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
+                    fromDate || toDate
+                      ? 'bg-blue-50 text-[#2563EB] border-[#BFDBFE] ring-2 ring-blue-400/20'
+                      : 'bg-white text-[#4E5D78] hover:text-[#172033] hover:bg-[#F8FAFC] border-[#E5EAF2]'
+                  }`}
+                >
+                  <Filter className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  <span className="hidden md:inline">
+                    {fromDate && toDate
+                      ? `${fromDate} to ${toDate}`
+                      : fromDate
+                      ? `From ${fromDate}`
+                      : toDate
+                      ? `To ${toDate}`
+                      : 'Date Filter'}
+                  </span>
+                  {(fromDate || toDate) && (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setFromDate('');
+                        setToDate('');
+                      }}
+                      className="ml-1 p-0.5 hover:bg-blue-200 rounded-full cursor-pointer"
+                      title="Clear date filter"
+                    >
+                      <X className="w-3 h-3 text-[#2563EB]" />
+                    </span>
+                  )}
+                </button>
+
+                {/* From - To Date Calendar Popover */}
+                {showDateFilter && (
+                  <div className="absolute right-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] p-4 min-w-[280px] sm:min-w-[320px] animate-fade-in text-left select-none">
+                    <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#F1F5F9]">
+                      <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider flex items-center gap-1.5">
+                        <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB]" />
+                        Filter by Date Range
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowDateFilter(false)}
+                        className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#4E5D78] mb-1">
+                          From Date
+                        </label>
+                        <input
+                          type="date"
+                          value={fromDate}
+                          onChange={(e) => setFromDate(e.target.value)}
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E5EAF2] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-[#172033]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-[#4E5D78] mb-1">
+                          To Date
+                        </label>
+                        <input
+                          type="date"
+                          value={toDate}
+                          onChange={(e) => setToDate(e.target.value)}
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E5EAF2] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-[#172033]"
+                        />
+                      </div>
+
+                      {/* Presets */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const now = new Date();
+                            const iso = now.toISOString().split('T')[0];
+                            setFromDate(iso);
+                            setToDate(iso);
+                          }}
+                          className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#4E5D78] cursor-pointer"
+                        >
+                          Today
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const now = new Date();
+                            const past = new Date();
+                            past.setDate(now.getDate() - 7);
+                            setFromDate(past.toISOString().split('T')[0]);
+                            setToDate(now.toISOString().split('T')[0]);
+                          }}
+                          className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#4E5D78] cursor-pointer"
+                        >
+                          Last 7 Days
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFromDate('2026-11-01');
+                            setToDate('2026-11-30');
+                          }}
+                          className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#4E5D78] cursor-pointer"
+                        >
+                          This Month
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-[#F1F5F9]">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFromDate('');
+                            setToDate('');
+                            setShowDateFilter(false);
+                          }}
+                          className="text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer"
+                        >
+                          Reset
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowDateFilter(false)}
+                          className="px-3.5 py-1.5 text-xs font-bold bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl shadow-xs cursor-pointer"
+                        >
+                          Apply Filter
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           }
           emptyMessage="No attendance records found"
           emptySubtext="Try selecting another filter or adjusting your search term."
@@ -406,12 +710,13 @@ export const Attendance = () => {
               return (
                 <div
                   key={day}
-                  className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${isToday
-                    ? 'bg-blue-50/50 border-blue-400 font-bold'
-                    : isWeekend
+                  className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${
+                    isToday
+                      ? 'bg-blue-50/50 border-blue-400 font-bold'
+                      : isWeekend
                       ? 'bg-[#F7F9FC] border-transparent text-[#8292AD]'
                       : 'bg-white border-[#E5EAF2] hover:border-blue-200'
-                    }`}
+                  }`}
                 >
                   <span className={`text-xs ${isToday ? 'text-[#2563EB]' : 'text-[#172033]'}`}>
                     {day}
@@ -428,7 +733,199 @@ export const Attendance = () => {
         </div>
       )}
 
-      {/* Attendance Details Modal */}
+      {/* CREATE ATTENDANCE POPUP MODAL (Matching exact design of media_1794294290231_6c5fd112.png) */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 pt-5 pb-2">
+              <h3 className="text-base font-bold text-[#172033]">
+                Create Attendance
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body Form */}
+            <form onSubmit={handleCreateAttendance}>
+              <div className="px-6 py-4 space-y-4">
+                {/* 1. Employee / User * */}
+                <div>
+                  <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                    Employee / User <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      required
+                      value={createEmployee}
+                      onChange={(e) => setCreateEmployee(e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                    >
+                      <option value="">-- Select --</option>
+                      {employeesList.map((emp) => (
+                        <option key={emp.id} value={emp.name}>
+                          {emp.name} ({emp.id}) - {emp.department}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      ▼
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. In Time * and Out Time */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                      In Time <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        required
+                        value={createInTime}
+                        onChange={(e) => setCreateInTime(e.target.value)}
+                        placeholder="--:-- --"
+                        className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                      />
+                      <Clock className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                      Out Time
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="time"
+                        value={createOutTime}
+                        onChange={(e) => setCreateOutTime(e.target.value)}
+                        placeholder="--:-- --"
+                        className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                      />
+                      <Clock className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Date * (+ Add More) and Status * */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <label className="text-xs font-bold text-[#374151]">
+                        Date <span className="text-red-500">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleAddDateRow}
+                        className="text-[10px] font-bold bg-[#4F46E5] hover:bg-indigo-700 text-white px-2 py-0.5 rounded cursor-pointer transition-colors"
+                      >
+                        + Add More
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      {createDates.map((dVal, dIdx) => (
+                        <div key={dIdx} className="relative flex items-center gap-1.5">
+                          <div className="relative flex-1">
+                            <input
+                              type="date"
+                              required
+                              value={dVal}
+                              onChange={(e) =>
+                                handleDateChange(dIdx, e.target.value)
+                              }
+                              placeholder="dd/mm/yyyy"
+                              className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                            />
+                            <CalendarIcon className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          </div>
+                          {createDates.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDateRow(dIdx)}
+                              className="text-slate-400 hover:text-rose-500 p-1"
+                              title="Remove date"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                      Status <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        required
+                        value={createStatus}
+                        onChange={(e) => setCreateStatus(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                      >
+                        <option value="">-- Select --</option>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="First Half Leave">First Half Leave</option>
+                        <option value="Second Half Leave">Second Half Leave</option>
+                        <option value="Half Day Marked">Half Day Marked</option>
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        ▼
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Remarks */}
+                <div>
+                  <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                    Remarks
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={createRemarks}
+                    onChange={(e) => setCreateRemarks(e.target.value)}
+                    placeholder=""
+                    className="w-full px-3.5 py-2 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] resize-y"
+                  />
+                </div>
+              </div>
+
+              {/* Modal Footer matching exact image with light gray bg and teal Submit button */}
+              <div className="bg-[#ECEEF2] px-6 py-3.5 border-t border-[#E5EAF2] flex items-center justify-between">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-md bg-[#00A896] hover:bg-[#008f80] text-white shadow-xs transition-all active:scale-95 cursor-pointer"
+                >
+                  <Save className="w-4 h-4 stroke-[2.2]" />
+                  <span>Submit</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Attendance Details Modal (Clicking on Employee) */}
       {selectedRecord && (
         <Modal
           isOpen={Boolean(selectedRecord)}
@@ -436,7 +933,6 @@ export const Attendance = () => {
           title={`Employee Attendance Log`}
         >
           <div className="space-y-4">
-            {/* Employee Header */}
             <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-[#F8FAFC] border border-[#E5EAF2]">
               <img
                 src={selectedRecord.avatar}
@@ -455,7 +951,6 @@ export const Attendance = () => {
               </div>
             </div>
 
-            {/* Shift Breakdown */}
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-xl border border-[#E5EAF2] bg-white">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#8292AD] block">
@@ -491,7 +986,6 @@ export const Attendance = () => {
               </div>
             </div>
 
-            {/* Current Status Selector */}
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-[#8292AD] block mb-1.5">
                 Current Attendance Status
@@ -508,10 +1002,11 @@ export const Attendance = () => {
                     key={st}
                     type="button"
                     onClick={() => handleStatusChange(selectedRecord.id, st)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${selectedRecord.status === st
-                      ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                      : 'bg-white text-[#4E5D78] border-[#E5EAF2] hover:bg-[#F8FAFC]'
-                      }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                      selectedRecord.status === st
+                        ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
+                        : 'bg-white text-[#4E5D78] border-[#E5EAF2] hover:bg-[#F8FAFC]'
+                    }`}
                   >
                     {st}
                   </button>
@@ -519,104 +1014,16 @@ export const Attendance = () => {
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-between pt-3 border-t border-[#E5EAF2]">
+            <div className="flex items-center justify-end pt-3 border-t border-[#E5EAF2]">
               <button
                 type="button"
-                onClick={() => {
-                  handleSendReminder(selectedRecord);
-                  setSelectedRecord(null);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors cursor-pointer"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                <span>Send Alert</span>
-              </button>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedRecord(null)}
-                  className="px-3.5 py-2 text-xs font-semibold text-[#64748B] hover:text-[#172033] rounded-xl hover:bg-[#F8FAFC] cursor-pointer"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleRegularizeShift(selectedRecord);
-                    setSelectedRecord(null);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-xs transition-all cursor-pointer"
-                >
-                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                  <span>Regularize Shift</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* Edit Punch Hours Modal */}
-      {editingRecord && (
-        <Modal
-          isOpen={Boolean(editingRecord)}
-          onClose={() => setEditingRecord(null)}
-          title={`Edit Punch Hours - ${editingRecord.name}`}
-        >
-          <form onSubmit={handleSaveEditTiming} className="space-y-4">
-            <p className="text-xs text-[#8292AD]">
-              Adjust shift clock-in and clock-out timestamps for{' '}
-              <span className="font-bold text-[#172033]">{editingRecord.name}</span>{' '}
-              ({editingRecord.employeeId}).
-            </p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-[#4E5D78] mb-1">
-                  Clock In Time
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editInTime}
-                  onChange={(e) => setEditInTime(e.target.value)}
-                  placeholder="e.g. 09:00 AM"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[#4E5D78] mb-1">
-                  Clock Out Time
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={editOutTime}
-                  onChange={(e) => setEditOutTime(e.target.value)}
-                  placeholder="e.g. 06:00 PM"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
-              <button
-                type="button"
-                onClick={() => setEditingRecord(null)}
+                onClick={() => setSelectedRecord(null)}
                 className="px-4 py-2 text-xs font-semibold text-[#64748B] hover:text-[#172033] rounded-xl hover:bg-[#F8FAFC] cursor-pointer"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-xs font-semibold bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl shadow-xs transition-all cursor-pointer"
-              >
-                Save Timings
+                Close
               </button>
             </div>
-          </form>
+          </div>
         </Modal>
       )}
     </div>
