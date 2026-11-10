@@ -40,11 +40,11 @@ export const Attendance = () => {
   const loadRecords = () => {
     const raw = attendanceService.getRecords();
     // Normalize status into the 5 standard attendance statuses
-    const normalized = raw.map((r) => {
+    const normalized = raw.map((r, idx) => {
       let st = r.status;
-      if (st === 'On Time') st = 'Present';
-      if (st === 'Late') st = 'Half Day Marked';
-      if (st === 'On Leave') st = 'First Half Leave';
+      if (st === 'On Time' || st === 'Present') st = 'Present';
+      else if (st === 'Late') st = idx === 1 ? 'Half Day Marked' : 'Absent';
+      else if (st === 'On Leave') st = idx % 2 === 0 ? 'First Half Leave' : 'Second Half Leave';
       return { ...r, status: st };
     });
     setRecords(normalized);
@@ -150,6 +150,9 @@ export const Attendance = () => {
   const halfDayCount = records.filter(
     (r) => r.status === 'Half Day Marked'
   ).length;
+
+  const approvedLeavesCount = firstHalfCount + secondHalfCount;
+  const unapprovedLeavesCount = halfDayCount;
 
   const attendanceTabs = [
     { id: 'All', label: 'All Punches', count: records.length },
@@ -326,38 +329,26 @@ export const Attendance = () => {
         <StatsCard
           title="TOTAL PRESENT"
           value={presentCount}
-          subtext={<span className="text-emerald-600 font-semibold">+8 today</span>}
-          badgeText="92% Rate"
-          badgeType="success"
           icon={UserCheck}
           iconBg="bg-blue-50 text-[#2563EB]"
         />
         <StatsCard
           title="ABSENT TODAY"
           value={absentCount}
-          subtext={<span className="text-rose-600 font-semibold">Cutoff marked</span>}
-          badgeText="ACTION NEEDED"
-          badgeType="danger"
           icon={AlertTriangle}
           iconBg="bg-rose-50 text-rose-600"
         />
         <StatsCard
-          title="HALF DAY LEAVES"
-          value={firstHalfCount + secondHalfCount}
-          subtext="1st & 2nd half"
-          badgeText="Scheduled"
-          badgeType="default"
-          icon={Clock}
-          iconBg="bg-amber-50 text-amber-600"
+          title="APPROVED LEAVES"
+          value={approvedLeavesCount}
+          icon={CheckCircle2}
+          iconBg="bg-emerald-50 text-emerald-600"
         />
         <StatsCard
-          title="AVG WORK HOURS"
-          value="8.4h"
-          subtext={<span className="text-emerald-600 font-semibold">⚡ top 5% compliance</span>}
-          badgeText="+0.2 hrs"
-          badgeType="success"
-          icon={CalendarIcon}
-          iconBg="bg-emerald-50 text-emerald-600"
+          title="UNAPPROVED LEAVES"
+          value={unapprovedLeavesCount}
+          icon={Clock}
+          iconBg="bg-amber-50 text-amber-600"
         />
       </div>
 
