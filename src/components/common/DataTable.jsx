@@ -14,6 +14,7 @@ export const DataTable = ({
   onTabChange,
   filterInfo,
   searchBar,
+  filterBar,
   entityName = 'records',
   onRefresh,
 }) => {
@@ -94,6 +95,13 @@ export const DataTable = ({
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Dedicated Fixed Filter Card */}
+      {filterBar && (
+        <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 shadow-card transition-all">
+          {filterBar}
         </div>
       )}
 

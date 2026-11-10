@@ -1,6 +1,6 @@
 import { attendanceRecords } from '../data/mockData';
 
-const ATTENDANCE_KEY = 'pulse_attendance';
+const ATTENDANCE_KEY = 'pulse_attendance_v3';
 
 export const attendanceService = {
   getRecords: () => {

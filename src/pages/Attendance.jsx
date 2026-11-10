@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Clock,
   UserCheck,
@@ -19,6 +19,7 @@ import {
   Plus,
   Save,
   Trash2,
+  RotateCcw,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -55,14 +56,12 @@ export const Attendance = () => {
   const [employeesList, setEmployeesList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
-  const [selectedRecord, setSelectedRecord] = useState(null);
-
-  // Date Range Filter States
+  const [periodFilter, setPeriodFilter] = useState('all'); // 'all', 'today', 'yesterday', 'this-week', 'this-month', 'custom'
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [showDateFilter, setShowDateFilter] = useState(false);
-  const dateFilterRef = useRef(null);
+  const [deptFilter, setDeptFilter] = useState('All');
+  const [viewMode, setViewMode] = useState('table'); // 'table' or 'calendar'
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   // Create Attendance Modal States (matching media_1794294290231_6c5fd112.png)
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -94,21 +93,6 @@ export const Attendance = () => {
   useEffect(() => {
     loadRecords();
   }, []);
-
-  // Close date filter popover on outside click
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dateFilterRef.current && !dateFilterRef.current.contains(e.target)) {
-        setShowDateFilter(false);
-      }
-    };
-    if (showDateFilter) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showDateFilter]);
 
   const handleExportCSV = () => {
     addToast({
@@ -248,41 +232,107 @@ export const Attendance = () => {
     });
   };
 
-  // Filter matching (Search + Status Tab + From/To Date Range)
+  // Extract unique departments for dropdown
+  const departments = useMemo(() => {
+    const list = records.map((r) => r.department).filter(Boolean);
+    return ['All', ...Array.from(new Set(list))];
+  }, [records]);
+
+  // Check if date matches the selected period
+  const checkDateMatch = (dateStr) => {
+    if (periodFilter === 'all' && !fromDate && !toDate) return true;
+    const recDate = parseDate(dateStr);
+    if (!recDate) return true;
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (periodFilter === 'today') {
+      return recDate.getTime() === today.getTime();
+    }
+
+    if (periodFilter === 'yesterday') {
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+      return recDate.getTime() === yesterday.getTime();
+    }
+
+    if (periodFilter === 'this-week') {
+      const weekStart = new Date(today);
+      const day = weekStart.getDay();
+      const diff = weekStart.getDate() - day + (day === 0 ? -6 : 1);
+      weekStart.setDate(diff);
+      weekStart.setHours(0, 0, 0, 0);
+
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      weekEnd.setHours(23, 59, 59, 999);
+
+      return recDate >= weekStart && recDate <= weekEnd;
+    }
+
+    if (periodFilter === 'this-month') {
+      return (
+        recDate.getMonth() === today.getMonth() &&
+        recDate.getFullYear() === today.getFullYear()
+      );
+    }
+
+    if (periodFilter === 'custom' || fromDate || toDate) {
+      if (fromDate) {
+        const from = new Date(fromDate);
+        from.setHours(0, 0, 0, 0);
+        if (recDate < from) return false;
+      }
+      if (toDate) {
+        const to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+        if (recDate > to) return false;
+      }
+      return true;
+    }
+
+    return true;
+  };
+
+  // Filter matching (Search + Status Tab + Quick Period / Dates + Department)
   const filteredRecords = records.filter((r) => {
+    const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.employeeId.toLowerCase().includes(searchQuery.toLowerCase());
+      !q ||
+      r.name?.toLowerCase().includes(q) ||
+      r.department?.toLowerCase().includes(q) ||
+      r.employeeId?.toLowerCase().includes(q);
 
     const normalizedStatus = (r.status || '').toLowerCase();
     const filterKey = statusFilter.toLowerCase();
+    const matchesStatus = filterKey === 'all' || normalizedStatus === filterKey;
 
-    let matchesStatus = filterKey === 'all';
-    if (!matchesStatus) {
-      matchesStatus = normalizedStatus === filterKey;
-    }
+    const matchesDept =
+      deptFilter === 'All' ||
+      (r.department && r.department.toLowerCase() === deptFilter.toLowerCase());
 
-    // Date range filter
-    let matchesDate = true;
-    if (fromDate || toDate) {
-      const recDate = parseDate(r.date);
-      if (recDate) {
-        if (fromDate) {
-          const from = new Date(fromDate);
-          from.setHours(0, 0, 0, 0);
-          if (recDate < from) matchesDate = false;
-        }
-        if (toDate) {
-          const to = new Date(toDate);
-          to.setHours(23, 59, 59, 999);
-          if (recDate > to) matchesDate = false;
-        }
-      }
-    }
+    const matchesDate = checkDateMatch(r.date);
 
-    return matchesSearch && matchesStatus && matchesDate;
+    return matchesSearch && matchesStatus && matchesDept && matchesDate;
   });
+
+  const isAnyFilterActive =
+    Boolean(searchQuery.trim()) ||
+    periodFilter !== 'all' ||
+    Boolean(fromDate) ||
+    Boolean(toDate) ||
+    deptFilter !== 'All' ||
+    statusFilter !== 'All';
+
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setPeriodFilter('all');
+    setFromDate('');
+    setToDate('');
+    setDeptFilter('All');
+    setStatusFilter('All');
+  };
 
   // Calculate live counts for the 4 clean cards
   const presentCount = records.filter((r) => r.status === 'Present').length;
@@ -428,6 +478,178 @@ export const Attendance = () => {
     },
   ];
 
+  const attendanceFilterBar = (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Left: Search + Quick Period Dropdown + Custom Date Range + Department */}
+        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+          {/* Search Bar */}
+          <div className="w-full sm:w-64 min-w-[200px]">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onClear={() => setSearchQuery('')}
+              placeholder="Search employee, ID, department..."
+            />
+          </div>
+
+          {/* Quick Period Dropdown */}
+          <div className="relative min-w-[160px]">
+            <select
+              value={periodFilter}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPeriodFilter(val);
+                if (val !== 'custom') {
+                  setFromDate('');
+                  setToDate('');
+                }
+              }}
+              className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+            >
+              <option value="all">📅 All Dates</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="this-week">This Week</option>
+              <option value="this-month">This Month</option>
+              <option value="custom">Custom Date Range...</option>
+            </select>
+            <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
+              ▼
+            </span>
+          </div>
+
+          {/* Custom Date Pickers (Inline when 'custom' is selected) */}
+          {periodFilter === 'custom' && (
+            <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] p-1 rounded-xl border border-[#E5EAF2]">
+              <div className="flex items-center gap-1 text-[11px] font-semibold text-[#64748B] px-1">
+                <span>From:</span>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="px-2 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-semibold text-[#64748B] px-1">
+                <span>To:</span>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="px-2 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Department Filter */}
+          <div className="relative min-w-[150px]">
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+            >
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept === 'All' ? 'All Departments' : dept}
+                </option>
+              ))}
+            </select>
+            <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
+              ▼
+            </span>
+          </div>
+        </div>
+
+        {/* Right: Reset Filters Button */}
+        {isAnyFilterActive && (
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer whitespace-nowrap"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset Filters</span>
+          </button>
+        )}
+      </div>
+
+      {/* Active Filter Chips */}
+      {isAnyFilterActive && (
+        <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-[#F1F5F9] text-[11px]">
+          <span className="text-[#8292AD] font-bold uppercase tracking-wider text-[10px] mr-1">
+            Active Filters:
+          </span>
+          {searchQuery && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-[#2563EB] font-semibold border border-blue-200">
+              <span>Search: &ldquo;{searchQuery}&rdquo;</span>
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="hover:text-blue-800 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {periodFilter !== 'all' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-semibold border border-indigo-200">
+              <span>
+                Period:{' '}
+                {periodFilter === 'this-week'
+                  ? 'This Week'
+                  : periodFilter === 'this-month'
+                  ? 'This Month'
+                  : periodFilter.charAt(0).toUpperCase() + periodFilter.slice(1)}
+                {periodFilter === 'custom' && (fromDate || toDate)
+                  ? ` (${fromDate || '...'} to ${toDate || '...'})`
+                  : ''}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPeriodFilter('all');
+                  setFromDate('');
+                  setToDate('');
+                }}
+                className="hover:text-indigo-800 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {deptFilter !== 'All' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-600 font-semibold border border-emerald-200">
+              <span>Dept: {deptFilter}</span>
+              <button
+                type="button"
+                onClick={() => setDeptFilter('All')}
+                className="hover:text-emerald-800 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+          {statusFilter !== 'All' && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-[#4E5D78] font-semibold border border-slate-200">
+              <span>Status: {statusFilter}</span>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('All')}
+                className="hover:text-slate-800 cursor-pointer"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6 animate-fade-in pb-12">
       {/* Header with Top Action Button */}
@@ -518,162 +740,8 @@ export const Attendance = () => {
           activeTab={statusFilter}
           onTabChange={setStatusFilter}
           filterInfo={`Filtered: ${filteredRecords.length} Shown of ${records.length}`}
+          filterBar={attendanceFilterBar}
           entityName="records"
-          searchBar={
-            <div className="flex items-center gap-2">
-              <div className="w-full sm:w-56">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  onClear={() => setSearchQuery('')}
-                  placeholder="Search by name, ID..."
-                />
-              </div>
-
-              {/* Date Filter Icon with From - To Calendar Popover */}
-              <div className="relative" ref={dateFilterRef}>
-                <button
-                  type="button"
-                  onClick={() => setShowDateFilter((prev) => !prev)}
-                  title="Filter attendance by From-To date range"
-                  className={`h-9 px-3 rounded-xl border flex items-center gap-1.5 text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shadow-2xs ${
-                    fromDate || toDate
-                      ? 'bg-blue-50 text-[#2563EB] border-[#BFDBFE] ring-2 ring-blue-400/20'
-                      : 'bg-white text-[#4E5D78] hover:text-[#172033] hover:bg-[#F8FAFC] border-[#E5EAF2]'
-                  }`}
-                >
-                  <Filter className="w-3.5 h-3.5 text-[#2563EB]" />
-                  <CalendarIcon className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">
-                    {fromDate && toDate
-                      ? `${fromDate} to ${toDate}`
-                      : fromDate
-                      ? `From ${fromDate}`
-                      : toDate
-                      ? `To ${toDate}`
-                      : 'Date Filter'}
-                  </span>
-                  {(fromDate || toDate) && (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFromDate('');
-                        setToDate('');
-                      }}
-                      className="ml-1 p-0.5 hover:bg-blue-200 rounded-full cursor-pointer"
-                      title="Clear date filter"
-                    >
-                      <X className="w-3 h-3 text-[#2563EB]" />
-                    </span>
-                  )}
-                </button>
-
-                {/* From - To Date Calendar Popover */}
-                {showDateFilter && (
-                  <div className="absolute right-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] p-4 min-w-[280px] sm:min-w-[320px] animate-fade-in text-left select-none">
-                    <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#F1F5F9]">
-                      <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider flex items-center gap-1.5">
-                        <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB]" />
-                        Filter by Date Range
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setShowDateFilter(false)}
-                        className="text-slate-400 hover:text-slate-600 cursor-pointer"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-[#4E5D78] mb-1">
-                          From Date
-                        </label>
-                        <input
-                          type="date"
-                          value={fromDate}
-                          onChange={(e) => setFromDate(e.target.value)}
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E5EAF2] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-[#172033]"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-[#4E5D78] mb-1">
-                          To Date
-                        </label>
-                        <input
-                          type="date"
-                          value={toDate}
-                          onChange={(e) => setToDate(e.target.value)}
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#E5EAF2] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-[#172033]"
-                        />
-                      </div>
-
-                      {/* Presets */}
-                      <div className="flex items-center gap-1.5 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const now = new Date();
-                            const iso = now.toISOString().split('T')[0];
-                            setFromDate(iso);
-                            setToDate(iso);
-                          }}
-                          className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#4E5D78] cursor-pointer"
-                        >
-                          Today
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const now = new Date();
-                            const past = new Date();
-                            past.setDate(now.getDate() - 7);
-                            setFromDate(past.toISOString().split('T')[0]);
-                            setToDate(now.toISOString().split('T')[0]);
-                          }}
-                          className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#4E5D78] cursor-pointer"
-                        >
-                          Last 7 Days
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFromDate('2026-11-01');
-                            setToDate('2026-11-30');
-                          }}
-                          className="text-[10px] font-semibold px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-[#4E5D78] cursor-pointer"
-                        >
-                          This Month
-                        </button>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-2 border-t border-[#F1F5F9]">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFromDate('');
-                            setToDate('');
-                            setShowDateFilter(false);
-                          }}
-                          className="text-xs font-semibold text-slate-500 hover:text-slate-800 cursor-pointer"
-                        >
-                          Reset
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowDateFilter(false)}
-                          className="px-3.5 py-1.5 text-xs font-bold bg-[#2563EB] hover:bg-blue-700 text-white rounded-xl shadow-xs cursor-pointer"
-                        >
-                          Apply Filter
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          }
           emptyMessage="No attendance records found"
           emptySubtext="Try selecting another filter or adjusting your search term."
         />
