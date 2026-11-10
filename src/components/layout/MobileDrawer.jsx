@@ -53,9 +53,9 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Links with divider line after each item */}
-        <div className="flex-1 py-3 flex flex-col items-center w-full px-1.5 overflow-y-auto no-scrollbar">
-          {navigationItems.map((item) => {
+        {/* Links with full-width divider line between items */}
+        <div className="flex-1 py-3 flex flex-col items-center w-full overflow-y-auto no-scrollbar">
+          {navigationItems.map((item, index) => {
             const Icon = item.icon;
             return (
               <React.Fragment key={item.name}>
@@ -90,15 +90,17 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
                   )}
                 </NavLink>
 
-                {/* Divider Line */}
-                <div className="w-8 h-[1px] bg-[#141E38] my-1 flex-shrink-0" />
+                {/* Full-width Divider Line */}
+                {index < navigationItems.length - 1 && (
+                  <div className="w-full h-[1px] bg-[#141E38] my-1 flex-shrink-0" />
+                )}
               </React.Fragment>
             );
           })}
         </div>
 
         {/* Logout */}
-        <div className="w-full px-1.5 pt-2 border-t border-[#131B33] flex-shrink-0">
+        <div className="w-full px-1.5 pt-2 border-t border-[#141E38] flex-shrink-0">
           <button
             onClick={handleLogout}
             className="w-[62px] h-[50px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#76849D] hover:text-rose-400 hover:bg-[#1A1222] transition-colors"

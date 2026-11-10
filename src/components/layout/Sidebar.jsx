@@ -56,9 +56,9 @@ export const Sidebar = () => {
           </div>
         </div>
 
-        {/* Navigation Items (62px Tiles with divider lines between items) */}
-        <nav className="flex flex-col items-center w-full px-1.5 overflow-y-auto no-scrollbar flex-1 py-1">
-          {navigationItems.map((item) => {
+        {/* Navigation Items (62px Tiles with full-width divider lines between items) */}
+        <nav className="flex flex-col items-center w-full overflow-y-auto no-scrollbar flex-1 py-1">
+          {navigationItems.map((item, index) => {
             const Icon = item.icon;
             return (
               <React.Fragment key={item.name}>
@@ -105,16 +105,18 @@ export const Sidebar = () => {
                   )}
                 </NavLink>
 
-                {/* Divider Line after navbar item */}
-                <div className="w-8 h-[1px] bg-[#141E38] my-1 flex-shrink-0" />
+                {/* Full-width Divider Line between navbar items */}
+                {index < navigationItems.length - 1 && (
+                  <div className="w-full h-[1px] bg-[#141E38] my-1 flex-shrink-0" />
+                )}
               </React.Fragment>
             );
           })}
         </nav>
       </div>
 
-      {/* Bottom Section: Logout Tile */}
-      <div className="w-full px-1.5 pt-2 border-t border-[#131B33] flex-shrink-0 mt-1">
+      {/* Bottom Section: Logout Tile (Separated with matching full-width border) */}
+      <div className="w-full px-1.5 pt-2 border-t border-[#141E38] flex-shrink-0 mt-1">
         <button
           onClick={handleLogout}
           className="group relative w-[62px] h-[50px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#76849D] hover:text-rose-400 hover:bg-[#1A1222] transition-all duration-150"
