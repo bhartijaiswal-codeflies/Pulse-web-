@@ -14,6 +14,8 @@ import {
   Check,
   X,
   Eye,
+  Edit3,
+  Trash2,
   Mail,
   Phone,
   Copy,
@@ -24,6 +26,9 @@ import {
   RotateCcw,
   RotateCw,
   ChevronDown,
+  FileText,
+  Send,
+  Paperclip,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -34,6 +39,11 @@ import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { candidateService } from '../services/candidateService';
 import { useToast } from '../context/NotificationContext';
+
+const formatSalary = (val, fallback = '120,000') => {
+  if (!val) return fallback;
+  return String(val).replace(/^\$/, '').trim();
+};
 
 const parseCandidateDate = (dateStr) => {
   if (!dateStr) return null;
@@ -76,20 +86,56 @@ export const Candidates = () => {
     'Finances',
     'HR & People',
     'Infrastructure',
+    'Business Development',
   ];
 
-  // New candidate form
+  // New candidate form (no $ in salary)
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newRole, setNewRole] = useState('Senior Full Stack Engineer');
   const [newDept, setNewDept] = useState('Engineering');
   const [newExp, setNewExp] = useState('5 years');
-  const [newCtc, setNewCtc] = useState('$120,000');
-  const [newEctc, setNewEctc] = useState('$145,000');
+  const [newRelevantExp, setNewRelevantExp] = useState('5 years');
+  const [newNoticePeriod, setNewNoticePeriod] = useState('30 Days');
+  const [newCtc, setNewCtc] = useState('120,000');
+  const [newEctc, setNewEctc] = useState('145,000');
+  const [newReasonForChange, setNewReasonForChange] = useState('Career Growth');
   const [newRecruiter, setNewRecruiter] = useState('Saurabh H.');
   const [newStage, setNewStage] = useState('Under Review');
   const [newInterviewDate, setNewInterviewDate] = useState('');
+  const [newInterviewer, setNewInterviewer] = useState('Saurabh H.');
+  const [newRound, setNewRound] = useState('Technical Round');
+  const [newOffer, setNewOffer] = useState('');
+
+  // Edit candidate modal state (all fields from screenshot)
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingCandidate, setEditingCandidate] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editRole, setEditRole] = useState('');
+  const [editDept, setEditDept] = useState('Engineering');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editExperience, setEditExperience] = useState('');
+  const [editRelevantExperience, setEditRelevantExperience] = useState('');
+  const [editNoticePeriod, setEditNoticePeriod] = useState('');
+  const [editCtc, setEditCtc] = useState('');
+  const [editEctc, setEditEctc] = useState('');
+  const [editReasonForChange, setEditReasonForChange] = useState('');
+  const [editRecruiter, setEditRecruiter] = useState('');
+  const [editStage, setEditStage] = useState('Under Review');
+  const [editInterviewDate, setEditInterviewDate] = useState('');
+  const [editInterviewer, setEditInterviewer] = useState('');
+  const [editRound, setEditRound] = useState('Technical Round');
+  const [editRoundStatus, setEditRoundStatus] = useState('Pending');
+  const [editOffer, setEditOffer] = useState('');
+
+  // Delete candidate modal state
+  const [candidateToDelete, setCandidateToDelete] = useState(null);
+
+  // View modal interactive states (for comments & offer)
+  const [viewOfferText, setViewOfferText] = useState('');
+  const [viewCommentText, setViewCommentText] = useState('');
 
   const loadCandidates = () => {
     setCandidates(candidateService.getCandidates());
@@ -98,6 +144,137 @@ export const Candidates = () => {
   useEffect(() => {
     loadCandidates();
   }, []);
+
+  // Sync view modal offer text when candidate opens
+  useEffect(() => {
+    if (selectedCandidate) {
+      setViewOfferText(selectedCandidate.offer || '');
+      setViewCommentText('');
+    }
+  }, [selectedCandidate]);
+
+  // Open Edit modal with all fields populated
+  const handleOpenEditModal = (cand) => {
+    setEditingCandidate(cand);
+    setEditName(cand.name || '');
+    setEditRole(cand.role || '');
+    setEditDept(cand.department || 'Engineering');
+    setEditEmail(cand.email || '');
+    setEditPhone(cand.phone || '');
+    setEditExperience(cand.experience || '6 Yrs. 0 Months');
+    setEditRelevantExperience(cand.relevantExperience || cand.experience || '6 Yrs. 0 Months');
+    setEditNoticePeriod(cand.noticePeriod || '60 Days');
+    setEditCtc(formatSalary(cand.ctc, '91,666'));
+    setEditEctc(formatSalary(cand.ectc, '125,000'));
+    setEditReasonForChange(cand.reasonForChange || 'Career Growth');
+    setEditRecruiter(cand.recruiter || cand.interviewer || 'Komal Thapliyal');
+    setEditStage(cand.stage || 'Under Review');
+    setEditInterviewDate(cand.interviewDate || 'Wed, 04-Nov-26 02:30 PM');
+    setEditInterviewer(cand.interviewer || 'Bhupinderjit Singh');
+    setEditRound(cand.round || 'Technical Round');
+    setEditRoundStatus(cand.roundStatus || 'Pending');
+    setEditOffer(cand.offer || '');
+    setShowEditModal(true);
+  };
+
+  // Save Edit candidate
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    if (!editingCandidate) return;
+
+    const updatedData = {
+      name: editName.trim(),
+      role: editRole.trim(),
+      department: editDept,
+      email: editEmail.trim(),
+      phone: editPhone.trim(),
+      experience: editExperience.trim(),
+      relevantExperience: editRelevantExperience.trim(),
+      noticePeriod: editNoticePeriod.trim(),
+      ctc: formatSalary(editCtc),
+      ectc: formatSalary(editEctc),
+      reasonForChange: editReasonForChange.trim(),
+      recruiter: editRecruiter.trim(),
+      stage: editStage,
+      interviewDate: editInterviewDate.trim(),
+      interviewer: editInterviewer.trim(),
+      round: editRound.trim(),
+      roundStatus: editRoundStatus,
+      offer: editOffer.trim(),
+    };
+
+    candidateService.updateCandidate(editingCandidate.id, updatedData);
+    loadCandidates();
+
+    if (selectedCandidate && selectedCandidate.id === editingCandidate.id) {
+      setSelectedCandidate((prev) => ({ ...prev, ...updatedData }));
+    }
+
+    setShowEditModal(false);
+    setEditingCandidate(null);
+    addToast({
+      title: 'Candidate Updated',
+      message: `Profile for ${editName} updated successfully.`,
+      type: 'success',
+    });
+  };
+
+  // Delete candidate
+  const handleConfirmDelete = (id) => {
+    const cand = candidates.find((c) => c.id === id);
+    const candName = cand?.name || 'Candidate';
+    candidateService.deleteCandidate(id);
+    loadCandidates();
+    if (selectedCandidate?.id === id) {
+      setSelectedCandidate(null);
+    }
+    setCandidateToDelete(null);
+    addToast({
+      title: 'Candidate Deleted',
+      message: `${candName} has been removed from the candidate pipeline.`,
+      type: 'danger',
+    });
+  };
+
+  // View Modal: Update Candidate Offer
+  const handleUpdateOffer = () => {
+    if (!selectedCandidate) return;
+    candidateService.updateCandidate(selectedCandidate.id, {
+      offer: viewOfferText.trim(),
+    });
+    setSelectedCandidate((prev) => ({ ...prev, offer: viewOfferText.trim() }));
+    loadCandidates();
+    addToast({
+      title: 'Candidate Offer Updated',
+      message: 'Offer details saved successfully.',
+      type: 'success',
+    });
+  };
+
+  // View Modal: Submit Comment
+  const handleAddComment = (e) => {
+    e.preventDefault();
+    if (!selectedCandidate || !viewCommentText.trim()) return;
+
+    const newComment = {
+      author: 'Codeflies',
+      date: `Today, ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+      text: viewCommentText.trim(),
+    };
+
+    const updatedComments = [newComment, ...(selectedCandidate.comments || [])];
+    candidateService.updateCandidate(selectedCandidate.id, {
+      comments: updatedComments,
+    });
+    setSelectedCandidate((prev) => ({ ...prev, comments: updatedComments }));
+    setViewCommentText('');
+    loadCandidates();
+    addToast({
+      title: 'Comment Added',
+      message: 'Your comment has been submitted.',
+      type: 'success',
+    });
+  };
 
   // Close stage dropdown on outside click
   useEffect(() => {
@@ -218,8 +395,8 @@ export const Candidates = () => {
               role: parts[4] || 'Software Engineer',
               department: parts[5] || 'Engineering',
               experience: parts[6] || '3 years',
-              ctc: parts[7] || '$95,000',
-              ectc: parts[8] || '$120,000',
+              ctc: formatSalary(parts[7], '95,000'),
+              ectc: formatSalary(parts[8], '120,000'),
               interviewDate: parts[9] || 'Pending Schedule',
               recruiter: parts[10] || 'Saurabh H.',
               stage: parts[11] || 'Under Review',
@@ -266,12 +443,18 @@ export const Candidates = () => {
       role: newRole,
       department: newDept,
       experience: newExp,
-      ctc: newCtc.trim() || '$120,000',
-      ectc: newEctc.trim() || '$145,000',
+      relevantExperience: newRelevantExp || newExp,
+      noticePeriod: newNoticePeriod,
+      ctc: formatSalary(newCtc, '120,000'),
+      ectc: formatSalary(newEctc, '145,000'),
+      reasonForChange: newReasonForChange,
       recruiter: newRecruiter.trim() || 'Saurabh H.',
       stage: newStage,
       interviewDate: newInterviewDate || 'Pending Schedule',
-      interviewer: newRecruiter.trim() || 'Saurabh H.',
+      interviewer: newInterviewer.trim() || newRecruiter.trim() || 'Saurabh H.',
+      round: newRound || 'Technical Round',
+      roundStatus: 'Pending',
+      offer: newOffer.trim(),
     });
 
     addToast({
@@ -659,11 +842,11 @@ export const Candidates = () => {
         <div className="space-y-0.5 text-left">
           <div className="text-xs font-semibold text-[#1F2937]">
             <span className="text-[11px] font-bold text-[#6B7280]">CTC: </span>
-            <span className="font-bold text-[#111827]">{row.ctc || '$120,000'}</span>
+            <span className="font-bold text-[#111827]">{formatSalary(row.ctc)}</span>
           </div>
           <div className="text-xs font-semibold text-emerald-700">
             <span className="text-[11px] font-bold text-[#6B7280]">ECTC: </span>
-            <span className="font-bold text-emerald-600">{row.ectc || '$145,000'}</span>
+            <span className="font-bold text-emerald-600">{formatSalary(row.ectc)}</span>
           </div>
         </div>
       ),
@@ -811,37 +994,34 @@ export const Candidates = () => {
         emptySubtext="Try filtering by another stage or search query."
         actions={(row) => (
           <div className="inline-flex items-center justify-end gap-1.5">
+            {/* View Button */}
             <button
               type="button"
               onClick={() => setSelectedCandidate(row)}
               title={`View candidate details for ${row.name}`}
-              className="w-7 h-7 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              className="w-7 h-7 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>
+
+            {/* Edit Button */}
             <button
               type="button"
-              onClick={() => handleUpdateStage(row.id, 'Hired')}
-              title={`Hire candidate ${row.name}`}
+              onClick={() => handleOpenEditModal(row)}
+              title={`Edit candidate ${row.name}`}
               className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
             >
-              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Edit3 className="w-3.5 h-3.5" />
             </button>
+
+            {/* Delete Button */}
             <button
               type="button"
-              onClick={() => handleUpdateStage(row.id, 'Interview Scheduled')}
-              title={`Schedule interview for ${row.name}`}
-              className="w-7 h-7 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
-            >
-              <Calendar className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleUpdateStage(row.id, 'Rejected')}
-              title={`Reject applicant ${row.name}`}
+              onClick={() => setCandidateToDelete(row)}
+              title={`Delete candidate ${row.name}`}
               className="w-7 h-7 rounded-full bg-rose-50 text-rose-500 border border-rose-200 hover:bg-rose-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
             >
-              <X className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Trash2 className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
@@ -947,32 +1127,64 @@ export const Candidates = () => {
               </div>
             </div>
 
-            {/* Salary: CTC & ECTC */}
+            {/* Salary: CTC & ECTC (No $) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Current CTC (Salary)
+                  Current Salary (CTC)
                 </label>
                 <input
                   type="text"
                   value={newCtc}
                   onChange={(e) => setNewCtc(e.target.value)}
-                  placeholder="e.g. $120,000 or 15 LPA"
+                  placeholder="e.g. 120,000 or 15 LPA"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Expected Salary (ECTC)
+                </label>
+                <input
+                  type="text"
+                  value={newEctc}
+                  onChange={(e) => setNewEctc(e.target.value)}
+                  placeholder="e.g. 145,000 or 20 LPA"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-medium"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Relevant Experience
+                </label>
+                <input
+                  type="text"
+                  value={newRelevantExp}
+                  onChange={(e) => setNewRelevantExp(e.target.value)}
+                  placeholder="e.g. 5 Yrs. 0 Months"
                   className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Expected CTC (ECTC)
+                  Notice Period
                 </label>
-                <input
-                  type="text"
-                  value={newEctc}
-                  onChange={(e) => setNewEctc(e.target.value)}
-                  placeholder="e.g. $145,000 or 20 LPA"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
+                <select
+                  value={newNoticePeriod}
+                  onChange={(e) => setNewNoticePeriod(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Immediate">Immediate</option>
+                  <option value="15 Days">15 Days</option>
+                  <option value="30 Days">30 Days</option>
+                  <option value="60 Days">60 Days</option>
+                  <option value="90 Days">90 Days</option>
+                </select>
               </div>
             </div>
 
@@ -986,6 +1198,7 @@ export const Candidates = () => {
                   onChange={(e) => setNewRecruiter(e.target.value)}
                   className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
                 >
+                  <option value="Komal Thapliyal">Komal Thapliyal</option>
                   <option value="Saurabh H.">Saurabh H.</option>
                   <option value="Alexandre Roy">Alexandre Roy</option>
                   <option value="Devin Thorne">Devin Thorne</option>
@@ -995,7 +1208,7 @@ export const Candidates = () => {
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Pipeline Stage
+                  Pipeline Stage / Status
                 </label>
                 <select
                   value={newStage}
@@ -1006,21 +1219,38 @@ export const Candidates = () => {
                   <option value="Interview Scheduled">Interview Scheduled</option>
                   <option value="Shortlisted">Shortlisted</option>
                   <option value="Offer Extended">Offer Extended</option>
+                  <option value="Hired">Hired</option>
+                  <option value="Rejected">Rejected</option>
                 </select>
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                Interview Date / Time
-              </label>
-              <input
-                type="text"
-                value={newInterviewDate}
-                onChange={(e) => setNewInterviewDate(e.target.value)}
-                placeholder="e.g. 14 Nov, 2026 - 03:00 PM"
-                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Reason for Change
+                </label>
+                <input
+                  type="text"
+                  value={newReasonForChange}
+                  onChange={(e) => setNewReasonForChange(e.target.value)}
+                  placeholder="e.g. Career Growth"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Interview Date / Time
+                </label>
+                <input
+                  type="text"
+                  value={newInterviewDate}
+                  onChange={(e) => setNewInterviewDate(e.target.value)}
+                  placeholder="e.g. Wed, 04-Nov-26 02:30 PM"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
@@ -1042,21 +1272,210 @@ export const Candidates = () => {
         </Modal>
       )}
 
-      {/* Candidate Details Modal */}
-      {selectedCandidate && (
+      {/* Edit Candidate Modal (All fields from screenshot) */}
+      {showEditModal && editingCandidate && (
         <Modal
-          isOpen={!!selectedCandidate}
-          onClose={() => setSelectedCandidate(null)}
-          title="Candidate Profile"
-          subtitle={`Application ID: ${selectedCandidate.id}`}
-          footer={
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-[#8292AD]">Move Stage:</span>
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingCandidate(null);
+          }}
+          title="Edit Candidate Profile"
+          subtitle={`Editing details for ${editingCandidate.name} (ID: ${editingCandidate.id})`}
+          maxWidth="max-w-3xl"
+        >
+          <form onSubmit={handleSaveEdit} className="space-y-4">
+            {/* 1. Name & Role */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Candidate Full Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="e.g. Sneh Parul"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-semibold text-[#172033]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Applied Role / Designation *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editRole}
+                  onChange={(e) => setEditRole(e.target.value)}
+                  placeholder="e.g. Business Development Executive"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-semibold text-[#172033]"
+                />
+              </div>
+            </div>
+
+            {/* 2. Email & Phone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  placeholder="e.g. sneh.parul1499@gmail.com"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  placeholder="e.g. 8368049444"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+            </div>
+
+            {/* 3. Department & Recruiter */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Department
+                </label>
                 <select
-                  value={selectedCandidate.stage}
-                  onChange={(e) => handleUpdateStage(selectedCandidate.id, e.target.value)}
-                  className="text-xs border border-[#E5EAF2] rounded-lg px-2 py-1 bg-white font-medium"
+                  value={editDept}
+                  onChange={(e) => setEditDept(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  {departments.filter((d) => d !== 'All').map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Assigned Recruiter
+                </label>
+                <input
+                  type="text"
+                  value={editRecruiter}
+                  onChange={(e) => setEditRecruiter(e.target.value)}
+                  placeholder="e.g. Komal Thapliyal"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+            </div>
+
+            {/* 4. Experience & Relevant Experience */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Total Experience
+                </label>
+                <input
+                  type="text"
+                  value={editExperience}
+                  onChange={(e) => setEditExperience(e.target.value)}
+                  placeholder="e.g. 6 Yrs. 0 Months"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Relevant Experience
+                </label>
+                <input
+                  type="text"
+                  value={editRelevantExperience}
+                  onChange={(e) => setEditRelevantExperience(e.target.value)}
+                  placeholder="e.g. 6 Yrs. 0 Months"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+            </div>
+
+            {/* 5. Notice Period & Reason for Change */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Notice Period
+                </label>
+                <input
+                  type="text"
+                  value={editNoticePeriod}
+                  onChange={(e) => setEditNoticePeriod(e.target.value)}
+                  placeholder="e.g. 60 Days or Immediate"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Reason for Change
+                </label>
+                <input
+                  type="text"
+                  value={editReasonForChange}
+                  onChange={(e) => setEditReasonForChange(e.target.value)}
+                  placeholder="e.g. Career Growth"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+            </div>
+
+            {/* 6. Current Salary & Expected Salary (No $) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Current Salary (CTC) <span className="text-[11px] font-normal text-[#8292AD]">(without $)</span>
+                </label>
+                <input
+                  type="text"
+                  value={editCtc}
+                  onChange={(e) => setEditCtc(e.target.value)}
+                  placeholder="e.g. 91,666"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-bold text-[#172033]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Expected Salary (ECTC) <span className="text-[11px] font-normal text-[#8292AD]">(without $)</span>
+                </label>
+                <input
+                  type="text"
+                  value={editEctc}
+                  onChange={(e) => setEditEctc(e.target.value)}
+                  placeholder="e.g. 125,000"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-bold text-emerald-600"
+                />
+              </div>
+            </div>
+
+            {/* 7. Status / Stage & Interview Schedule */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Candidate Status / Stage
+                </label>
+                <select
+                  value={editStage}
+                  onChange={(e) => setEditStage(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-semibold"
                 >
                   <option value="Under Review">Under Review</option>
                   <option value="Interview Scheduled">Interview Scheduled</option>
@@ -1066,100 +1485,547 @@ export const Candidates = () => {
                   <option value="Rejected">Rejected</option>
                 </select>
               </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Interview Date / Schedule
+                </label>
+                <input
+                  type="text"
+                  value={editInterviewDate}
+                  onChange={(e) => setEditInterviewDate(e.target.value)}
+                  placeholder="e.g. Wed, 04-Nov-26 02:30 PM"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+            </div>
+
+            {/* 8. Interviewer, Round & Round Status */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Interviewer
+                </label>
+                <input
+                  type="text"
+                  value={editInterviewer}
+                  onChange={(e) => setEditInterviewer(e.target.value)}
+                  placeholder="e.g. Bhupinderjit Singh"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Interview Round
+                </label>
+                <input
+                  type="text"
+                  value={editRound}
+                  onChange={(e) => setEditRound(e.target.value)}
+                  placeholder="e.g. Technical Round"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Round Status
+                </label>
+                <select
+                  value={editRoundStatus}
+                  onChange={(e) => setEditRoundStatus(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Passed">Passed</option>
+                  <option value="Failed">Failed</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 9. Candidate Offer */}
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Candidate Offer Details
+              </label>
+              <textarea
+                rows={2}
+                value={editOffer}
+                onChange={(e) => setEditOffer(e.target.value)}
+                placeholder="Write offer details..."
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
               <button
-                onClick={() => setSelectedCandidate(null)}
-                className="px-4 py-1.5 text-xs font-medium rounded-xl border border-[#E5EAF2] text-[#172033] hover:bg-[#F7F9FC] cursor-pointer"
+                type="button"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingCandidate(null);
+                }}
+                className="px-4 py-2 text-xs font-medium rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC] cursor-pointer"
               >
-                Done
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm cursor-pointer"
+              >
+                Save Changes
               </button>
             </div>
-          }
+          </form>
+        </Modal>
+      )}
+
+      {/* Delete Candidate Confirmation Modal */}
+      {candidateToDelete && (
+        <Modal
+          isOpen={!!candidateToDelete}
+          onClose={() => setCandidateToDelete(null)}
+          title="Delete Candidate"
+          subtitle="Are you sure you want to remove this candidate?"
         >
           <div className="space-y-4">
-            <div className="flex items-center gap-3.5 p-4 bg-[#F7F9FC] rounded-xl border border-[#E5EAF2]">
-              <img
-                src={selectedCandidate.avatar}
-                alt={selectedCandidate.name}
-                className="w-14 h-14 rounded-full object-cover ring-2 ring-white shadow-xs"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-base font-bold text-[#172033]">{selectedCandidate.name}</h4>
-                  <StatusBadge status={selectedCandidate.stage} size="sm" />
-                </div>
-                <p className="text-xs text-[#8292AD] font-medium">{selectedCandidate.role}</p>
+            <p className="text-xs text-[#4E5D78]">
+              Are you sure you want to remove{' '}
+              <strong className="text-[#172033]">{candidateToDelete.name}</strong> from the
+              candidate recruitment pipeline? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setCandidateToDelete(null)}
+                className="px-4 py-2 text-xs font-medium rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleConfirmDelete(candidateToDelete.id)}
+                className="px-4 py-2 text-xs font-bold rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-xs cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
-                <div className="flex items-center gap-3 text-xs mt-1.5 flex-wrap">
-                  {/* Click to copy email */}
+      {/* Candidate Details (Show / View) Modal - Exactly matching screenshots 1, 2, 3 */}
+      {selectedCandidate && (
+        <Modal
+          isOpen={!!selectedCandidate}
+          onClose={() => setSelectedCandidate(null)}
+          title="Candidate Details"
+          subtitle={`Dashboard > Candidates > Show > ${selectedCandidate.id}`}
+          maxWidth="max-w-4xl"
+        >
+          <div className="space-y-6">
+            {/* Top Bar: Name + Role, Status Dropdown, Resume Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5EAF2]">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedCandidate.avatar}
+                  alt={selectedCandidate.name}
+                  className="w-12 h-12 rounded-full object-cover ring-2 ring-[#E5EAF2] shadow-2xs"
+                />
+                <div>
+                  <h3 className="text-base font-bold text-[#172033]">
+                    {selectedCandidate.name}{' '}
+                    <span className="font-normal text-[#8292AD]">
+                      ({selectedCandidate.role})
+                    </span>
+                  </h3>
+                  <p className="text-xs text-[#8292AD] mt-0.5">
+                    Department: <span className="font-semibold text-[#172033]">{selectedCandidate.department}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Status Selector + Resume Download Button */}
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <select
+                    value={selectedCandidate.stage}
+                    onChange={(e) => handleUpdateStage(selectedCandidate.id, e.target.value)}
+                    className="text-xs font-bold px-3 py-1.5 rounded-lg border border-[#E5EAF2] bg-white cursor-pointer shadow-2xs"
+                  >
+                    <option value="Under Review">Under Review</option>
+                    <option value="Interview Scheduled">Interview Scheduled</option>
+                    <option value="Shortlisted">Shortlisted</option>
+                    <option value="Offer Extended">Offer Extended</option>
+                    <option value="Hired">Hired</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    addToast({
+                      title: 'Resume Downloaded',
+                      message: `Resume for ${selectedCandidate.name} opened.`,
+                      type: 'info',
+                    })
+                  }
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white transition-colors cursor-pointer shadow-xs"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Resume</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Profile Overview Card (Two Columns matching Screenshot 1) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-[#F8FAFC] border border-[#E5EAF2] text-xs">
+              {/* Left Column: Contact, Exp, Notice, Interview */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[#4E5D78] flex-wrap">
                   <button
                     type="button"
                     onClick={(e) => handleCopyEmail(e, selectedCandidate.email)}
                     title="Click to copy email"
-                    className="group flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-[#2563EB] font-medium cursor-pointer"
+                    className="group inline-flex items-center gap-1 text-[#2563EB] hover:underline cursor-pointer font-medium"
                   >
-                    <Mail className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2563EB]" />
+                    <Mail className="w-3.5 h-3.5 text-[#2563EB]" />
                     <span>{selectedCandidate.email}</span>
-                    <Copy className="w-3 h-3 text-[#9CA3AF] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Copy className="w-3 h-3 text-[#9CA3AF] opacity-0 group-hover:opacity-100" />
                   </button>
-
-                  <span>•</span>
-
-                  {/* Click to call phone */}
+                  <span>|</span>
                   <a
                     href={`tel:${selectedCandidate.phone}`}
-                    title="Click to call candidate"
-                    className="flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-emerald-600 font-medium"
+                    className="inline-flex items-center gap-1 text-[#4E5D78] hover:text-emerald-600 font-medium"
                   >
-                    <Phone className="w-3.5 h-3.5 text-[#6B7280]" />
+                    <Phone className="w-3.5 h-3.5 text-[#8292AD]" />
                     <span>{selectedCandidate.phone}</span>
                   </a>
+                  <span>|</span>
+                </div>
+
+                <div className="text-[#4E5D78]">
+                  <span>Experience </span>
+                  <span className="font-bold text-[#172033]">{selectedCandidate.experience}</span>
+                  <span> | Notice period: </span>
+                  <span className="font-bold text-[#172033]">
+                    {selectedCandidate.noticePeriod || '60 Days'}
+                  </span>
+                </div>
+
+                <div className="text-[#4E5D78]">
+                  <span>Interview on </span>
+                  <span className="font-bold text-[#172033]">
+                    {selectedCandidate.interviewDate || 'Wed, 04-Nov-26 02:30 PM'}
+                  </span>
+                  <span> by </span>
+                  <span className="font-bold text-[#172033]">
+                    {selectedCandidate.interviewer || selectedCandidate.recruiter || 'Bhupinderjit Singh'}
+                  </span>
+                </div>
+
+                <div className="text-[#4E5D78]">
+                  <span className="font-semibold text-[#172033]">
+                    {selectedCandidate.round || 'Technical Round'}
+                  </span>
+                  <span> - </span>
+                  <span className="font-bold text-amber-600">
+                    {selectedCandidate.roundStatus || 'Pending'}
+                  </span>
+                </div>
+
+                {/* Edit & Delete Action Buttons */}
+                <div className="flex items-center gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal(selectedCandidate)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-700 text-white transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCandidateToDelete(selectedCandidate);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Right Column: Salary without $, Dates, Recruiter, Relevant Exp */}
+              <div className="space-y-2 border-t md:border-t-0 md:border-l border-[#E5EAF2] md:pl-4">
+                <div className="text-[#4E5D78]">
+                  <span>Current Salary </span>
+                  <span className="font-bold text-[#172033] underline">
+                    {formatSalary(selectedCandidate.ctc, '91,666')}
+                  </span>
+                  <span> Expected </span>
+                  <span className="font-bold text-[#172033] underline">
+                    {formatSalary(selectedCandidate.ectc, '125,000')}
+                  </span>
+                </div>
+
+                <div className="text-[#8292AD]">
+                  <span>Added on </span>
+                  <span className="font-semibold text-[#4E5D78]">
+                    {selectedCandidate.addedOn || 'Wed, 04-Nov-26 01:40 pm'}
+                  </span>
+                  <span> by </span>
+                  <span className="font-semibold text-[#4E5D78]">
+                    {selectedCandidate.recruiter || 'Komal Thapliyal'}
+                  </span>
+                </div>
+
+                <div className="text-[#8292AD]">
+                  <span>Updated on </span>
+                  <span className="font-semibold text-[#4E5D78]">
+                    {selectedCandidate.updatedOn || 'Mon, 09-Nov-26 12:24 pm'}
+                  </span>
+                </div>
+
+                <div className="text-[#4E5D78]">
+                  <span>Recruiter </span>
+                  <span className="font-semibold text-[#172033]">
+                    {selectedCandidate.recruiter || 'Komal Thapliyal'}
+                  </span>
+                </div>
+
+                <div className="text-[#4E5D78]">
+                  <span>Relevant Exp </span>
+                  <span className="font-semibold text-[#172033]">
+                    {selectedCandidate.relevantExperience || selectedCandidate.experience || '6 Yrs. 0 Months'}
+                  </span>
+                </div>
+
+                <div className="text-[#4E5D78]">
+                  <span>Reason for Change </span>
+                  <span className="font-semibold text-[#172033]">
+                    {selectedCandidate.reasonForChange || 'Career Growth'}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Department</span>
-                <span className="font-semibold text-[#172033]">{selectedCandidate.department}</span>
+            {/* Section 1: Candidate Rounds (Screenshot 1) */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
+                  Candidate Rounds
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => handleOpenEditModal(selectedCandidate)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-2xs"
+                >
+                  <span>+ New Round</span>
+                </button>
               </div>
-              <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Experience</span>
-                <span className="font-semibold text-[#172033]">{selectedCandidate.experience}</span>
-              </div>
-              <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Recruiter</span>
-                <span className="inline-flex items-center gap-1 font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200 text-[11px] mt-0.5">
-                  <UserCheck className="w-3 h-3 text-indigo-600" />
-                  {selectedCandidate.recruiter || selectedCandidate.interviewer}
-                </span>
-              </div>
-              <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Current CTC</span>
-                <span className="font-bold text-[#111827]">{selectedCandidate.ctc || '$120,000'}</span>
-              </div>
-              <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Expected CTC</span>
-                <span className="font-bold text-emerald-600">{selectedCandidate.ectc || '$145,000'}</span>
-              </div>
-              <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Interview Date</span>
-                <span className="font-semibold text-[#172033]">{selectedCandidate.interviewDate}</span>
+
+              <div className="border border-[#E5EAF2] rounded-xl overflow-hidden bg-white shadow-2xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#F8FAFC] border-b border-[#E5EAF2] text-[#8292AD] font-bold uppercase text-[10px]">
+                    <tr>
+                      <th className="px-3.5 py-2">Interviewer</th>
+                      <th className="px-3.5 py-2">Interview At</th>
+                      <th className="px-3.5 py-2">Round</th>
+                      <th className="px-3.5 py-2">Status</th>
+                      <th className="px-3.5 py-2">Last Updated</th>
+                      <th className="px-3.5 py-2 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E5EAF2] text-[#172033]">
+                    {selectedCandidate.rounds && selectedCandidate.rounds.length > 0 ? (
+                      selectedCandidate.rounds.map((rnd, idx) => (
+                        <tr key={idx} className="hover:bg-[#F8FAFC]">
+                          <td className="px-3.5 py-2 font-medium">{rnd.interviewer}</td>
+                          <td className="px-3.5 py-2 text-[#4E5D78]">{rnd.interviewAt}</td>
+                          <td className="px-3.5 py-2 font-semibold">{rnd.round}</td>
+                          <td className="px-3.5 py-2">
+                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                              {rnd.status}
+                            </span>
+                          </td>
+                          <td className="px-3.5 py-2 text-[#8292AD]">{rnd.lastUpdated}</td>
+                          <td className="px-3.5 py-2 text-right">
+                            <div className="inline-flex items-center gap-1">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditModal(selectedCandidate)}
+                                className="p-1 rounded hover:bg-slate-100 text-teal-600"
+                                title="Edit round"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  addToast({
+                                    title: 'Round deleted',
+                                    message: 'Interview round record removed.',
+                                    type: 'info',
+                                  })
+                                }
+                                className="p-1 rounded hover:bg-slate-100 text-rose-500"
+                                title="Delete round"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr className="hover:bg-[#F8FAFC]">
+                        <td className="px-3.5 py-2 font-medium">
+                          {selectedCandidate.interviewer || 'Bhupinderjit Singh'}
+                        </td>
+                        <td className="px-3.5 py-2 text-[#4E5D78]">
+                          {selectedCandidate.interviewDate || '04-Nov-26 02:30 PM'}
+                        </td>
+                        <td className="px-3.5 py-2 font-semibold">
+                          {selectedCandidate.round || 'Technical Round'}
+                        </td>
+                        <td className="px-3.5 py-2">
+                          <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            {selectedCandidate.roundStatus || 'Pending'}
+                          </span>
+                        </td>
+                        <td className="px-3.5 py-2 text-[#8292AD]">04-Nov-26 01:41 PM</td>
+                        <td className="px-3.5 py-2 text-right">
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditModal(selectedCandidate)}
+                              className="p-1 rounded hover:bg-slate-100 text-teal-600"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                addToast({
+                                  title: 'Round deleted',
+                                  message: 'Interview round removed.',
+                                  type: 'info',
+                                })
+                              }
+                              className="p-1 rounded hover:bg-slate-100 text-rose-500"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl border border-[#E5EAF2] bg-[#FCFDFE] flex items-center justify-between">
-              <div>
-                <span className="text-xs font-semibold text-[#172033] block">Candidate Resume & Portfolio</span>
-                <span className="text-[11px] text-[#8292AD]">PDF attachment verified & virus scanned</span>
+            {/* Section 2: Candidate Offer (Screenshot 2) */}
+            <div className="space-y-2 p-4 rounded-xl border border-[#E5EAF2] bg-white">
+              <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
+                Candidate Offer
+              </h4>
+              <label className="block text-xs font-medium text-[#4E5D78]">
+                Offer <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={2}
+                value={viewOfferText}
+                onChange={(e) => setViewOfferText(e.target.value)}
+                placeholder="Write your offer"
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 text-[#172033]"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleUpdateOffer}
+                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white cursor-pointer shadow-xs"
+                >
+                  Update
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => addToast({ title: 'Resume Downloaded', message: `Resume for ${selectedCandidate.name} opened.`, type: 'info' })}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 text-[#2563EB] hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                <span>View Resume</span>
-              </button>
+            </div>
+
+            {/* Section 3: Candidate Comments (Screenshots 2 & 3) */}
+            <div className="space-y-3 p-4 rounded-xl border border-[#E5EAF2] bg-white">
+              <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
+                Candidate Comments
+              </h4>
+
+              <form onSubmit={handleAddComment} className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-[#4E5D78] mb-1">
+                      Comment <span className="text-rose-500">*</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={viewCommentText}
+                      onChange={(e) => setViewCommentText(e.target.value)}
+                      placeholder="Write your comment"
+                      className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 text-[#172033]"
+                    />
+                    <p className="text-[10px] text-[#8292AD] mt-0.5">
+                      Markdown enabled, follow the cheatsheet.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-[#4E5D78] mb-1">
+                      Attachments
+                    </label>
+                    <input
+                      type="file"
+                      className="w-full px-3 py-1.5 text-xs border border-[#E5EAF2] rounded-xl file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-100 file:text-[#172033] hover:file:bg-slate-200 cursor-pointer"
+                    />
+                    <p className="text-[10px] text-[#8292AD] mt-0.5">
+                      You can choose upto 5 files.
+                    </p>
+                    <div className="flex justify-end mt-2">
+                      <button
+                        type="submit"
+                        className="px-4 py-1.5 text-xs font-bold rounded-xl bg-[#172033] hover:bg-slate-800 text-white cursor-pointer shadow-xs"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+              {/* Comment Feed (matching Screenshot 3) */}
+              <div className="pt-3 border-t border-[#E5EAF2] space-y-2 text-xs">
+                {selectedCandidate.comments && selectedCandidate.comments.length > 0 ? (
+                  selectedCandidate.comments.map((cmt, idx) => (
+                    <div key={idx} className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E5EAF2]">
+                      <p className="text-[#172033] leading-relaxed">{cmt.text}</p>
+                      <p className="text-[11px] text-[#8292AD] mt-1.5 font-medium">
+                        {cmt.author}: {cmt.date}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 rounded-xl bg-[#F8FAFC] border border-[#E5EAF2]">
+                    <p className="text-[#172033] leading-relaxed">
+                      relevant experience is 3-4 years only, and for that as well, her target was only 3k then 5k then 7k. at that low target, in 3 years, she got incentives only 4-5 times. that means she was not even achieving that as well.
+                    </p>
+                    <p className="text-[11px] text-[#8292AD] mt-1.5 font-medium">
+                      Codeflies: Wed, 04-Nov-26 02:39 pm
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </Modal>

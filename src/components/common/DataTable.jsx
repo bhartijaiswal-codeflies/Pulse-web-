@@ -196,12 +196,13 @@ export const DataTable = ({
               </span>
             </div>
 
-            {/* Right: Boxed Pagination Controls */}
-            <div className="border border-[#E5EAF2] rounded-xl px-2.5 py-1 bg-white inline-flex items-center gap-1.5 shadow-2xs">
+            {/* Right: Individual Pill & Circular Pagination Controls matching reference */}
+            <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="text-xs font-semibold px-2 py-0.5 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-1.5 rounded-full border border-[#E5EAF2] bg-white text-xs font-semibold text-[#8292AD] hover:bg-[#F8FAFC] hover:text-[#172033] hover:border-[#CBD5E1] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
               >
                 Prev
               </button>
@@ -218,13 +219,16 @@ export const DataTable = ({
 
                   return (
                     <React.Fragment key={page}>
-                      {showEllipsis && <span className="px-1 text-[#8292AD]">...</span>}
+                      {showEllipsis && (
+                        <span className="px-1 text-[#8292AD] select-none font-semibold">...</span>
+                      )}
                       <button
+                        type="button"
                         onClick={() => handlePageChange(page)}
-                        className={`w-6 h-6 rounded-full text-xs font-bold transition-all flex items-center justify-center ${
+                        className={`w-9 h-9 rounded-full text-xs transition-all flex items-center justify-center cursor-pointer ${
                           currentPage === page
-                            ? 'bg-[#2563EB] text-white shadow-xs'
-                            : 'text-slate-600 hover:bg-slate-100 font-semibold'
+                            ? 'bg-[#2563EB] text-white font-bold shadow-xs border border-[#2563EB]'
+                            : 'bg-white border border-[#E5EAF2] text-[#1E293B] font-semibold hover:bg-[#F8FAFC] hover:border-[#CBD5E1] shadow-2xs'
                         }`}
                       >
                         {page}
@@ -234,9 +238,10 @@ export const DataTable = ({
                 })}
 
               <button
+                type="button"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="text-xs font-semibold px-2 py-0.5 text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-1.5 rounded-full border border-[#E5EAF2] bg-white text-xs font-semibold text-[#1E293B] hover:bg-[#F8FAFC] hover:border-[#CBD5E1] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
               >
                 Next
               </button>
