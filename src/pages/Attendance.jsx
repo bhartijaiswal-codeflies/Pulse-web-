@@ -940,8 +940,10 @@ export const Attendance = () => {
                         </option>
                       ))}
                     </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                      ▼
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                      <svg className="w-3 h-3 fill-slate-400" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z" />
+                      </svg>
                     </div>
                   </div>
                 </div>
@@ -959,9 +961,8 @@ export const Attendance = () => {
                         value={createInTime}
                         onChange={(e) => setCreateInTime(e.target.value)}
                         placeholder="--:-- --"
-                        className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
                       />
-                      <Clock className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
 
@@ -975,9 +976,8 @@ export const Attendance = () => {
                         value={createOutTime}
                         onChange={(e) => setCreateOutTime(e.target.value)}
                         placeholder="--:-- --"
-                        className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
                       />
-                      <Clock className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
                 </div>
@@ -1010,9 +1010,8 @@ export const Attendance = () => {
                                 handleDateChange(dIdx, e.target.value)
                               }
                               placeholder="dd/mm/yyyy"
-                              className="w-full px-3.5 py-2.5 pr-10 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                              className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] cursor-pointer"
                             />
-                            <CalendarIcon className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                           </div>
                           {createDates.length > 1 && (
                             <button
@@ -1047,8 +1046,10 @@ export const Attendance = () => {
                         <option value="Second Half Leave">Second Half Leave</option>
                         <option value="Half Day Marked">Half Day Marked</option>
                       </select>
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        ▼
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                        <svg className="w-3 h-3 fill-slate-400" viewBox="0 0 24 24">
+                          <path d="M7 10l5 5 5-5z" />
+                        </svg>
                       </div>
                     </div>
                   </div>
