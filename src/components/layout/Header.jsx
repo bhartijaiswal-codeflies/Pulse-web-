@@ -86,7 +86,7 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-[#E5EAF2] sticky top-0 z-20 px-4 sm:px-6 flex items-center justify-between transition-colors">
+    <header className="h-16 bg-white border-b border-[#E5EAF2] sticky top-0 z-40 px-4 sm:px-6 flex items-center justify-between transition-colors">
       {/* Left: Mobile Menu Trigger + Global Search */}
       <div className="flex items-center gap-3 flex-1 max-w-xl">
         <button

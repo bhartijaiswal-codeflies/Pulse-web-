@@ -95,6 +95,21 @@ export const Attendance = () => {
   const [createStatus, setCreateStatus] = useState('');
   const [createRemarks, setCreateRemarks] = useState('');
 
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showCreateModal) {
+        setShowCreateModal(false);
+      }
+    };
+    if (showCreateModal) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showCreateModal]);
+
   const { addToast } = useToast();
 
   const loadRecords = () => {
@@ -838,7 +853,7 @@ export const Attendance = () => {
         <DataTable
           columns={columns}
           data={filteredRecords}
-          pageSize={6}
+          pageSize={10}
           filterBar={attendanceFilterBar}
           entityName="records"
           emptyMessage="No attendance records found"
@@ -902,19 +917,25 @@ export const Attendance = () => {
 
       {/* CREATE ATTENDANCE POPUP MODAL (Matching exact design of media_1794294290231_6c5fd112.png) */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in">
+        <div
+          className="fixed top-16 left-0 md:left-[76px] right-0 bottom-0 z-30 overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+          onClick={() => setShowCreateModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 pt-5 pb-2">
+            <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#F1F5F9]">
               <h3 className="text-base font-bold text-[#172033]">
                 Create Attendance
               </h3>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-[#F8FAFC] transition-colors cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 

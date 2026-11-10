@@ -108,7 +108,7 @@ export const DataTable = ({
       {/* Main Table Card */}
       <div className="bg-white border border-[#E5EAF2] rounded-2xl shadow-card">
         {/* Table Container */}
-        <div className="overflow-x-auto min-h-[340px] pb-24">
+        <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#E5EAF2] bg-white">

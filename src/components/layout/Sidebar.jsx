@@ -38,7 +38,7 @@ export const Sidebar = () => {
   };
 
   return (
-    <aside className="hidden md:flex flex-col items-center w-[76px] h-screen sticky top-0 bg-[#060A18] border-r border-[#131B33] py-4 select-none z-30 flex-shrink-0 justify-between overflow-hidden">
+    <aside className="hidden md:flex flex-col items-center w-[76px] h-screen sticky top-0 bg-[#060A18] border-r border-[#131B33] py-4 select-none z-40 flex-shrink-0 justify-between overflow-hidden">
       {/* Top Section: Logo & Menu Tiles */}
       <div className="flex flex-col items-center w-full flex-1 overflow-hidden">
         {/* Brand Circular Glowing Logo */}

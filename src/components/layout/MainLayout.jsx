@@ -58,7 +58,7 @@ export const MainLayout = () => {
 
         {/* Global Search Results Overlay (if active) */}
         {globalSearch.trim() && (
-          <div className="bg-white border-b border-[#E5EAF2] px-6 py-4 shadow-subtle z-10 max-h-72 overflow-y-auto animate-fade-in">
+          <div className="bg-white border-b border-[#E5EAF2] px-6 py-4 shadow-subtle z-40 max-h-72 overflow-y-auto animate-fade-in">
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">

@@ -31,10 +31,10 @@ export const Modal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed top-16 left-0 md:left-[76px] right-0 bottom-0 z-30 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#080D20]/50 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity"
         onClick={onClose}
       />
 
