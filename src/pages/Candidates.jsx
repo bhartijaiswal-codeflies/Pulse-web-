@@ -1304,13 +1304,12 @@ export const Candidates = () => {
       ),
     },
     {
-      header: 'ROLE & DEPT',
+      header: 'ROLE & EXP',
       accessor: 'role',
       render: (row) => (
         <div className="space-y-1">
           <div className="text-xs font-bold text-[#111827]">{row.role}</div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-[#4B5563] font-medium">{row.department}</span>
             {/* Experience - highly visible badge */}
             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
               <Briefcase className="w-3 h-3 text-slate-500" />
