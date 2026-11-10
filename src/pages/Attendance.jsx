@@ -104,11 +104,11 @@ export const Attendance = () => {
       prev.map((r) =>
         r.id === editingRecord.id
           ? {
-              ...r,
-              checkIn: editInTime,
-              checkOut: editOutTime,
-              regularized: true,
-            }
+            ...r,
+            checkIn: editInTime,
+            checkOut: editOutTime,
+            regularized: true,
+          }
           : r
       )
     );
@@ -194,14 +194,20 @@ export const Attendance = () => {
       header: 'EMPLOYEE',
       accessor: 'name',
       render: (row) => (
-        <div className="flex items-center gap-2.5">
+        <div
+          onClick={() => setSelectedRecord(row)}
+          className="flex items-center gap-2.5 cursor-pointer group/emp"
+          title={`Click to view attendance log for ${row.name}`}
+        >
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2]"
+            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] group-hover/emp:ring-[#2563EB] transition-all"
           />
           <div>
-            <div className="font-bold text-[#172033] text-xs">{row.name}</div>
+            <div className="font-bold text-[#172033] text-xs group-hover/emp:text-[#2563EB] transition-colors">
+              {row.name}
+            </div>
             <div className="text-[10px] text-[#8292AD] font-medium">{row.employeeId}</div>
           </div>
         </div>
@@ -286,21 +292,19 @@ export const Attendance = () => {
             <div className="inline-flex rounded-xl p-1 bg-white border border-[#E5EAF2]">
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
-                  viewMode === 'table'
-                    ? 'bg-[#2563EB] text-white shadow-xs'
-                    : 'text-[#8292AD] hover:text-[#172033]'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${viewMode === 'table'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'text-[#8292AD] hover:text-[#172033]'
+                  }`}
               >
                 Table View
               </button>
               <button
                 onClick={() => setViewMode('calendar')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
-                  viewMode === 'calendar'
-                    ? 'bg-[#2563EB] text-white shadow-xs'
-                    : 'text-[#8292AD] hover:text-[#172033]'
-                }`}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${viewMode === 'calendar'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'text-[#8292AD] hover:text-[#172033]'
+                  }`}
               >
                 Calendar View
               </button>
@@ -375,53 +379,6 @@ export const Attendance = () => {
               placeholder="Search by name, dept, ID..."
             />
           }
-          actions={(row) => (
-            <div className="inline-flex items-center justify-end gap-1.5">
-              {/* 1. View Employee Attendance Details */}
-              <button
-                type="button"
-                onClick={() => setSelectedRecord(row)}
-                title={`View attendance details for ${row.name}`}
-                className="w-7 h-7 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
-              >
-                <Eye className="w-3.5 h-3.5" />
-              </button>
-
-              {/* 2. Regularize Shift */}
-              <button
-                type="button"
-                onClick={() => handleRegularizeShift(row)}
-                title={`Regularize & approve shift for ${row.name}`}
-                className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
-              >
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-
-              {/* 3. Send Notice / Reminder */}
-              <button
-                type="button"
-                onClick={() => handleSendReminder(row)}
-                title={`Send attendance alert to ${row.name}`}
-                className="w-7 h-7 rounded-full bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
-              >
-                <Bell className="w-3.5 h-3.5" />
-              </button>
-
-              {/* 4. Edit Punch Hours */}
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingRecord(row);
-                  setEditInTime(row.checkIn);
-                  setEditOutTime(row.checkOut);
-                }}
-                title={`Edit punch hours for ${row.name}`}
-                className="w-7 h-7 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
           emptyMessage="No attendance records found"
           emptySubtext="Try selecting another filter or adjusting your search term."
         />
@@ -458,13 +415,12 @@ export const Attendance = () => {
               return (
                 <div
                   key={day}
-                  className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${
-                    isToday
-                      ? 'bg-blue-50/50 border-blue-400 font-bold'
-                      : isWeekend
+                  className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${isToday
+                    ? 'bg-blue-50/50 border-blue-400 font-bold'
+                    : isWeekend
                       ? 'bg-[#F7F9FC] border-transparent text-[#8292AD]'
                       : 'bg-white border-[#E5EAF2] hover:border-blue-200'
-                  }`}
+                    }`}
                 >
                   <span className={`text-xs ${isToday ? 'text-[#2563EB]' : 'text-[#172033]'}`}>
                     {day}
@@ -561,11 +517,10 @@ export const Attendance = () => {
                     key={st}
                     type="button"
                     onClick={() => handleStatusChange(selectedRecord.id, st)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                      selectedRecord.status === st
-                        ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                        : 'bg-white text-[#4E5D78] border-[#E5EAF2] hover:bg-[#F8FAFC]'
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${selectedRecord.status === st
+                      ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
+                      : 'bg-white text-[#4E5D78] border-[#E5EAF2] hover:bg-[#F8FAFC]'
+                      }`}
                   >
                     {st}
                   </button>
