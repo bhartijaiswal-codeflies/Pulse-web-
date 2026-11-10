@@ -1,6 +1,6 @@
 import { candidatesData } from '../data/mockData';
 
-const CANDIDATES_KEY = 'pulse_candidates_v3';
+const CANDIDATES_KEY = 'pulse_candidates_v4';
 
 const cleanSalary = (val, fallback = '110,000') => {
   if (!val) return fallback;

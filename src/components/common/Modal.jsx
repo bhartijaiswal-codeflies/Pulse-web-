@@ -10,6 +10,7 @@ export const Modal = ({
   children,
   maxWidth = 'max-w-lg',
   footer,
+  zIndex = 'z-30',
 }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -32,7 +33,9 @@ export const Modal = ({
   if (!isOpen) return null;
 
   return createPortal(
-    <div className="fixed top-16 left-0 md:left-[76px] right-0 bottom-0 z-30 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div
+      className={`fixed top-16 left-0 md:left-[76px] right-0 bottom-0 ${zIndex} flex items-center justify-center p-4 sm:p-6 overflow-y-auto`}
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity"

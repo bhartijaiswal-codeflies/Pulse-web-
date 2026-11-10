@@ -29,6 +29,7 @@ import {
   FileText,
   Send,
   Paperclip,
+  Plus,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -107,6 +108,36 @@ export const Candidates = () => {
   const [newInterviewer, setNewInterviewer] = useState('Saurabh H.');
   const [newRound, setNewRound] = useState('Technical Round');
   const [newOffer, setNewOffer] = useState('');
+  const [newRounds, setNewRounds] = useState([
+    {
+      id: 'RND-1',
+      round: 'HR Screening',
+      interviewer: 'HR',
+      interviewAt: '12 Nov, 2026 - 11:00 AM',
+      status: 'Scheduled',
+    },
+    {
+      id: 'RND-2',
+      round: 'Technical Round 1',
+      interviewer: 'Vivek Sir',
+      interviewAt: '13 Nov, 2026 - 03:00 PM',
+      status: 'Scheduled',
+    },
+    {
+      id: 'RND-3',
+      round: 'Technical Round 2',
+      interviewer: 'Someone',
+      interviewAt: '14 Nov, 2026 - 11:30 AM',
+      status: 'Scheduled',
+    },
+    {
+      id: 'RND-4',
+      round: 'Final Round',
+      interviewer: 'Bhupender Singh',
+      interviewAt: '14 Nov, 2026 - 02:30 PM',
+      status: 'Pending',
+    },
+  ]);
 
   // Edit candidate modal state (all fields from screenshot)
   const [showEditModal, setShowEditModal] = useState(false);
@@ -129,6 +160,7 @@ export const Candidates = () => {
   const [editRound, setEditRound] = useState('Technical Round');
   const [editRoundStatus, setEditRoundStatus] = useState('Pending');
   const [editOffer, setEditOffer] = useState('');
+  const [editRounds, setEditRounds] = useState([]);
 
   // Delete candidate modal state
   const [candidateToDelete, setCandidateToDelete] = useState(null);
@@ -136,6 +168,14 @@ export const Candidates = () => {
   // View modal interactive states (for comments & offer)
   const [viewOfferText, setViewOfferText] = useState('');
   const [viewCommentText, setViewCommentText] = useState('');
+
+  // Quick Round Add/Edit Modal (from View Candidate popup)
+  const [showRoundModal, setShowRoundModal] = useState(false);
+  const [roundModalIndex, setRoundModalIndex] = useState(null);
+  const [roundModalName, setRoundModalName] = useState('Technical Round');
+  const [roundModalInterviewer, setRoundModalInterviewer] = useState('Vivek Sir');
+  const [roundModalDate, setRoundModalDate] = useState('12 Nov, 2026 - 03:00 PM');
+  const [roundModalStatus, setRoundModalStatus] = useState('Scheduled');
 
   const loadCandidates = () => {
     setCandidates(candidateService.getCandidates());
@@ -152,6 +192,89 @@ export const Candidates = () => {
       setViewCommentText('');
     }
   }, [selectedCandidate]);
+
+  // Round management helpers for Create modal
+  const handleAddNewRoundItem = () => {
+    const nextNum = newRounds.length + 1;
+    const defaultInterviewer =
+      nextNum === 1
+        ? 'HR'
+        : nextNum === 2
+        ? 'Vivek Sir'
+        : nextNum === 3
+        ? 'Someone'
+        : 'Bhupender Singh';
+    const defaultTitle =
+      nextNum === 1
+        ? 'HR Screening'
+        : nextNum === 2
+        ? 'Technical Round 1'
+        : nextNum === 3
+        ? 'Technical Round 2'
+        : 'Final Round';
+    setNewRounds([
+      ...newRounds,
+      {
+        id: `RND-${Date.now()}`,
+        round: defaultTitle,
+        interviewer: defaultInterviewer,
+        interviewAt: '14 Nov, 2026 - 02:30 PM',
+        status: 'Scheduled',
+      },
+    ]);
+  };
+
+  const handleUpdateNewRoundItem = (index, field, value) => {
+    setNewRounds((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, [field]: value } : r))
+    );
+  };
+
+  const handleRemoveNewRoundItem = (index) => {
+    setNewRounds((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Round management helpers for Edit modal
+  const handleAddEditRound = () => {
+    const nextNum = editRounds.length + 1;
+    const defaultInterviewer =
+      nextNum === 1
+        ? 'HR'
+        : nextNum === 2
+        ? 'Vivek Sir'
+        : nextNum === 3
+        ? 'Someone'
+        : 'Bhupender Singh';
+    const defaultTitle =
+      nextNum === 1
+        ? 'HR Round'
+        : nextNum === 2
+        ? 'Technical Round 1'
+        : nextNum === 3
+        ? 'Technical Round 2'
+        : 'Final Round';
+    setEditRounds([
+      ...editRounds,
+      {
+        id: `RND-${Date.now()}`,
+        round: defaultTitle,
+        interviewer: defaultInterviewer,
+        interviewAt: '14 Nov, 2026 - 02:30 PM',
+        status: 'Scheduled',
+        lastUpdated: 'Just now',
+      },
+    ]);
+  };
+
+  const handleUpdateEditRound = (index, field, value) => {
+    setEditRounds((prev) =>
+      prev.map((r, i) => (i === index ? { ...r, [field]: value, lastUpdated: 'Just now' } : r))
+    );
+  };
+
+  const handleRemoveEditRound = (index) => {
+    setEditRounds((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // Open Edit modal with all fields populated
   const handleOpenEditModal = (cand) => {
@@ -174,13 +297,62 @@ export const Candidates = () => {
     setEditRound(cand.round || 'Technical Round');
     setEditRoundStatus(cand.roundStatus || 'Pending');
     setEditOffer(cand.offer || '');
+
+    // Populate multi-round list
+    const candidateRounds =
+      cand.rounds && cand.rounds.length > 0
+        ? cand.rounds.map((r, i) => ({
+            id: r.id || `RND-${i + 1}`,
+            round: r.round || `Round ${i + 1}`,
+            interviewer: r.interviewer || 'Interviewer',
+            interviewAt: r.interviewAt || 'Pending Schedule',
+            status: r.status || 'Pending',
+            lastUpdated: r.lastUpdated || 'Today',
+          }))
+        : [
+            {
+              id: 'RND-1',
+              round: 'HR Screening',
+              interviewer: 'HR (Komal Thapliyal)',
+              interviewAt: '02-Nov-26 11:30 AM',
+              status: 'Passed',
+              lastUpdated: '02-Nov-26 12:15 PM',
+            },
+            {
+              id: 'RND-2',
+              round: 'Technical Round 1',
+              interviewer: 'Vivek Sir',
+              interviewAt: '03-Nov-26 03:00 PM',
+              status: 'Passed',
+              lastUpdated: '03-Nov-26 03:50 PM',
+            },
+            {
+              id: 'RND-3',
+              round: 'Technical Round 2',
+              interviewer: 'Someone (Technical Lead)',
+              interviewAt: '04-Nov-26 11:00 AM',
+              status: 'Passed',
+              lastUpdated: '04-Nov-26 11:45 AM',
+            },
+            {
+              id: 'RND-4',
+              round: 'Final Round',
+              interviewer: 'Bhupender Singh',
+              interviewAt: '04-Nov-26 02:30 PM',
+              status: 'Pending',
+              lastUpdated: '04-Nov-26 01:41 PM',
+            },
+          ];
+    setEditRounds(candidateRounds);
     setShowEditModal(true);
   };
 
-  // Save Edit candidate
+  // Save Edit candidate (including multi-rounds)
   const handleSaveEdit = (e) => {
     e.preventDefault();
     if (!editingCandidate) return;
+
+    const latestRound = editRounds.length > 0 ? editRounds[editRounds.length - 1] : null;
 
     const updatedData = {
       name: editName.trim(),
@@ -196,10 +368,11 @@ export const Candidates = () => {
       reasonForChange: editReasonForChange.trim(),
       recruiter: editRecruiter.trim(),
       stage: editStage,
-      interviewDate: editInterviewDate.trim(),
-      interviewer: editInterviewer.trim(),
-      round: editRound.trim(),
-      roundStatus: editRoundStatus,
+      interviewDate: latestRound?.interviewAt || editInterviewDate.trim(),
+      interviewer: latestRound?.interviewer || editInterviewer.trim(),
+      round: latestRound?.round || editRound.trim(),
+      roundStatus: latestRound?.status || editRoundStatus,
+      rounds: editRounds,
       offer: editOffer.trim(),
     };
 
@@ -214,8 +387,127 @@ export const Candidates = () => {
     setEditingCandidate(null);
     addToast({
       title: 'Candidate Updated',
-      message: `Profile for ${editName} updated successfully.`,
+      message: `Profile and interview rounds for ${editName} updated successfully.`,
       type: 'success',
+    });
+  };
+
+  // Quick Round Modal (Add / Edit) for View Candidate popup
+  const handleOpenAddRound = () => {
+    setRoundModalIndex(null);
+    const nextNum = (selectedCandidate?.rounds?.length || 0) + 1;
+    const defaultInterviewer =
+      nextNum === 1
+        ? 'HR'
+        : nextNum === 2
+        ? 'Vivek Sir'
+        : nextNum === 3
+        ? 'Someone'
+        : 'Bhupender Singh';
+    const defaultTitle =
+      nextNum === 1
+        ? 'HR Screening'
+        : nextNum === 2
+        ? 'Technical Round 1'
+        : nextNum === 3
+        ? 'Technical Round 2'
+        : 'Final Round';
+    setRoundModalName(defaultTitle);
+    setRoundModalInterviewer(defaultInterviewer);
+    setRoundModalDate('14 Nov, 2026 - 02:30 PM');
+    setRoundModalStatus('Scheduled');
+    setShowRoundModal(true);
+  };
+
+  const handleOpenEditRound = (rnd, index) => {
+    setRoundModalIndex(index);
+    setRoundModalName(rnd.round || '');
+    setRoundModalInterviewer(rnd.interviewer || '');
+    setRoundModalDate(rnd.interviewAt || '');
+    setRoundModalStatus(rnd.status || 'Pending');
+    setShowRoundModal(true);
+  };
+
+  const handleSaveRoundModal = (e) => {
+    e.preventDefault();
+    if (!selectedCandidate) return;
+
+    const currentRounds = [...(selectedCandidate.rounds || [])];
+    const roundItem = {
+      id:
+        roundModalIndex !== null
+          ? currentRounds[roundModalIndex]?.id || `RND-${Date.now()}`
+          : `RND-${Date.now()}`,
+      round: roundModalName.trim() || 'Interview Round',
+      interviewer: roundModalInterviewer.trim() || 'Interviewer',
+      interviewAt: roundModalDate.trim() || 'Pending Schedule',
+      status: roundModalStatus,
+      lastUpdated: 'Just now',
+    };
+
+    let updatedRounds;
+    if (roundModalIndex !== null) {
+      updatedRounds = currentRounds.map((r, i) => (i === roundModalIndex ? roundItem : r));
+    } else {
+      updatedRounds = [...currentRounds, roundItem];
+    }
+
+    const latestRound = updatedRounds[updatedRounds.length - 1];
+
+    candidateService.updateCandidate(selectedCandidate.id, {
+      rounds: updatedRounds,
+      round: latestRound.round,
+      interviewer: latestRound.interviewer,
+      interviewDate: latestRound.interviewAt,
+      roundStatus: latestRound.status,
+    });
+
+    setSelectedCandidate((prev) => ({
+      ...prev,
+      rounds: updatedRounds,
+      round: latestRound.round,
+      interviewer: latestRound.interviewer,
+      interviewDate: latestRound.interviewAt,
+      roundStatus: latestRound.status,
+    }));
+    loadCandidates();
+    setShowRoundModal(false);
+    addToast({
+      title: roundModalIndex !== null ? 'Round Updated' : 'Round Added',
+      message: `${roundModalName} with ${roundModalInterviewer} saved.`,
+      type: 'success',
+    });
+  };
+
+  const handleDeleteRound = (index) => {
+    if (!selectedCandidate) return;
+    const currentRounds = [...(selectedCandidate.rounds || [])];
+    const removedName = currentRounds[index]?.round || 'Round';
+    const updatedRounds = currentRounds.filter((_, i) => i !== index);
+
+    const latestRound = updatedRounds.length > 0 ? updatedRounds[updatedRounds.length - 1] : null;
+
+    candidateService.updateCandidate(selectedCandidate.id, {
+      rounds: updatedRounds,
+      round: latestRound ? latestRound.round : 'Pending Schedule',
+      interviewer: latestRound ? latestRound.interviewer : selectedCandidate.recruiter,
+      interviewDate: latestRound ? latestRound.interviewAt : 'Pending',
+      roundStatus: latestRound ? latestRound.status : 'Pending',
+    });
+
+    setSelectedCandidate((prev) => ({
+      ...prev,
+      rounds: updatedRounds,
+      round: latestRound ? latestRound.round : 'Pending Schedule',
+      interviewer: latestRound ? latestRound.interviewer : selectedCandidate.recruiter,
+      interviewDate: latestRound ? latestRound.interviewAt : 'Pending',
+      roundStatus: latestRound ? latestRound.status : 'Pending',
+    }));
+    loadCandidates();
+    addToast({
+      title: 'Round Deleted',
+      message: `${removedName} removed from interview schedule.`,
+      type: 'info',
     });
   };
 
@@ -436,6 +728,8 @@ export const Candidates = () => {
       return;
     }
 
+    const latestRound = newRounds.length > 0 ? newRounds[newRounds.length - 1] : null;
+
     const created = candidateService.addCandidate({
       name: newName.trim(),
       email: newEmail.trim(),
@@ -450,10 +744,11 @@ export const Candidates = () => {
       reasonForChange: newReasonForChange,
       recruiter: newRecruiter.trim() || 'Saurabh H.',
       stage: newStage,
-      interviewDate: newInterviewDate || 'Pending Schedule',
-      interviewer: newInterviewer.trim() || newRecruiter.trim() || 'Saurabh H.',
-      round: newRound || 'Technical Round',
-      roundStatus: 'Pending',
+      interviewDate: latestRound?.interviewAt || newInterviewDate || 'Pending Schedule',
+      interviewer: latestRound?.interviewer || newInterviewer.trim() || newRecruiter.trim() || 'Saurabh H.',
+      round: latestRound?.round || newRound || 'Technical Round',
+      roundStatus: latestRound?.status || 'Pending',
+      rounds: newRounds,
       offer: newOffer.trim(),
     });
 
@@ -1033,7 +1328,8 @@ export const Candidates = () => {
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           title="Add New Job Candidate"
-          subtitle="Record candidate contact info, salary expectations, recruiter and interview timing"
+          subtitle="Record candidate contact info, salary expectations, recruiter and interview rounds"
+          maxWidth="max-w-3xl"
         >
           <form onSubmit={handleCreateCandidate} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1250,6 +1546,114 @@ export const Candidates = () => {
                   placeholder="e.g. Wed, 04-Nov-26 02:30 PM"
                   className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
                 />
+              </div>
+            </div>
+
+            {/* Multi-round interview setup for new candidate */}
+            <div className="space-y-3 p-3.5 rounded-xl border border-[#E5EAF2] bg-[#F8FAFC]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider flex items-center gap-2">
+                    <span>Interview Rounds</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#2563EB]">
+                      {newRounds.length} {newRounds.length === 1 ? 'Round' : 'Rounds'}
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-[#8292AD] mt-0.5">
+                    Configure rounds (e.g. 1st HR, 2nd Vivek Sir, 3rd Someone, Final Bhupender Singh)
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddNewRoundItem}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white cursor-pointer shadow-2xs transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Add Round</span>
+                </button>
+              </div>
+
+              <div className="space-y-2.5">
+                {newRounds.map((rnd, idx) => (
+                  <div
+                    key={rnd.id || idx}
+                    className="p-3 bg-white rounded-xl border border-[#E5EAF2] shadow-2xs space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-[#172033] border border-slate-200">
+                        Round {idx + 1} {idx === newRounds.length - 1 && newRounds.length > 1 ? '(Final)' : ''}
+                      </span>
+                      {newRounds.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNewRoundItem(idx)}
+                          className="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition-colors cursor-pointer"
+                          title="Remove round"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Round Name
+                        </label>
+                        <input
+                          type="text"
+                          value={rnd.round}
+                          onChange={(e) => handleUpdateNewRoundItem(idx, 'round', e.target.value)}
+                          placeholder="e.g. HR Screening, Technical Round"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Interviewer
+                        </label>
+                        <input
+                          type="text"
+                          value={rnd.interviewer}
+                          onChange={(e) => handleUpdateNewRoundItem(idx, 'interviewer', e.target.value)}
+                          placeholder="e.g. Vivek Sir, HR"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Date & Time
+                        </label>
+                        <input
+                          type="text"
+                          value={rnd.interviewAt}
+                          onChange={(e) => handleUpdateNewRoundItem(idx, 'interviewAt', e.target.value)}
+                          placeholder="e.g. 14 Nov, 2026 - 02:30 PM"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Status
+                        </label>
+                        <select
+                          value={rnd.status}
+                          onChange={(e) => handleUpdateNewRoundItem(idx, 'status', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium"
+                        >
+                          <option value="Scheduled">Scheduled</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Passed">Passed</option>
+                          <option value="Failed">Failed</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -1500,49 +1904,111 @@ export const Candidates = () => {
               </div>
             </div>
 
-            {/* 8. Interviewer, Round & Round Status */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Interviewer
-                </label>
-                <input
-                  type="text"
-                  value={editInterviewer}
-                  onChange={(e) => setEditInterviewer(e.target.value)}
-                  placeholder="e.g. Bhupinderjit Singh"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Interview Round
-                </label>
-                <input
-                  type="text"
-                  value={editRound}
-                  onChange={(e) => setEditRound(e.target.value)}
-                  placeholder="e.g. Technical Round"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Round Status
-                </label>
-                <select
-                  value={editRoundStatus}
-                  onChange={(e) => setEditRoundStatus(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+            {/* 8. Dynamic Interview Rounds (e.g. 1st HR, 2nd Vivek Sir, 3rd Someone, Final Bhupender Singh) */}
+            <div className="space-y-3 p-3.5 rounded-xl border border-[#E5EAF2] bg-[#F8FAFC]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider flex items-center gap-2">
+                    <span>Interview Rounds</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#2563EB]">
+                      {editRounds.length} {editRounds.length === 1 ? 'Round' : 'Rounds'}
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-[#8292AD] mt-0.5">
+                    Configure rounds (e.g. 1st HR, 2nd Vivek Sir, 3rd Someone, Final Bhupender Singh)
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddEditRound}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#2563EB] hover:bg-blue-700 text-white cursor-pointer shadow-2xs transition-colors"
                 >
-                  <option value="Pending">Pending</option>
-                  <option value="Scheduled">Scheduled</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Passed">Passed</option>
-                  <option value="Failed">Failed</option>
-                </select>
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Add Round</span>
+                </button>
+              </div>
+
+              <div className="space-y-2.5">
+                {editRounds.map((rnd, idx) => (
+                  <div
+                    key={rnd.id || idx}
+                    className="p-3 bg-white rounded-xl border border-[#E5EAF2] shadow-2xs space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-[#172033] border border-slate-200">
+                        Round {idx + 1} {idx === editRounds.length - 1 && editRounds.length > 1 ? '(Final)' : ''}
+                      </span>
+                      {editRounds.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEditRound(idx)}
+                          className="text-rose-500 hover:text-rose-700 p-1 rounded hover:bg-rose-50 transition-colors cursor-pointer"
+                          title="Remove round"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Round Name
+                        </label>
+                        <input
+                          type="text"
+                          value={rnd.round}
+                          onChange={(e) => handleUpdateEditRound(idx, 'round', e.target.value)}
+                          placeholder="e.g. HR Round, Technical Round"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-semibold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Interviewer
+                        </label>
+                        <input
+                          type="text"
+                          value={rnd.interviewer}
+                          onChange={(e) => handleUpdateEditRound(idx, 'interviewer', e.target.value)}
+                          placeholder="e.g. Vivek Sir, Bhupender Singh"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Date & Time
+                        </label>
+                        <input
+                          type="text"
+                          value={rnd.interviewAt}
+                          onChange={(e) => handleUpdateEditRound(idx, 'interviewAt', e.target.value)}
+                          placeholder="e.g. 04-Nov-26 02:30 PM"
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#8292AD] uppercase tracking-wider mb-1">
+                          Status
+                        </label>
+                        <select
+                          value={rnd.status}
+                          onChange={(e) => handleUpdateEditRound(idx, 'status', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs border border-[#E5EAF2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-medium"
+                        >
+                          <option value="Scheduled">Scheduled</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Passed">Passed</option>
+                          <option value="Failed">Failed</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -1613,6 +2079,138 @@ export const Candidates = () => {
               </button>
             </div>
           </div>
+        </Modal>
+      )}
+
+      {/* Quick Add / Edit Round Modal (Opens from View Candidate popup) */}
+      {showRoundModal && (
+        <Modal
+          isOpen={showRoundModal}
+          onClose={() => setShowRoundModal(false)}
+          title={roundModalIndex !== null ? 'Edit Interview Round' : 'Add New Interview Round'}
+          subtitle={
+            selectedCandidate
+              ? `Candidate: ${selectedCandidate.name} (Round ${
+                  roundModalIndex !== null
+                    ? roundModalIndex + 1
+                    : (selectedCandidate.rounds?.length || 0) + 1
+                })`
+              : 'Configure interview schedule'
+          }
+          maxWidth="max-w-md"
+          zIndex="z-50"
+        >
+          <form onSubmit={handleSaveRoundModal} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Round Title / Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={roundModalName}
+                onChange={(e) => setRoundModalName(e.target.value)}
+                placeholder="e.g. HR Screening, Technical Round 1, Final Round"
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-semibold"
+              />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {['HR Screening', 'Technical Round 1', 'Technical Round 2', 'Final Round'].map(
+                  (rName) => (
+                    <button
+                      key={rName}
+                      type="button"
+                      onClick={() => setRoundModalName(rName)}
+                      className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
+                        roundModalName === rName
+                          ? 'bg-[#2563EB] text-white border-[#2563EB]'
+                          : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
+                      }`}
+                    >
+                      {rName}
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Interviewer Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={roundModalInterviewer}
+                onChange={(e) => setRoundModalInterviewer(e.target.value)}
+                placeholder="e.g. HR, Vivek Sir, Someone, Bhupender Singh"
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 font-semibold"
+              />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {['HR', 'Vivek Sir', 'Someone', 'Bhupender Singh'].map((interviewer) => (
+                  <button
+                    key={interviewer}
+                    type="button"
+                    onClick={() => setRoundModalInterviewer(interviewer)}
+                    className={`text-[11px] px-2 py-0.5 rounded-md border transition-colors cursor-pointer ${
+                      roundModalInterviewer === interviewer
+                        ? 'bg-[#2563EB] text-white border-[#2563EB]'
+                        : 'bg-slate-50 text-[#4E5D78] border-[#E5EAF2] hover:bg-slate-100'
+                    }`}
+                  >
+                    {interviewer}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Interview Date & Time
+                </label>
+                <input
+                  type="text"
+                  value={roundModalDate}
+                  onChange={(e) => setRoundModalDate(e.target.value)}
+                  placeholder="e.g. 14 Nov, 2026 - 02:30 PM"
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Round Status
+                </label>
+                <select
+                  value={roundModalStatus}
+                  onChange={(e) => setRoundModalStatus(e.target.value)}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white font-semibold"
+                >
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Passed">Passed</option>
+                  <option value="Failed">Failed</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setShowRoundModal(false)}
+                className="px-4 py-2 text-xs font-medium rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm cursor-pointer"
+              >
+                {roundModalIndex !== null ? 'Save Changes' : 'Add Round'}
+              </button>
+            </div>
+          </form>
         </Modal>
       )}
 
@@ -1823,9 +2421,10 @@ export const Candidates = () => {
                 </h4>
                 <button
                   type="button"
-                  onClick={() => handleOpenEditModal(selectedCandidate)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-2xs"
+                  onClick={handleOpenAddRound}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-2xs transition-colors"
                 >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                   <span>+ New Round</span>
                 </button>
               </div>
@@ -1844,45 +2443,52 @@ export const Candidates = () => {
                   </thead>
                   <tbody className="divide-y divide-[#E5EAF2] text-[#172033]">
                     {selectedCandidate.rounds && selectedCandidate.rounds.length > 0 ? (
-                      selectedCandidate.rounds.map((rnd, idx) => (
-                        <tr key={idx} className="hover:bg-[#F8FAFC]">
-                          <td className="px-3.5 py-2 font-medium">{rnd.interviewer}</td>
-                          <td className="px-3.5 py-2 text-[#4E5D78]">{rnd.interviewAt}</td>
-                          <td className="px-3.5 py-2 font-semibold">{rnd.round}</td>
-                          <td className="px-3.5 py-2">
-                            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                              {rnd.status}
-                            </span>
-                          </td>
-                          <td className="px-3.5 py-2 text-[#8292AD]">{rnd.lastUpdated}</td>
-                          <td className="px-3.5 py-2 text-right">
-                            <div className="inline-flex items-center gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEditModal(selectedCandidate)}
-                                className="p-1 rounded hover:bg-slate-100 text-teal-600"
-                                title="Edit round"
-                              >
-                                <Edit3 className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  addToast({
-                                    title: 'Round deleted',
-                                    message: 'Interview round record removed.',
-                                    type: 'info',
-                                  })
-                                }
-                                className="p-1 rounded hover:bg-slate-100 text-rose-500"
-                                title="Delete round"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
+                      selectedCandidate.rounds.map((rnd, idx) => {
+                        const statusBadgeClass =
+                          rnd.status === 'Passed'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : rnd.status === 'Failed'
+                            ? 'bg-rose-50 text-rose-700 border-rose-200'
+                            : rnd.status === 'Scheduled'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : rnd.status === 'Completed'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200';
+
+                        return (
+                          <tr key={rnd.id || idx} className="hover:bg-[#F8FAFC]">
+                            <td className="px-3.5 py-2 font-medium text-[#172033]">{rnd.interviewer}</td>
+                            <td className="px-3.5 py-2 text-[#4E5D78]">{rnd.interviewAt}</td>
+                            <td className="px-3.5 py-2 font-semibold text-[#172033]">{rnd.round}</td>
+                            <td className="px-3.5 py-2">
+                              <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold border ${statusBadgeClass}`}>
+                                {rnd.status}
+                              </span>
+                            </td>
+                            <td className="px-3.5 py-2 text-[#8292AD]">{rnd.lastUpdated || 'Today'}</td>
+                            <td className="px-3.5 py-2 text-right">
+                              <div className="inline-flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenEditRound(rnd, idx)}
+                                  className="p-1 rounded hover:bg-slate-100 text-teal-600 cursor-pointer"
+                                  title="Edit round"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteRound(idx)}
+                                  className="p-1 rounded hover:bg-slate-100 text-rose-500 cursor-pointer"
+                                  title="Delete round"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     ) : (
                       <tr className="hover:bg-[#F8FAFC]">
                         <td className="px-3.5 py-2 font-medium">
@@ -1904,21 +2510,27 @@ export const Candidates = () => {
                           <div className="inline-flex items-center gap-1">
                             <button
                               type="button"
-                              onClick={() => handleOpenEditModal(selectedCandidate)}
-                              className="p-1 rounded hover:bg-slate-100 text-teal-600"
+                              onClick={() =>
+                                handleOpenEditRound(
+                                  {
+                                    round: selectedCandidate.round || 'Technical Round',
+                                    interviewer: selectedCandidate.interviewer || 'Bhupinderjit Singh',
+                                    interviewAt: selectedCandidate.interviewDate || '04-Nov-26 02:30 PM',
+                                    status: selectedCandidate.roundStatus || 'Pending',
+                                  },
+                                  0
+                                )
+                              }
+                              className="p-1 rounded hover:bg-slate-100 text-teal-600 cursor-pointer"
+                              title="Edit round"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
                             </button>
                             <button
                               type="button"
-                              onClick={() =>
-                                addToast({
-                                  title: 'Round deleted',
-                                  message: 'Interview round removed.',
-                                  type: 'info',
-                                })
-                              }
-                              className="p-1 rounded hover:bg-slate-100 text-rose-500"
+                              onClick={() => handleDeleteRound(0)}
+                              className="p-1 rounded hover:bg-slate-100 text-rose-500 cursor-pointer"
+                              title="Delete round"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
