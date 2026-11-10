@@ -1324,16 +1324,15 @@ export const Candidates = () => {
       header: 'SALARY',
       accessor: 'ctc',
       render: (row) => (
-        <div className="text-[11px] font-medium text-[#1F2937] whitespace-nowrap flex items-center gap-1.5">
-          <span>
-            <strong className="text-[#6B7280] font-bold">CTC: </strong>
+        <div className="space-y-0.5 text-left whitespace-nowrap">
+          <div className="text-[11px] font-medium text-[#1F2937]">
+            <span className="text-[#6B7280] font-bold">CTC: </span>
             <span className="font-bold text-[#111827]">{formatSalary(row.ctc)}</span>
-          </span>
-          <span className="text-[#CBD5E1]">|</span>
-          <span>
-            <strong className="text-[#6B7280] font-bold">ETC: </strong>
+          </div>
+          <div className="text-[11px] font-medium text-emerald-700">
+            <span className="text-[#6B7280] font-bold">ETC: </span>
             <span className="font-bold text-emerald-600">{formatSalary(row.ectc)}</span>
-          </span>
+          </div>
         </div>
       ),
     },
