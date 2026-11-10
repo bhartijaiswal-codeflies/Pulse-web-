@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   UserPlus,
   Briefcase,
   Calendar,
-  Star,
   ExternalLink,
   Search,
   Filter,
@@ -13,7 +12,12 @@ import {
   Check,
   X,
   Eye,
-  Skull,
+  Mail,
+  Phone,
+  Copy,
+  Upload,
+  Download,
+  UserCheck,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -31,6 +35,7 @@ export const Candidates = () => {
   const [stageFilter, setStageFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const fileInputRef = useRef(null);
   const { addToast } = useToast();
 
   // New candidate form
@@ -40,6 +45,9 @@ export const Candidates = () => {
   const [newRole, setNewRole] = useState('Senior Full Stack Engineer');
   const [newDept, setNewDept] = useState('Engineering');
   const [newExp, setNewExp] = useState('5 years');
+  const [newCtc, setNewCtc] = useState('$120,000');
+  const [newEctc, setNewEctc] = useState('$145,000');
+  const [newRecruiter, setNewRecruiter] = useState('Saurabh H.');
   const [newStage, setNewStage] = useState('Under Review');
   const [newInterviewDate, setNewInterviewDate] = useState('');
 
@@ -50,6 +58,115 @@ export const Candidates = () => {
   useEffect(() => {
     loadCandidates();
   }, []);
+
+  const handleCopyEmail = (e, email) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(email);
+    addToast({
+      title: 'Email Copied',
+      message: `${email} copied to clipboard!`,
+      type: 'success',
+    });
+  };
+
+  const handleExportCSV = () => {
+    const headers = [
+      'ID',
+      'Name',
+      'Email',
+      'Phone',
+      'Role',
+      'Department',
+      'Experience',
+      'CTC',
+      'ECTC',
+      'Interview Date',
+      'Recruiter',
+      'Stage',
+    ];
+    const rows = candidates.map((c) => [
+      `"${c.id}"`,
+      `"${c.name}"`,
+      `"${c.email}"`,
+      `"${c.phone}"`,
+      `"${c.role}"`,
+      `"${c.department}"`,
+      `"${c.experience}"`,
+      `"${c.ctc || ''}"`,
+      `"${c.ectc || ''}"`,
+      `"${c.interviewDate}"`,
+      `"${c.recruiter || c.interviewer || ''}"`,
+      `"${c.stage}"`,
+    ]);
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `candidates_pipeline_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    addToast({
+      title: 'Candidates Exported',
+      message: `Exported ${candidates.length} candidates as CSV.`,
+      type: 'success',
+    });
+  };
+
+  const handleImportFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result;
+        const lines = text.split('\n').filter((l) => l.trim().length > 0);
+        if (lines.length <= 1) {
+          throw new Error('File is empty or contains only headers');
+        }
+        const newItems = [];
+        for (let i = 1; i < lines.length; i++) {
+          const parts = lines[i].split(',').map((p) => p.replace(/^"|"$/g, '').trim());
+          if (parts.length >= 2 && parts[1]) {
+            newItems.push({
+              name: parts[1],
+              email: parts[2] || `candidate${i}@example.com`,
+              phone: parts[3] || '+1 (555) 000-0000',
+              role: parts[4] || 'Software Engineer',
+              department: parts[5] || 'Engineering',
+              experience: parts[6] || '3 years',
+              ctc: parts[7] || '$95,000',
+              ectc: parts[8] || '$120,000',
+              interviewDate: parts[9] || 'Pending Schedule',
+              recruiter: parts[10] || 'Saurabh H.',
+              stage: parts[11] || 'Under Review',
+            });
+          }
+        }
+
+        if (newItems.length > 0) {
+          candidateService.importCandidates(newItems);
+          loadCandidates();
+          addToast({
+            title: 'Candidates Imported',
+            message: `Successfully imported ${newItems.length} candidate(s).`,
+            type: 'success',
+          });
+        }
+      } catch (err) {
+        addToast({
+          title: 'Import Failed',
+          message: 'Could not parse the selected file. Please provide a valid CSV.',
+          type: 'danger',
+        });
+      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+    reader.readAsText(file);
+  };
 
   const handleCreateCandidate = (e) => {
     e.preventDefault();
@@ -69,9 +186,12 @@ export const Candidates = () => {
       role: newRole,
       department: newDept,
       experience: newExp,
+      ctc: newCtc.trim() || '$120,000',
+      ectc: newEctc.trim() || '$145,000',
+      recruiter: newRecruiter.trim() || 'Saurabh H.',
       stage: newStage,
       interviewDate: newInterviewDate || 'Pending Schedule',
-      interviewer: 'Saurabh H.',
+      interviewer: newRecruiter.trim() || 'Saurabh H.',
     });
 
     addToast({
@@ -100,28 +220,14 @@ export const Candidates = () => {
     }
   };
 
-  const handleActionChange = (id, newAction) => {
-    setCandidates((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, action: newAction } : c))
-    );
-    const labelMap = {
-      qualified: 'Qualified / Hired',
-      dead: 'Under Review / Hold',
-      'not-qualified': 'Not Qualified / Rejected',
-    };
-    addToast({
-      title: 'Action Recorded',
-      message: `Candidate marked as ${labelMap[newAction] || newAction}.`,
-      type: newAction === 'qualified' ? 'success' : 'info',
-    });
-  };
-
   const filteredCandidates = candidates.filter((c) => {
     const matchesSearch =
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchQuery.toLowerCase());
+      c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.phone && c.phone.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (c.recruiter && c.recruiter.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesStage =
       stageFilter === 'All' || c.stage.toLowerCase() === stageFilter.toLowerCase();
@@ -147,7 +253,7 @@ export const Candidates = () => {
       id: 'Shortlisted',
       label: 'Shortlisted',
       count: candidates.filter((c) => c.stage === 'Shortlisted').length,
-      icon: <Star className="w-3 h-3 fill-amber-400 text-amber-400" />,
+      badgeColor: 'bg-amber-50 text-amber-700 border border-amber-200',
     },
     {
       id: 'Offer Extended',
@@ -168,20 +274,43 @@ export const Candidates = () => {
       header: 'CANDIDATE',
       accessor: 'name',
       render: (row) => (
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-start gap-3 py-1">
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2]"
+            className="w-9 h-9 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0 mt-0.5"
           />
-          <div>
+          <div className="min-w-0">
             <div
-              className="font-bold text-[#172033] text-xs hover:text-[#2563EB] cursor-pointer"
+              className="font-bold text-[#111827] text-xs hover:text-[#2563EB] cursor-pointer transition-colors"
               onClick={() => setSelectedCandidate(row)}
+              title="Click to view full profile"
             >
               {row.name}
             </div>
-            <div className="text-[10px] text-[#8292AD] font-medium">{row.email}</div>
+
+            {/* Email with copy action - clear & visible */}
+            <button
+              type="button"
+              onClick={(e) => handleCopyEmail(e, row.email)}
+              title="Click to copy email"
+              className="group/email flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-[#2563EB] transition-colors font-medium mt-1 text-left cursor-pointer"
+            >
+              <Mail className="w-3.5 h-3.5 text-[#6B7280] group-hover/email:text-[#2563EB] flex-shrink-0" />
+              <span className="truncate max-w-[190px]">{row.email}</span>
+              <Copy className="w-3 h-3 text-[#9CA3AF] opacity-0 group-hover/email:opacity-100 transition-opacity flex-shrink-0" />
+            </button>
+
+            {/* Phone with calling redirect - clear & visible */}
+            <a
+              href={`tel:${row.phone}`}
+              onClick={(e) => e.stopPropagation()}
+              title="Click to call candidate"
+              className="group/phone flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-emerald-600 transition-colors font-medium mt-0.5"
+            >
+              <Phone className="w-3.5 h-3.5 text-[#6B7280] group-hover/phone:text-emerald-600 flex-shrink-0" />
+              <span>{row.phone}</span>
+            </a>
           </div>
         </div>
       ),
@@ -190,9 +319,32 @@ export const Candidates = () => {
       header: 'ROLE & DEPT',
       accessor: 'role',
       render: (row) => (
-        <div>
-          <div className="text-xs font-bold text-[#172033]">{row.role}</div>
-          <div className="text-[10px] text-[#8292AD] font-medium">{row.department} • {row.experience}</div>
+        <div className="space-y-1">
+          <div className="text-xs font-bold text-[#111827]">{row.role}</div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-[#4B5563] font-medium">{row.department}</span>
+            {/* Experience - highly visible badge */}
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+              <Briefcase className="w-3 h-3 text-slate-500" />
+              {row.experience}
+            </span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: 'SALARY',
+      accessor: 'ctc',
+      render: (row) => (
+        <div className="space-y-0.5 text-left">
+          <div className="text-xs font-semibold text-[#1F2937]">
+            <span className="text-[11px] font-bold text-[#6B7280]">CTC: </span>
+            <span className="font-bold text-[#111827]">{row.ctc || '$120,000'}</span>
+          </div>
+          <div className="text-xs font-semibold text-emerald-700">
+            <span className="text-[11px] font-bold text-[#6B7280]">ECTC: </span>
+            <span className="font-bold text-emerald-600">{row.ectc || '$145,000'}</span>
+          </div>
         </div>
       ),
     },
@@ -207,14 +359,17 @@ export const Candidates = () => {
       ),
     },
     {
-      header: 'RATING',
-      accessor: 'rating',
-      render: (row) => (
-        <div className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-          <span>{row.rating}</span>
-        </div>
-      ),
+      header: 'RECRUITER',
+      accessor: 'recruiter',
+      render: (row) => {
+        const recruiterName = row.recruiter || row.interviewer || 'Saurabh H.';
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 whitespace-nowrap shadow-2xs">
+            <UserCheck className="w-3.5 h-3.5 text-indigo-600" />
+            <span>{recruiterName}</span>
+          </span>
+        );
+      },
     },
     {
       header: 'OPTIONS',
@@ -233,20 +388,55 @@ export const Candidates = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      {/* Page Header */}
+      {/* Page Header with Import, Export and Add Candidate Buttons */}
       <PageHeader
         title="Candidate Management"
         badgeText="Recruitment Pipeline"
-        subtitle="Manage job applicants, interview schedules, ratings and hiring offers."
+        subtitle="Manage job applicants, interview schedules, salaries and hiring offers."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Candidates' }]}
         actions={
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20"
-          >
-            <UserPlus className="w-4 h-4 stroke-[2.5]" />
-            <span>Add Candidate</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Hidden file input for CSV Import */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImportFile}
+              accept=".csv, .xlsx, .xls"
+              className="hidden"
+            />
+
+            {/* Import Button */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+              title="Import candidates from CSV"
+            >
+              <Upload className="w-3.5 h-3.5 text-[#8292AD]" />
+              <span>Import</span>
+            </button>
+
+            {/* Export CSV Button */}
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+              title="Export candidate pipeline to CSV"
+            >
+              <Download className="w-3.5 h-3.5 text-[#8292AD]" />
+              <span>Export</span>
+            </button>
+
+            {/* Add Candidate Button */}
+            <button
+              type="button"
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add Candidate</span>
+            </button>
+          </div>
         }
       />
 
@@ -276,7 +466,7 @@ export const Candidates = () => {
           subtext="Awaiting candidate reply"
           badgeText="High Priority"
           badgeType="danger"
-          icon={Star}
+          icon={CheckCircle2}
           iconBg="bg-amber-50 text-amber-600"
         />
         <StatsCard
@@ -294,7 +484,7 @@ export const Candidates = () => {
       <DataTable
         columns={columns}
         data={filteredCandidates}
-        pageSize={6}
+        pageSize={10}
         tabs={candidateTabs}
         activeTab={stageFilter}
         onTabChange={setStageFilter}
@@ -305,7 +495,7 @@ export const Candidates = () => {
             value={searchQuery}
             onChange={setSearchQuery}
             onClear={() => setSearchQuery('')}
-            placeholder="Search candidates, roles..."
+            placeholder="Search candidates, roles, recruiters..."
           />
         }
         emptyMessage="No candidates match your criteria"
@@ -354,7 +544,7 @@ export const Candidates = () => {
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           title="Add New Job Candidate"
-          subtitle="Record candidate contact info, applied role, and interview timing"
+          subtitle="Record candidate contact info, salary expectations, recruiter and interview timing"
         >
           <form onSubmit={handleCreateCandidate} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -443,11 +633,57 @@ export const Candidates = () => {
                   <option value="Marketing">Marketing</option>
                   <option value="Finances">Finances</option>
                   <option value="HR & People">HR & People</option>
+                  <option value="Infrastructure">Infrastructure</option>
                 </select>
               </div>
             </div>
 
+            {/* Salary: CTC & ECTC */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Current CTC (Salary)
+                </label>
+                <input
+                  type="text"
+                  value={newCtc}
+                  onChange={(e) => setNewCtc(e.target.value)}
+                  placeholder="e.g. $120,000 or 15 LPA"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Expected CTC (ECTC)
+                </label>
+                <input
+                  type="text"
+                  value={newEctc}
+                  onChange={(e) => setNewEctc(e.target.value)}
+                  placeholder="e.g. $145,000 or 20 LPA"
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                  Recruiter
+                </label>
+                <select
+                  value={newRecruiter}
+                  onChange={(e) => setNewRecruiter(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                >
+                  <option value="Saurabh H.">Saurabh H.</option>
+                  <option value="Alexandre Roy">Alexandre Roy</option>
+                  <option value="Devin Thorne">Devin Thorne</option>
+                  <option value="Priya Sharma">Priya Sharma</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
                   Pipeline Stage
@@ -463,32 +699,32 @@ export const Candidates = () => {
                   <option value="Offer Extended">Offer Extended</option>
                 </select>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Interview Date / Time
-                </label>
-                <input
-                  type="text"
-                  value={newInterviewDate}
-                  onChange={(e) => setNewInterviewDate(e.target.value)}
-                  placeholder="e.g. 14 Nov, 2026 - 03:00 PM"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1.5">
+                Interview Date / Time
+              </label>
+              <input
+                type="text"
+                value={newInterviewDate}
+                onChange={(e) => setNewInterviewDate(e.target.value)}
+                placeholder="e.g. 14 Nov, 2026 - 03:00 PM"
+                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+              />
             </div>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC]"
+                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC] cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm"
+                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm cursor-pointer"
               >
                 Save Candidate
               </button>
@@ -518,11 +754,12 @@ export const Candidates = () => {
                   <option value="Shortlisted">Shortlisted</option>
                   <option value="Offer Extended">Offer Extended</option>
                   <option value="Hired">Hired</option>
+                  <option value="Rejected">Rejected</option>
                 </select>
               </div>
               <button
                 onClick={() => setSelectedCandidate(null)}
-                className="px-4 py-1.5 text-xs font-medium rounded-xl border border-[#E5EAF2] text-[#172033] hover:bg-[#F7F9FC]"
+                className="px-4 py-1.5 text-xs font-medium rounded-xl border border-[#E5EAF2] text-[#172033] hover:bg-[#F7F9FC] cursor-pointer"
               >
                 Done
               </button>
@@ -542,15 +779,36 @@ export const Candidates = () => {
                   <StatusBadge status={selectedCandidate.stage} size="sm" />
                 </div>
                 <p className="text-xs text-[#8292AD] font-medium">{selectedCandidate.role}</p>
-                <div className="flex items-center gap-3 text-xs text-[#8292AD] mt-1">
-                  <span>{selectedCandidate.email}</span>
+
+                <div className="flex items-center gap-3 text-xs mt-1.5 flex-wrap">
+                  {/* Click to copy email */}
+                  <button
+                    type="button"
+                    onClick={(e) => handleCopyEmail(e, selectedCandidate.email)}
+                    title="Click to copy email"
+                    className="group flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-[#2563EB] font-medium cursor-pointer"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-[#6B7280] group-hover:text-[#2563EB]" />
+                    <span>{selectedCandidate.email}</span>
+                    <Copy className="w-3 h-3 text-[#9CA3AF] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+
                   <span>•</span>
-                  <span>{selectedCandidate.phone}</span>
+
+                  {/* Click to call phone */}
+                  <a
+                    href={`tel:${selectedCandidate.phone}`}
+                    title="Click to call candidate"
+                    className="flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-emerald-600 font-medium"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#6B7280]" />
+                    <span>{selectedCandidate.phone}</span>
+                  </a>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
               <div className="p-3 rounded-xl border border-[#E5EAF2]">
                 <span className="text-[#8292AD] block mb-0.5">Department</span>
                 <span className="font-semibold text-[#172033]">{selectedCandidate.department}</span>
@@ -560,15 +818,23 @@ export const Candidates = () => {
                 <span className="font-semibold text-[#172033]">{selectedCandidate.experience}</span>
               </div>
               <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Interviewer</span>
-                <span className="font-semibold text-[#172033]">{selectedCandidate.interviewer}</span>
+                <span className="text-[#8292AD] block mb-0.5">Recruiter</span>
+                <span className="inline-flex items-center gap-1 font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200 text-[11px] mt-0.5">
+                  <UserCheck className="w-3 h-3 text-indigo-600" />
+                  {selectedCandidate.recruiter || selectedCandidate.interviewer}
+                </span>
               </div>
               <div className="p-3 rounded-xl border border-[#E5EAF2]">
-                <span className="text-[#8292AD] block mb-0.5">Rating</span>
-                <span className="font-semibold text-amber-600 flex items-center gap-1">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  {selectedCandidate.rating}
-                </span>
+                <span className="text-[#8292AD] block mb-0.5">Current CTC</span>
+                <span className="font-bold text-[#111827]">{selectedCandidate.ctc || '$120,000'}</span>
+              </div>
+              <div className="p-3 rounded-xl border border-[#E5EAF2]">
+                <span className="text-[#8292AD] block mb-0.5">Expected CTC</span>
+                <span className="font-bold text-emerald-600">{selectedCandidate.ectc || '$145,000'}</span>
+              </div>
+              <div className="p-3 rounded-xl border border-[#E5EAF2]">
+                <span className="text-[#8292AD] block mb-0.5">Interview Date</span>
+                <span className="font-semibold text-[#172033]">{selectedCandidate.interviewDate}</span>
               </div>
             </div>
 
@@ -580,7 +846,7 @@ export const Candidates = () => {
               <button
                 type="button"
                 onClick={() => addToast({ title: 'Resume Downloaded', message: `Resume for ${selectedCandidate.name} opened.`, type: 'info' })}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 text-[#2563EB] hover:bg-blue-100 border border-blue-200 transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 text-[#2563EB] hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>View Resume</span>
