@@ -493,7 +493,7 @@ export const Attendance = () => {
       ),
     },
     {
-      header: 'OPTIONS',
+      header: 'STATUS',
       accessor: 'status',
       align: 'center',
       render: (row) => (
@@ -565,12 +565,12 @@ export const Attendance = () => {
     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
       {/* Left: All Filters in 1 Row */}
       <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
-        {/* 1. All Punches in 1 Styled Colored Pill Dropdown (matching Image 2) */}
+        {/* 1. All Punches in 1 Styled Colored Dropdown (same rounded-xl shape) */}
         <div className="relative flex-shrink-0" ref={punchDropdownRef}>
           <button
             type="button"
             onClick={() => setShowPunchDropdown((prev) => !prev)}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentPunchConfig.pillClass}`}
+            className={`inline-flex items-center gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentPunchConfig.pillClass}`}
           >
             <span className="flex-shrink-0">{currentPunchConfig.icon}</span>
             <span>
@@ -628,8 +628,8 @@ export const Attendance = () => {
           )}
         </div>
 
-        {/* 2. Search Employee / ID */}
-        <div className="w-44 sm:w-52 min-w-[160px] flex-shrink-0">
+        {/* 2. Search Employee / ID (fixed text cutting issue) */}
+        <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -638,7 +638,7 @@ export const Attendance = () => {
           />
         </div>
 
-        {/* 3. Quick Period Dropdown */}
+        {/* 3. Quick Period Dropdown (calendar removed from option All Dates) */}
         <div className="relative min-w-[150px] flex-shrink-0">
           <select
             value={periodFilter}
@@ -650,9 +650,9 @@ export const Attendance = () => {
                 setToDate('');
               }
             }}
-            className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
           >
-            <option value="all">📅 All Dates</option>
+            <option value="all">All Dates</option>
             <option value="today">Today</option>
             <option value="yesterday">Yesterday</option>
             <option value="this-week">This Week</option>
@@ -665,16 +665,16 @@ export const Attendance = () => {
           </span>
         </div>
 
-        {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
+        {/* 4. Custom Date Range Inputs (when 'custom' selected, same rounded-xl shape) */}
         {periodFilter === 'custom' && (
-          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 py-1 rounded-xl border border-[#E5EAF2] flex-shrink-0">
+          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] flex-shrink-0">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
               <span className="text-[11px] text-[#8292AD]">From:</span>
               <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="px-2.5 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="px-2 py-1 h-7 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
@@ -683,18 +683,18 @@ export const Attendance = () => {
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="px-2.5 py-1 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                className="px-2 py-1 h-7 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
           </div>
         )}
 
-        {/* 5. Department Filter */}
+        {/* 5. Department Filter (same rounded-xl shape) */}
         <div className="relative min-w-[145px] flex-shrink-0">
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
           >
             {departments.map((dept) => (
               <option key={dept} value={dept}>
@@ -711,23 +711,23 @@ export const Attendance = () => {
 
       {/* Right: Reset + Apply + Live Filter Counter + Refresh */}
       <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
-        {/* Reset Button (Moved to right) */}
+        {/* Reset Button (same rounded-xl shape) */}
         <button
           type="button"
           onClick={handleResetFilters}
           title="Reset all filters"
-          className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
+          className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
         >
           <RotateCcw className="w-3.5 h-3.5 text-[#DC2626]" />
           <span>Reset</span>
         </button>
 
-        {/* Apply Button (Added on right) */}
+        {/* Apply Button (same rounded-xl shape) */}
         <button
           type="button"
           onClick={handleApplyFilters}
           title="Apply current filters"
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white transition-all active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer whitespace-nowrap"
+          className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white transition-all active:scale-95 shadow-sm shadow-blue-500/20 cursor-pointer whitespace-nowrap"
         >
           <Check className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Apply</span>
