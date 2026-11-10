@@ -10,6 +10,8 @@ import {
   TrendingUp,
   FileText,
   CheckCircle,
+  Check,
+  X,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -82,7 +84,7 @@ export const MyFinances = () => {
 
   const payslipColumns = [
     {
-      header: 'Pay Period',
+      header: 'PAY PERIOD',
       accessor: 'month',
       render: (row) => (
         <div className="flex items-center gap-2.5">
@@ -90,87 +92,87 @@ export const MyFinances = () => {
             <FileText className="w-4 h-4" />
           </div>
           <div>
-            <div className="font-bold text-[#172033]">{row.month}</div>
-            <div className="text-[11px] text-[#8292AD]">{row.payPeriod}</div>
+            <div className="font-bold text-[#172033] text-xs">{row.month}</div>
+            <div className="text-[10px] text-[#8292AD] font-medium">{row.payPeriod}</div>
           </div>
         </div>
       ),
     },
     {
-      header: 'Basic Pay',
+      header: 'BASIC PAY',
       accessor: 'basicPay',
-      render: (row) => <span className="text-xs font-medium text-[#172033]">{row.basicPay}</span>,
+      render: (row) => <span className="text-xs font-bold text-[#172033]">{row.basicPay}</span>,
     },
     {
-      header: 'Allowances',
+      header: 'ALLOWANCES',
       accessor: 'allowances',
-      render: (row) => <span className="text-xs font-medium text-emerald-600">+{row.allowances}</span>,
+      render: (row) => <span className="text-xs font-bold text-emerald-600">+{row.allowances}</span>,
     },
     {
-      header: 'Deductions (Tax+PF)',
+      header: 'DEDUCTIONS',
       accessor: 'taxDeduction',
       render: (row) => (
-        <span className="text-xs font-medium text-rose-600">
+        <span className="text-xs font-bold text-rose-600">
           -{row.taxDeduction}
         </span>
       ),
     },
     {
-      header: 'Net Disbursed',
+      header: 'NET DISBURSED',
       accessor: 'netSalary',
       render: (row) => (
-        <span className="text-xs font-bold text-[#172033]">
+        <span className="text-xs font-black text-[#172033]">
           {row.netSalary}
         </span>
       ),
     },
     {
-      header: 'Status',
+      header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="sm" />,
+      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
     },
   ];
 
   const expenseColumns = [
     {
-      header: 'Expense ID / Date',
+      header: 'EXPENSE ID / DATE',
       accessor: 'id',
       render: (row) => (
         <div>
-          <div className="font-bold text-[#172033]">{row.id}</div>
-          <div className="text-[11px] text-[#8292AD]">{row.date}</div>
+          <div className="font-bold text-[#172033] text-xs">{row.id}</div>
+          <div className="text-[10px] text-[#8292AD] font-medium">{row.date}</div>
         </div>
       ),
     },
     {
-      header: 'Category',
+      header: 'CATEGORY',
       accessor: 'category',
       render: (row) => (
-        <span className="text-xs font-semibold text-[#172033] px-2 py-0.5 rounded-md bg-[#F7F9FC] border border-[#E5EAF2]">
+        <span className="text-[11px] font-semibold text-[#172033] px-2.5 py-0.5 rounded-full bg-[#F7F9FC] border border-[#E5EAF2]">
           {row.category}
         </span>
       ),
     },
     {
-      header: 'Merchant / Description',
+      header: 'MERCHANT',
       accessor: 'merchant',
-      render: (row) => <span className="text-xs text-[#4E5D78]">{row.merchant}</span>,
+      render: (row) => <span className="text-xs text-[#4E5D78] font-medium">{row.merchant}</span>,
     },
     {
-      header: 'Claim Amount',
+      header: 'CLAIM AMOUNT',
       accessor: 'amount',
       render: (row) => (
-        <span className="text-xs font-bold text-[#172033]">
+        <span className="text-xs font-black text-[#172033]">
           {row.amount}
         </span>
       ),
     },
     {
-      header: 'Approval Status',
+      header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="sm" />,
+      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
     },
   ];
 
@@ -266,13 +268,15 @@ export const MyFinances = () => {
           data={finances.payslips}
           pageSize={6}
           actions={(row) => (
-            <button
-              onClick={() => handleDownloadPayslip(row)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-[#2563EB] bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download PDF</span>
-            </button>
+            <div className="inline-flex items-center justify-end gap-1.5">
+              <button
+                onClick={() => handleDownloadPayslip(row)}
+                title="Download Payslip PDF"
+                className="w-6 h-6 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 flex items-center justify-center hover:bg-blue-100 hover:scale-105 transition-all shadow-2xs"
+              >
+                <Download className="w-3.5 h-3.5" />
+              </button>
+            </div>
           )}
         />
       ) : (
@@ -281,19 +285,34 @@ export const MyFinances = () => {
           data={finances.expenses}
           pageSize={6}
           actions={(row) => (
-            <button
-              onClick={() =>
-                addToast({
-                  title: 'Expense Receipt View',
-                  message: `Receipt receipt for ${row.id} loaded.`,
-                  type: 'info',
-                })
-              }
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg text-[#172033] bg-[#F7F9FC] hover:bg-slate-200 border border-[#E5EAF2] transition-colors"
-            >
-              <FileText className="w-3.5 h-3.5 text-[#8292AD]" />
-              <span>Receipt</span>
-            </button>
+            <div className="inline-flex items-center justify-end gap-1.5">
+              <button
+                onClick={() =>
+                  addToast({
+                    title: 'Expense Claim Approved',
+                    message: `Claim for ${row.id} marked as Approved.`,
+                    type: 'success',
+                  })
+                }
+                title="Approve Claim"
+                className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
+              >
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+              <button
+                onClick={() =>
+                  addToast({
+                    title: 'Expense Claim Declined',
+                    message: `Claim for ${row.id} declined.`,
+                    type: 'error',
+                  })
+                }
+                title="Decline Claim"
+                className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
+              >
+                <X className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            </div>
           )}
         />
       )}

@@ -10,6 +10,9 @@ import {
   CheckCircle2,
   Clock,
   MoreVertical,
+  Check,
+  X,
+  Eye,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -108,50 +111,50 @@ export const Candidates = () => {
     return matchesSearch && matchesStage;
   });
 
-  const stages = [
-    'All',
-    'Under Review',
-    'Interview Scheduled',
-    'Shortlisted',
-    'Offer Extended',
-    'Hired',
+  const candidateTabs = [
+    { id: 'All', label: 'All Pipeline', count: candidates.length },
+    { id: 'Under Review', label: 'Under Review', count: candidates.filter((c) => c.stage === 'Under Review').length },
+    { id: 'Interview Scheduled', label: 'Interview Scheduled', count: candidates.filter((c) => c.stage === 'Interview Scheduled').length },
+    { id: 'Shortlisted', label: 'Shortlisted', count: candidates.filter((c) => c.stage === 'Shortlisted').length },
+    { id: 'Offer Extended', label: 'Offer Extended', count: candidates.filter((c) => c.stage === 'Offer Extended').length, badgeColor: 'bg-emerald-50 text-emerald-700' },
+    { id: 'Hired', label: 'Hired', count: candidates.filter((c) => c.stage === 'Hired').length, badgeColor: 'bg-blue-50 text-blue-700' },
   ];
 
   const columns = [
     {
-      header: 'Candidate',
+      header: 'CANDIDATE',
       accessor: 'name',
       render: (row) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-[#E5EAF2]"
+            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2]"
           />
           <div>
             <div
-              className="font-bold text-[#172033] hover:text-[#2563EB] cursor-pointer"
+              className="font-bold text-[#172033] text-xs hover:text-[#2563EB] cursor-pointer"
               onClick={() => setSelectedCandidate(row)}
             >
               {row.name}
             </div>
-            <div className="text-[11px] text-[#8292AD]">{row.email}</div>
+            <div className="text-[10px] text-[#8292AD] font-medium">{row.email}</div>
           </div>
         </div>
       ),
     },
     {
-      header: 'Role & Dept',
+      header: 'ROLE & DEPT',
       accessor: 'role',
       render: (row) => (
         <div>
-          <div className="text-xs font-semibold text-[#172033]">{row.role}</div>
-          <div className="text-[11px] text-[#8292AD]">{row.department} • {row.experience}</div>
+          <div className="text-xs font-bold text-[#172033]">{row.role}</div>
+          <div className="text-[10px] text-[#8292AD] font-medium">{row.department} • {row.experience}</div>
         </div>
       ),
     },
     {
-      header: 'Interview Schedule',
+      header: 'INTERVIEW SCHEDULE',
       accessor: 'interviewDate',
       render: (row) => (
         <div className="text-xs text-[#4E5D78] flex items-center gap-1.5 font-medium">
@@ -161,20 +164,20 @@ export const Candidates = () => {
       ),
     },
     {
-      header: 'Rating',
+      header: 'RATING',
       accessor: 'rating',
       render: (row) => (
-        <div className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200">
+        <div className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
           <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
           <span>{row.rating}</span>
         </div>
       ),
     },
     {
-      header: 'Stage Status',
+      header: 'OPTIONS',
       accessor: 'stage',
       align: 'center',
-      render: (row) => <StatusBadge status={row.stage} size="sm" />,
+      render: (row) => <StatusBadge status={row.stage} size="xs" showChevron={true} />,
     },
   ];
 
@@ -237,50 +240,51 @@ export const Candidates = () => {
         />
       </div>
 
-      {/* Filters Bar matching Reference Image 3 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#E5EAF2] shadow-card">
-        {/* Stage Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {stages.map((stg) => (
-            <button
-              key={stg}
-              onClick={() => setStageFilter(stg)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors ${
-                stageFilter === stg
-                  ? 'bg-[#2563EB] text-white shadow-xs'
-                  : 'bg-[#F7F9FC] text-[#8292AD] hover:text-[#172033] hover:bg-slate-100'
-              }`}
-            >
-              {stg}
-            </button>
-          ))}
-        </div>
-
-        {/* Search */}
+      {/* Search Header */}
+      <div className="flex justify-end">
         <div className="w-full sm:w-72">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
             onClear={() => setSearchQuery('')}
-            placeholder="Search candidates, roles..."
+            placeholder="Search candidates, roles, emails..."
           />
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table with Tab Pills & Circular Action Buttons matching Reference Image */}
       <DataTable
         columns={columns}
         data={filteredCandidates}
         pageSize={6}
+        tabs={candidateTabs}
+        activeTab={stageFilter}
+        onTabChange={setStageFilter}
+        filterInfo={`Filtered: ${filteredCandidates.length} Shown of ${candidates.length}`}
         emptyMessage="No candidates match your criteria"
         emptySubtext="Try filtering by another stage or search query."
         actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
+          <div className="inline-flex items-center justify-end gap-1.5">
+            <button
+              onClick={() => handleUpdateStage(row.id, 'Hired')}
+              title="Hire Candidate"
+              className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
+            >
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+            <button
+              onClick={() => handleUpdateStage(row.id, 'Under Review')}
+              title="Hold / Review"
+              className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
+            >
+              <X className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
             <button
               onClick={() => setSelectedCandidate(row)}
-              className="px-2.5 py-1 text-xs font-semibold rounded-lg text-[#2563EB] bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors"
+              title="View Profile Details"
+              className="w-6 h-6 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
             >
-              View
+              <Eye className="w-3.5 h-3.5" />
             </button>
           </div>
         )}

@@ -75,21 +75,21 @@ export const InboxLeaveRequestsCard = ({ requests, onApprove, onReject }) => {
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 <button
                   onClick={() => setSelectedRequest(req)}
-                  className="p-1 rounded-lg text-[#8292AD] hover:text-[#172033] hover:bg-white border border-transparent hover:border-[#E5EAF2]"
+                  className="w-6 h-6 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
                   title="View details"
                 >
                   <Eye className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => handleReject(req)}
-                  className="p-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
+                  className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
                   title="Reject"
                 >
                   <X className="w-3.5 h-3.5 stroke-[2.5]" />
                 </button>
                 <button
                   onClick={() => handleApprove(req)}
-                  className="p-1.5 rounded-lg text-white bg-[#10B981] hover:bg-emerald-600 shadow-xs transition-colors"
+                  className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
                   title="Approve"
                 >
                   <Check className="w-3.5 h-3.5 stroke-[2.5]" />

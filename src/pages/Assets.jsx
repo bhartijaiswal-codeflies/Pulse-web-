@@ -12,6 +12,8 @@ import {
   Smartphone,
   Headphones,
   Check,
+  X,
+  Eye,
   Loader2,
   RefreshCw,
 } from 'lucide-react';
@@ -170,30 +172,36 @@ export const Assets = () => {
 
   const categories = ['All', 'Laptops', 'Monitors', 'Mobile Devices', 'Peripherals'];
 
+  const assetTabs = categories.map((cat) => ({
+    id: cat,
+    label: cat === 'All' ? 'All Hardware' : cat,
+    count: cat === 'All' ? assets.length : assets.filter((a) => a.category.toLowerCase() === cat.toLowerCase()).length,
+  }));
+
   const columns = [
     {
-      header: 'Asset & Tag',
+      header: 'ASSET & TAG',
       accessor: 'name',
       render: (row) => (
         <div>
-          <div className="font-bold text-[#172033] hover:text-[#2563EB] cursor-pointer" onClick={() => setSelectedAsset(row)}>
+          <div className="font-bold text-[#172033] text-xs hover:text-[#2563EB] cursor-pointer" onClick={() => setSelectedAsset(row)}>
             {row.name}
           </div>
-          <div className="text-[11px] text-[#8292AD] font-mono">{row.tag} • S/N: {row.serial}</div>
+          <div className="text-[10px] text-[#8292AD] font-mono mt-0.5">{row.tag} • S/N: {row.serial}</div>
         </div>
       ),
     },
     {
-      header: 'Category',
+      header: 'CATEGORY',
       accessor: 'category',
       render: (row) => (
-        <span className="text-xs font-semibold text-[#172033] px-2.5 py-0.5 rounded-md bg-[#F7F9FC] border border-[#E5EAF2]">
+        <span className="text-[11px] font-semibold text-[#172033] px-2.5 py-0.5 rounded-full bg-[#F7F9FC] border border-[#E5EAF2]">
           {row.category}
         </span>
       ),
     },
     {
-      header: 'Assigned To',
+      header: 'ASSIGNED TO',
       accessor: 'assignedTo',
       render: (row) => (
         <div>
@@ -201,32 +209,32 @@ export const Assets = () => {
             {row.assignedTo}
           </div>
           {row.assignedDate && row.assignedDate !== '--' && (
-            <div className="text-[10px] text-[#8292AD]">Since {row.assignedDate}</div>
+            <div className="text-[10px] text-[#8292AD] font-medium">Since {row.assignedDate}</div>
           )}
         </div>
       ),
     },
     {
-      header: 'Return Status',
+      header: 'RETURN STATUS',
       accessor: 'returnStatus',
       render: (row) => (
-        <span className="text-xs text-[#4E5D78]">
+        <span className="text-xs text-[#4E5D78] font-medium">
           {row.returnStatus}
         </span>
       ),
     },
     {
-      header: 'Condition',
+      header: 'CONDITION',
       accessor: 'condition',
       render: (row) => (
-        <span className="text-xs text-[#8292AD]">{row.condition}</span>
+        <span className="text-xs text-[#8292AD] font-medium">{row.condition}</span>
       ),
     },
     {
-      header: 'Inventory Status',
+      header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="sm" />,
+      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
     },
   ];
 
@@ -360,26 +368,8 @@ export const Assets = () => {
         />
       </div>
 
-      {/* Filters Bar matching Reference Image 3 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#E5EAF2] shadow-card">
-        {/* Category tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors ${
-                categoryFilter === cat
-                  ? 'bg-[#2563EB] text-white shadow-xs'
-                  : 'bg-[#F7F9FC] text-[#8292AD] hover:text-[#172033] hover:bg-slate-100'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Search */}
+      {/* Search Header */}
+      <div className="flex justify-end">
         <div className="w-full sm:w-72">
           <SearchBar
             value={searchQuery}
@@ -390,30 +380,43 @@ export const Assets = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table with Tab Pills & Circular Action Buttons matching Reference Image */}
       <DataTable
         columns={columns}
         data={filteredAssets}
         pageSize={6}
+        tabs={assetTabs}
+        activeTab={categoryFilter}
+        onTabChange={setCategoryFilter}
+        filterInfo={`Filtered: ${filteredAssets.length} Shown of ${assets.length}`}
         emptyMessage="No assets match your search"
         emptySubtext="Try selecting another category or clearing search query."
         actions={(row) => (
-          <div className="flex items-center justify-end gap-1.5">
+          <div className="inline-flex items-center justify-end gap-1.5">
             {row.status === 'Assigned' ? (
               <button
                 onClick={() => handleReturnAsset(row)}
-                className="px-2.5 py-1 text-xs font-semibold rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors"
+                title="Process Equipment Return"
+                className="w-6 h-6 rounded-full bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center hover:bg-amber-100 hover:scale-105 transition-all shadow-2xs"
               >
-                Return
+                <RotateCcw className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
                 onClick={() => setAssigningAsset(row)}
-                className="px-2.5 py-1 text-xs font-semibold rounded-lg text-[#2563EB] bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors"
+                title="Assign to Employee"
+                className="w-6 h-6 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 flex items-center justify-center hover:bg-blue-100 hover:scale-105 transition-all shadow-2xs"
               >
-                Assign
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
               </button>
             )}
+            <button
+              onClick={() => setSelectedAsset(row)}
+              title="View Hardware Specs"
+              className="w-6 h-6 rounded-full bg-slate-50 text-slate-500 border border-slate-200 flex items-center justify-center hover:bg-slate-100 hover:scale-105 transition-all shadow-2xs"
+            >
+              <Eye className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
       />

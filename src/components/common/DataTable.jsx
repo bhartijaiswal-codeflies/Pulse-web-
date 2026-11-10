@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Inbox, RotateCw } from 'lucide-react';
 
 export const DataTable = ({
   columns,
@@ -9,10 +9,19 @@ export const DataTable = ({
   emptySubtext = 'Try adjusting your search or filters.',
   actions,
   rowKey = 'id',
+  tabs,
+  activeTab,
+  onTabChange,
+  filterInfo,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+
+  // Reset page when data changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [data.length, activeTab]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -26,16 +35,59 @@ export const DataTable = ({
   };
 
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl shadow-card overflow-hidden">
+    <div className="bg-white border border-[#E5EAF2] rounded-2xl shadow-card overflow-hidden transition-all">
+      {/* Optional Top Filter Pills Bar (matching Reference Image) */}
+      {tabs && tabs.length > 0 && (
+        <div className="px-5 py-3.5 border-b border-[#E5EAF2] bg-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id || activeTab === tab.label;
+              return (
+                <button
+                  key={tab.id || tab.label}
+                  onClick={() => onTabChange && onTabChange(tab.id || tab.label)}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                    isActive
+                      ? 'bg-[#2563EB] text-white shadow-xs'
+                      : 'bg-white text-[#64748B] hover:text-[#172033] hover:bg-[#F8FAFC] border border-[#E5EAF2]'
+                  }`}
+                >
+                  {tab.icon && <span className="text-[12px]">{tab.icon}</span>}
+                  <span>{tab.label}</span>
+                  {tab.count !== undefined && (
+                    <span
+                      className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+                        isActive
+                          ? 'bg-white/25 text-white'
+                          : tab.badgeColor || 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="text-[11px] text-[#8292AD] font-medium flex items-center gap-1 self-end sm:self-auto flex-shrink-0">
+            <span>
+              {filterInfo || `Filtered: ${paginatedData.length} Shown of ${data.length}`}
+            </span>
+            <RotateCw className="w-3 h-3 text-[#8292AD]" />
+          </div>
+        </div>
+      )}
+
       {/* Table Container */}
       <div className="overflow-x-auto min-h-[300px]">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#E5EAF2] bg-[#FBFDFE]">
+            <tr className="border-b border-[#E5EAF2] bg-white">
               {columns.map((col, idx) => (
                 <th
                   key={idx}
-                  className={`py-3.5 px-4 text-[11px] font-semibold text-[#8292AD] uppercase tracking-wider ${
+                  className={`py-3 px-4 text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider ${
                     col.align === 'right'
                       ? 'text-right'
                       : col.align === 'center'
@@ -47,13 +99,13 @@ export const DataTable = ({
                 </th>
               ))}
               {actions && (
-                <th className="py-3.5 px-4 text-[11px] font-semibold text-[#8292AD] uppercase tracking-wider text-right">
-                  Actions
+                <th className="py-3 px-4 text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider text-right">
+                  ACTIONS
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E5EAF2] text-sm text-[#172033]">
+          <tbody className="divide-y divide-[#F1F5F9] text-xs text-[#172033]">
             {paginatedData.length > 0 ? (
               paginatedData.map((row, rowIdx) => (
                 <tr
@@ -63,7 +115,7 @@ export const DataTable = ({
                   {columns.map((col, colIdx) => (
                     <td
                       key={colIdx}
-                      className={`py-3.5 px-4 align-middle ${
+                      className={`py-3 px-4 align-middle ${
                         col.align === 'right'
                           ? 'text-right'
                           : col.align === 'center'
@@ -75,7 +127,7 @@ export const DataTable = ({
                     </td>
                   ))}
                   {actions && (
-                    <td className="py-3.5 px-4 align-middle text-right whitespace-nowrap">
+                    <td className="py-3 px-4 align-middle text-right whitespace-nowrap">
                       {actions(row)}
                     </td>
                   )}
@@ -101,19 +153,19 @@ export const DataTable = ({
         </table>
       </div>
 
-      {/* Pagination Footer */}
+      {/* Pagination Footer matching Reference Image */}
       {data.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-3.5 border-t border-[#E5EAF2] bg-[#FCFDFE] gap-3 text-xs text-[#8292AD]">
+        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-3.5 border-t border-[#E5EAF2] bg-white gap-3 text-xs text-[#8292AD]">
           <div>
             Showing{' '}
-            <span className="font-semibold text-[#172033]">
+            <span className="font-bold text-[#172033]">
               {data.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
             </span>{' '}
             to{' '}
-            <span className="font-semibold text-[#172033]">
+            <span className="font-bold text-[#172033]">
               {Math.min(currentPage * pageSize, data.length)}
             </span>{' '}
-            of <span className="font-semibold text-[#172033]">{data.length}</span> records
+            of <span className="font-bold text-[#172033]">{data.length}</span> records
             {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
           </div>
 
@@ -121,10 +173,9 @@ export const DataTable = ({
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F7F9FC] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="text-xs font-semibold px-2 py-1 text-[#64748B] hover:text-[#172033] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span>Prev</span>
+              Prev
             </button>
 
             {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -142,10 +193,10 @@ export const DataTable = ({
                     {showEllipsis && <span className="px-1 text-[#8292AD]">...</span>}
                     <button
                       onClick={() => handlePageChange(page)}
-                      className={`min-w-[28px] h-7 px-2 text-xs font-medium rounded-lg transition-all ${
+                      className={`w-6 h-6 rounded-full text-xs font-bold transition-all flex items-center justify-center ${
                         currentPage === page
-                          ? 'bg-[#2563EB] text-white shadow-sm font-semibold'
-                          : 'border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F7F9FC]'
+                          ? 'bg-[#2563EB] text-white shadow-xs'
+                          : 'text-[#64748B] hover:bg-slate-100 font-semibold'
                       }`}
                     >
                       {page}
@@ -157,10 +208,9 @@ export const DataTable = ({
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F7F9FC] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="text-xs font-semibold px-2 py-1 text-[#64748B] hover:text-[#172033] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              <span>Next</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              Next
             </button>
           </div>
         </div>
@@ -168,4 +218,3 @@ export const DataTable = ({
     </div>
   );
 };
-

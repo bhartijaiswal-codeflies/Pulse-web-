@@ -5,10 +5,8 @@ import {
   AlertTriangle,
   Calendar as CalendarIcon,
   Download,
-  Filter,
-  CheckCircle,
-  Play,
-  Square,
+  Check,
+  X,
   Search,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
@@ -17,7 +15,6 @@ import { DataTable } from '../components/common/DataTable';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { SearchBar } from '../components/common/SearchBar';
 import { attendanceService } from '../services/attendanceService';
-import { currentUser } from '../data/mockData';
 import { useToast } from '../context/NotificationContext';
 
 export const Attendance = () => {
@@ -43,6 +40,22 @@ export const Attendance = () => {
     });
   };
 
+  const handleVerifyShift = (row) => {
+    addToast({
+      title: 'Shift Verified',
+      message: `${row.name}'s punch on ${row.date} confirmed.`,
+      type: 'success',
+    });
+  };
+
+  const handleFlagShift = (row) => {
+    addToast({
+      title: 'Shift Flagged',
+      message: `${row.name}'s attendance record flagged for HR review.`,
+      type: 'warning',
+    });
+  };
+
   const filteredRecords = records.filter((r) => {
     const matchesSearch =
       r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -59,73 +72,96 @@ export const Attendance = () => {
   const lateCount = records.filter((r) => r.status === 'Late').length;
   const onLeaveCount = records.filter((r) => r.status === 'On Leave').length;
 
+  const attendanceTabs = [
+    { id: 'All', label: 'All Punches', count: records.length },
+    { id: 'On Time', label: '• On Time', count: presentCount },
+    {
+      id: 'Late',
+      label: 'Late Arrivals',
+      count: lateCount,
+      badgeColor: 'bg-rose-50 text-rose-600 border border-rose-200',
+    },
+    { id: 'On Leave', label: 'On Leave', count: onLeaveCount },
+  ];
+
   const columns = [
     {
-      header: 'Employee',
+      header: 'EMPLOYEE',
       accessor: 'name',
       render: (row) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-[#E5EAF2]"
+            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2]"
           />
           <div>
-            <div className="font-bold text-[#172033]">{row.name}</div>
-            <div className="text-[11px] text-[#8292AD]">{row.employeeId}</div>
+            <div className="font-bold text-[#172033] text-xs">{row.name}</div>
+            <div className="text-[10px] text-[#8292AD] font-medium">{row.employeeId}</div>
           </div>
         </div>
       ),
     },
     {
-      header: 'Department',
+      header: 'DEPARTMENT',
       accessor: 'department',
-      render: (row) => <span className="text-xs text-[#4E5D78] font-medium">{row.department}</span>,
+      render: (row) => (
+        <span className="text-xs text-[#4E5D78] font-medium">{row.department}</span>
+      ),
     },
     {
-      header: 'Date',
+      header: 'DATE',
       accessor: 'date',
-      render: (row) => <span className="text-xs text-[#8292AD]">{row.date}</span>,
+      render: (row) => {
+        const isToday = (row.date || '').toLowerCase().includes('today') || (row.date || '').includes('09 Nov');
+        return isToday ? (
+          <span className="text-xs font-bold text-[#2563EB]">Today</span>
+        ) : (
+          <span className="text-xs font-medium text-slate-500">{row.date}</span>
+        );
+      },
     },
     {
-      header: 'Check In',
+      header: 'CHECK IN',
       accessor: 'checkIn',
       render: (row) => (
-        <span className="text-xs font-semibold text-[#172033] font-mono">
+        <span className="text-xs font-bold text-[#172033] font-mono">
           {row.checkIn}
         </span>
       ),
     },
     {
-      header: 'Check Out',
+      header: 'CHECK OUT',
       accessor: 'checkOut',
       render: (row) => (
-        <span className="text-xs font-semibold text-[#8292AD] font-mono">
+        <span className="text-xs font-medium text-slate-500 font-mono">
           {row.checkOut}
         </span>
       ),
     },
     {
-      header: 'Work Hours',
+      header: 'WORK HOURS',
       accessor: 'workHours',
       render: (row) => (
-        <span className="text-xs font-semibold text-[#172033]">
+        <span className="text-xs font-bold text-[#172033]">
           {row.workHours}
         </span>
       ),
     },
     {
-      header: 'Location',
+      header: 'LOCATION',
       accessor: 'location',
       render: (row) => (
-        <span className="text-xs text-[#8292AD]">{row.location}</span>
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#4E5D78] bg-[#F7F9FC] px-2 py-0.5 rounded-full border border-[#E5EAF2]">
+          {row.location}
+        </span>
       ),
     },
     {
-      header: 'Status',
+      header: 'OPTIONS',
       accessor: 'status',
       align: 'center',
-      render: (row) => <StatusBadge status={row.status} size="sm" />,
+      render: (row) => <StatusBadge status={row.status} size="xs" showChevron={true} />,
     },
   ];
 
@@ -173,28 +209,28 @@ export const Attendance = () => {
         }
       />
 
-      {/* Row: Stats Cards */}
+      {/* Row: Stats Cards matching Reference Image */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
-          title="Present Today"
+          title="TOTAL PRESENT"
           value={presentCount}
           subtext="On-time shift arrival"
           badgeText="92% Rate"
           badgeType="success"
           icon={UserCheck}
-          iconBg="bg-emerald-50 text-emerald-600"
+          iconBg="bg-blue-50 text-[#2563EB]"
         />
         <StatsCard
-          title="Late Arrivals"
+          title="LATE ARRIVALS"
           value={lateCount}
           subtext="After 9:00 AM cutoff"
-          badgeText="Follow Up"
+          badgeText="ACTION NEEDED"
           badgeType="danger"
           icon={AlertTriangle}
           iconBg="bg-rose-50 text-rose-600"
         />
         <StatsCard
-          title="Employees On Leave"
+          title="ON LEAVE TODAY"
           value={onLeaveCount}
           subtext="Casual & Sick leaves"
           badgeText="Scheduled"
@@ -203,57 +239,61 @@ export const Attendance = () => {
           iconBg="bg-amber-50 text-amber-600"
         />
         <StatsCard
-          title="Avg Daily Hours"
+          title="AVG WORK HOURS"
           value="8.4 hrs"
-          subtext="Healthy workforce balance"
+          subtext="⚡ top 5% compliance"
           badgeText="+0.2 hrs"
           badgeType="success"
           icon={CalendarIcon}
-          iconBg="bg-blue-50 text-[#2563EB]"
+          iconBg="bg-emerald-50 text-emerald-600"
         />
       </div>
 
       {viewMode === 'table' ? (
-        <>
-          {/* Filters Bar matching Reference Image 3 */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#E5EAF2] shadow-card">
-            {/* Pill Filters */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-              {['All', 'On Time', 'Late', 'On Leave'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setStatusFilter(tab)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-colors ${
-                    statusFilter === tab
-                      ? 'bg-[#2563EB] text-white shadow-xs'
-                      : 'bg-[#F7F9FC] text-[#8292AD] hover:text-[#172033] hover:bg-slate-100'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Search Input */}
+        <div className="space-y-4">
+          {/* Top Search bar */}
+          <div className="flex justify-end">
             <div className="w-full sm:w-72">
               <SearchBar
                 value={searchQuery}
                 onChange={setSearchQuery}
                 onClear={() => setSearchQuery('')}
-                placeholder="Search by name, ID..."
+                placeholder="Search by name, department, ID..."
               />
             </div>
           </div>
 
-          {/* Records Data Table */}
+          {/* Table with Tab Pills & Circular Action Buttons */}
           <DataTable
             columns={columns}
             data={filteredRecords}
             pageSize={6}
+            tabs={attendanceTabs}
+            activeTab={statusFilter}
+            onTabChange={setStatusFilter}
+            filterInfo={`Filtered: ${filteredRecords.length} Shown of ${records.length}`}
+            actions={(row) => (
+              <div className="inline-flex items-center justify-end gap-1.5">
+                <button
+                  onClick={() => handleVerifyShift(row)}
+                  title="Verify Punch"
+                  className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+                <button
+                  onClick={() => handleFlagShift(row)}
+                  title="Flag Shift"
+                  className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
+                >
+                  <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+              </div>
+            )}
             emptyMessage="No attendance records found"
             emptySubtext="Try selecting another filter or adjusting your search term."
           />
-        </>
+        </div>
       ) : (
         /* Monthly Attendance Calendar View */
         <div className="bg-white border border-[#E5EAF2] rounded-2xl p-6 shadow-card">
@@ -281,40 +321,27 @@ export const Attendance = () => {
                 {day}
               </div>
             ))}
-            {Array.from({ length: 30 }, (_, i) => {
-              const dayNum = i + 1;
-              const isWeekend = i % 7 === 5 || i % 7 === 6;
-              const isToday = dayNum === 9;
+            {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => {
+              const isWeekend = day % 7 === 0 || day % 7 === 6;
+              const isToday = day === 9;
               return (
                 <div
-                  key={dayNum}
-                  className={`p-3 rounded-xl border text-left min-h-[75px] transition-all ${
+                  key={day}
+                  className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${
                     isToday
-                      ? 'border-[#2563EB] bg-blue-50/40 ring-2 ring-blue-100'
+                      ? 'bg-blue-50/50 border-blue-400 font-bold'
                       : isWeekend
-                      ? 'bg-[#F8FAFC] border-dashed border-[#E5EAF2] text-[#CBD5E1]'
-                      : 'border-[#E5EAF2] hover:border-blue-200 hover:bg-[#FBFDFE]'
+                      ? 'bg-[#F7F9FC] border-transparent text-[#8292AD]'
+                      : 'bg-white border-[#E5EAF2] hover:border-blue-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between font-bold text-xs mb-1">
-                    <span className={isToday ? 'text-[#2563EB]' : 'text-[#172033]'}>{dayNum}</span>
-                    {isToday && (
-                      <span className="text-[9px] uppercase px-1 py-0.2 bg-[#2563EB] text-white rounded font-bold">
-                        Today
-                      </span>
-                    )}
-                  </div>
+                  <span className={`text-xs ${isToday ? 'text-[#2563EB]' : 'text-[#172033]'}`}>
+                    {day}
+                  </span>
                   {!isWeekend && (
-                    <div className="space-y-1">
-                      <div className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium truncate">
-                        ✓ 224 Present
-                      </div>
-                      {dayNum % 4 === 0 && (
-                        <div className="text-[10px] text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded font-medium truncate">
-                          ! 3 Late
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                      98%
+                    </span>
                   )}
                 </div>
               );
@@ -325,4 +352,3 @@ export const Attendance = () => {
     </div>
   );
 };
-

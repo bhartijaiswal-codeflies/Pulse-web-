@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { Clock, Users, ArrowUpRight, CheckCircle2, AlertTriangle, LogOut, MapPin, Search } from 'lucide-react';
+import {
+  Clock,
+  ArrowUpRight,
+  Check,
+  X,
+  RotateCw,
+  MoreHorizontal,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../common/StatusBadge';
+import { useToast } from '../../context/NotificationContext';
 
 export const CheckInsCard = () => {
   const [filter, setFilter] = useState('All'); // 'All', 'In Office', 'Remote', 'Late'
+  const { addToast } = useToast();
 
   // Admin roster data of team check-ins & check-outs
-  const livePunches = [
+  const [livePunches, setLivePunches] = useState([
     {
       id: 'P-1',
       name: 'Marcus Vance',
@@ -63,6 +72,29 @@ export const CheckInsCard = () => {
       location: 'In Office',
       status: 'Checked Out',
     },
+  ]);
+
+  const handleApprovePunch = (p) => {
+    addToast({
+      title: 'Punch Verified',
+      message: `${p.name}'s clock-in at ${p.checkIn} confirmed.`,
+      type: 'success',
+    });
+  };
+
+  const handleFlagPunch = (p) => {
+    addToast({
+      title: 'Punch Flagged',
+      message: `${p.name}'s punch flagged for manager review.`,
+      type: 'warning',
+    });
+  };
+
+  const filterTabs = [
+    { id: 'All', label: 'All', count: livePunches.length },
+    { id: 'In Office', label: 'In Office', count: livePunches.filter((p) => p.location === 'In Office' && p.status !== 'Checked Out').length },
+    { id: 'Remote', label: 'Remote', count: livePunches.filter((p) => p.location === 'Remote').length },
+    { id: 'Late', label: 'Late', count: livePunches.filter((p) => p.status === 'Late').length, badgeColor: 'bg-rose-50 text-rose-600 border border-rose-200' },
   ];
 
   const filteredPunches = livePunches.filter((p) => {
@@ -75,8 +107,8 @@ export const CheckInsCard = () => {
 
   return (
     <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[220px]">
-      {/* Top Header */}
       <div>
+        {/* Top Header */}
         <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
@@ -85,79 +117,152 @@ export const CheckInsCard = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-[#172033] text-sm">Check-in / Check-out</h3>
-                <span className="text-[10px] font-semibold text-[#8292AD] bg-[#F7F9FC] px-2 py-0.5 rounded border border-[#E5EAF2]">
-                  Admin View
+                <span className="text-[10px] font-semibold text-[#2563EB] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                  Live Feed
                 </span>
               </div>
-              <p className="text-[11px] text-[#8292AD]">Live Employee Punch Roster</p>
+              <p className="text-[11px] text-[#8292AD]">Admin Employee Punch Table</p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>224 Present</span>
             </span>
           </div>
         </div>
 
-        {/* Quick Filter Tabs */}
-        <div className="flex items-center gap-1.5 my-2.5">
-          {['All', 'In Office', 'Remote', 'Late'].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors ${
-                filter === f
-                  ? 'bg-[#2563EB] text-white'
-                  : 'bg-[#F7F9FC] text-[#8292AD] hover:text-[#172033] border border-[#E5EAF2]'
-              }`}
-            >
-              {f}
-            </button>
-          ))}
+        {/* Filter Pills Bar (styled identical to Reference Image) */}
+        <div className="flex items-center justify-between gap-2 my-3 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1.5">
+            {filterTabs.map((t) => {
+              const isActive = filter === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setFilter(t.id)}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold transition-all ${
+                    isActive
+                      ? 'bg-[#2563EB] text-white shadow-2xs'
+                      : 'bg-white text-[#64748B] hover:text-[#172033] hover:bg-[#F8FAFC] border border-[#E5EAF2]'
+                  }`}
+                >
+                  <span>{t.label}</span>
+                  <span
+                    className={`text-[9.5px] font-bold px-1.5 py-0.1 rounded-full ${
+                      isActive
+                        ? 'bg-white/25 text-white'
+                        : t.badgeColor || 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    {t.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="text-[10px] text-[#8292AD] font-medium hidden sm:flex items-center gap-1 flex-shrink-0">
+            <span>{filteredPunches.length} Shown</span>
+            <RotateCw className="w-2.5 h-2.5 text-[#8292AD]" />
+          </div>
         </div>
 
-        {/* List of Employee Punches */}
-        <div className="divide-y divide-[#E5EAF2]">
-          {filteredPunches.slice(0, 4).map((p) => (
-            <div
-              key={p.id}
-              className="py-2 flex items-center justify-between gap-3 text-xs hover:bg-[#F8FAFC] transition-colors rounded-lg px-2 -mx-2"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <img
-                  src={p.avatar}
-                  alt={p.name}
-                  className="w-7 h-7 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0"
-                />
-                <div className="min-w-0">
-                  <p className="font-bold text-[#172033] text-xs truncate">{p.name}</p>
-                  <p className="text-[10px] text-[#8292AD] truncate">
-                    {p.department} • <span className="font-medium text-[#4E5D78]">{p.location}</span>
-                  </p>
-                </div>
-              </div>
+        {/* Table styled identical to Reference Image: fonts, colors, borders & alignment */}
+        <div className="overflow-x-auto -mx-1">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-[#E5EAF2] bg-white">
+                <th className="py-2.5 px-3 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider">
+                  EMPLOYEE
+                </th>
+                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider">
+                  PUNCH
+                </th>
+                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider text-center">
+                  OPTIONS
+                </th>
+                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider text-right">
+                  ACTIONS
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F5F9] text-xs text-[#172033]">
+              {filteredPunches.slice(0, 4).map((p) => (
+                <tr
+                  key={p.id}
+                  className="hover:bg-[#F8FAFC] transition-colors group"
+                >
+                  {/* Employee & Dept */}
+                  <td className="py-2.5 px-3 align-middle">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <img
+                        src={p.avatar}
+                        alt={p.name}
+                        className="w-7 h-7 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="font-bold text-[#172033] text-xs truncate leading-tight">
+                          {p.name}
+                        </p>
+                        <p className="text-[10px] text-[#8292AD] truncate mt-0.5">
+                          {p.department}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
 
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="text-right">
-                  <span className="text-[11px] font-mono font-bold text-[#172033] block leading-none">
-                    {p.checkIn}
-                  </span>
-                  <span className="text-[9.5px] text-[#8292AD] block mt-0.5 leading-none">
-                    {p.status === 'Checked Out' ? `Out: ${p.checkOut}` : p.workHours}
-                  </span>
-                </div>
-                <StatusBadge status={p.status} size="xs" />
-              </div>
-            </div>
-          ))}
+                  {/* Punch in & duration */}
+                  <td className="py-2.5 px-2 align-middle whitespace-nowrap">
+                    <span className="text-[11px] font-bold text-[#172033] block leading-none">
+                      {p.checkIn}
+                    </span>
+                    <span className="text-[10px] text-[#8292AD] block mt-1 leading-none">
+                      {p.status === 'Checked Out' ? `Out: ${p.checkOut}` : p.workHours}
+                    </span>
+                  </td>
+
+                  {/* Options Pill Badge with Dropdown Indicator */}
+                  <td className="py-2.5 px-2 align-middle text-center whitespace-nowrap">
+                    <StatusBadge
+                      status={p.status}
+                      size="xs"
+                      showChevron={true}
+                    />
+                  </td>
+
+                  {/* Circular Action Buttons matching Reference Image */}
+                  <td className="py-2.5 px-2 align-middle text-right whitespace-nowrap">
+                    <div className="inline-flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => handleApprovePunch(p)}
+                        title="Verify Punch"
+                        className="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+                      <button
+                        onClick={() => handleFlagPunch(p)}
+                        title="Flag Issue"
+                        className="w-6 h-6 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs"
+                      >
+                        <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-2.5 border-t border-[#E5EAF2] text-xs mt-2">
-        <span className="text-[#8292AD] text-[11px]">224 active • 248 total roster</span>
+        <span className="text-[#8292AD] text-[11px]">
+          Showing {Math.min(4, filteredPunches.length)} of {livePunches.length} records
+        </span>
         <Link
           to="/attendance"
           className="text-[#2563EB] hover:underline font-semibold text-xs flex items-center gap-1"
