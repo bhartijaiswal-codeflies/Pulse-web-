@@ -40,40 +40,50 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* Dashboard Master Layout: Column 1 + Columns 2 & 3 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full">
-        {/* COLUMN 1: Inbox Leave Requests + Today's Leaves */}
-        <div className="space-y-6 flex flex-col">
+      {/* 3-Column Grid: Comprehensive workforce & cultural operations */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full">
+        {/* ROW 1: Col 1 -> Inbox leave requests */}
+        <div className="w-full lg:col-start-1 lg:row-start-1 flex flex-col">
           <InboxLeaveRequestsCard
             requests={leaveRequests}
             onApprove={handleApproveLeave}
             onReject={handleRejectLeave}
           />
+        </div>
+
+        {/* ROW 1: Col 2 -> Celebrating Birthday */}
+        <div className="w-full lg:col-start-2 lg:row-start-1 flex flex-col">
+          <BirthdaysCard />
+        </div>
+
+        {/* ROW 1: Col 3 -> Celebrating Work Anniversary */}
+        <div className="w-full lg:col-start-3 lg:row-start-1 flex flex-col">
+          <WorkAnniversariesCard />
+        </div>
+
+        {/* ROW 2: Col 1 -> Codeflies Events (Fun Friday, Pre-Diwali, Holi) */}
+        <div className="w-full lg:col-start-1 lg:row-start-2 flex flex-col">
+          <CodefliesEventsCard />
+        </div>
+
+        {/* ROW 2: Col 2 -> Working Remotely */}
+        <div className="w-full lg:col-start-2 lg:row-start-2 flex flex-col">
+          <WorkingRemotelyWidget />
+        </div>
+
+        {/* ROW 2: Col 3 -> Check-in / Check-out (Admin Roster List View) */}
+        <div className="w-full lg:col-start-3 lg:row-start-2 flex flex-col">
+          <CheckInsCard />
+        </div>
+
+        {/* ROW 3: Col 1 -> Today's Leaves */}
+        <div className="w-full lg:col-start-1 lg:row-start-3 flex flex-col">
           <OnLeaveTodayWidget />
         </div>
 
-        {/* COLUMNS 2 & 3 CONTAINER */}
-        <div className="lg:col-span-2 space-y-6 flex flex-col">
-          {/* Top 2-Column Split: Column 2 (left) and Column 3 (right) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            {/* COLUMN 2: Birthday + Codeflies Events + Working Remotely */}
-            <div className="space-y-6 flex flex-col">
-              <BirthdaysCard />
-              <CodefliesEventsCard />
-              <WorkingRemotelyWidget />
-            </div>
-
-            {/* COLUMN 3: Work Anniversary + Check-in / Check-out */}
-            <div className="space-y-6 flex flex-col">
-              <WorkAnniversariesCard />
-              <CheckInsCard />
-            </div>
-          </div>
-
-          {/* 2nd & 3rd Column: Upcoming Holidays (Spans both Columns 2 & 3) */}
-          <div className="w-full flex flex-col">
-            <Holidays3CardsView />
-          </div>
+        {/* ROW 3: Col 2 & 3 -> Upcoming Holidays (Spans 2 Columns with Previous 3 Cards View) */}
+        <div className="w-full lg:col-start-2 lg:col-span-2 lg:row-start-3 flex flex-col">
+          <Holidays3CardsView />
         </div>
       </div>
     </div>

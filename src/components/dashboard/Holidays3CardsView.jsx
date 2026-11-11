@@ -1,5 +1,5 @@
-import React from 'react';
-import { Palmtree, Calendar, ArrowRight, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Palmtree, Calendar, ArrowRight, Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const holidays3Cards = [
@@ -33,9 +33,43 @@ export const holidays3Cards = [
     bgGradient: 'from-[#7C3AED] via-[#6D28D9] to-[#5B21B6]',
     description: 'Year-end annual holiday celebration.',
   },
+  {
+    id: 'H-4',
+    name: "New Year's Day Celebration",
+    date: '01 Jan, 2027',
+    dayOfWeek: 'Friday',
+    type: 'Federal Holiday',
+    badge: 'Paid Off',
+    bgGradient: 'from-[#EA580C] via-[#C2410C] to-[#9A3412]',
+    description: 'New year official holiday for all employees.',
+  },
+  {
+    id: 'H-5',
+    name: 'Republic Day Commemoration',
+    date: '26 Jan, 2027',
+    dayOfWeek: 'Tuesday',
+    type: 'National Holiday',
+    badge: 'Mandatory',
+    bgGradient: 'from-[#0D9488] via-[#0F766E] to-[#115E59]',
+    description: 'National holiday with cultural celebration.',
+  },
+  {
+    id: 'H-6',
+    name: 'Holi Spring Festival',
+    date: '24 Mar, 2027',
+    dayOfWeek: 'Wednesday',
+    type: 'Cultural Holiday',
+    badge: 'Gazetted',
+    bgGradient: 'from-[#DB2777] via-[#BE185D] to-[#9D174D]',
+    description: 'Festival of colors office closure & recess.',
+  },
 ];
 
 export const Holidays3CardsView = () => {
+  const [viewCount, setViewCount] = useState('6'); // '6' (All 6 cards) or '3' (First 3)
+
+  const displayedHolidays = viewCount === '3' ? holidays3Cards.slice(0, 3) : holidays3Cards;
+
   return (
     <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
       {/* Header */}
@@ -45,26 +79,54 @@ export const Holidays3CardsView = () => {
             <Palmtree className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-bold text-[#172033] text-sm">Upcoming Holidays</h3>
-            <p className="text-[11px] text-[#8292AD]">Q4 Holiday Schedule (3 Cards View)</p>
+            <h3 className="font-bold text-[#172033] text-sm">Upcoming Holidays & Events</h3>
+            <p className="text-[11px] text-[#8292AD]">6 Official Holidays Scheduled (Q4 2026 - Q1 2027)</p>
           </div>
         </div>
 
-        <Link
-          to="/calendar"
-          className="text-xs text-[#2563EB] hover:underline font-semibold flex items-center gap-1"
-        >
-          <span>View Calendar</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* 3 vs 6 View Toggle */}
+          <div className="flex items-center bg-[#F8FAFC] border border-[#E5EAF2] rounded-lg p-0.5 text-[10.5px]">
+            <button
+              type="button"
+              onClick={() => setViewCount('6')}
+              className={`px-2 py-0.5 rounded-md font-bold transition-colors cursor-pointer ${
+                viewCount === '6'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'text-[#64748B] hover:text-[#172033]'
+              }`}
+            >
+              6 Cards
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewCount('3')}
+              className={`px-2 py-0.5 rounded-md font-bold transition-colors cursor-pointer ${
+                viewCount === '3'
+                  ? 'bg-[#2563EB] text-white shadow-xs'
+                  : 'text-[#64748B] hover:text-[#172033]'
+              }`}
+            >
+              3 Cards
+            </button>
+          </div>
+
+          <Link
+            to="/calendar"
+            className="text-xs text-[#2563EB] hover:underline font-semibold flex items-center gap-1 ml-1"
+          >
+            <span>Calendar</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
-      {/* 3 Cards View: Displayed side-by-side across the 2-span container */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 my-3">
-        {holidays3Cards.map((h) => (
+      {/* Cards View: Responsive 3-col grid with 6 cards (2 rows of 3) or 3 cards */}
+      <div className={`grid grid-cols-1 md:grid-cols-3 gap-3.5 my-3.5 ${viewCount === '6' ? 'max-h-[380px] overflow-y-auto pr-0.5' : ''}`}>
+        {displayedHolidays.map((h) => (
           <div
             key={h.id}
-            className={`relative overflow-hidden rounded-xl p-4 text-white bg-gradient-to-br ${h.bgGradient} shadow-sm min-h-[145px] flex flex-col justify-between group hover:scale-[1.01] transition-transform`}
+            className={`relative overflow-hidden rounded-xl p-4 text-white bg-gradient-to-br ${h.bgGradient} shadow-sm min-h-[140px] flex flex-col justify-between group hover:scale-[1.01] transition-transform`}
           >
             {/* Subtle Skyline Backdrop */}
             <div className="absolute inset-0 opacity-15 pointer-events-none flex items-end">
@@ -105,7 +167,9 @@ export const Holidays3CardsView = () => {
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-2 border-t border-[#E5EAF2] text-xs">
-        <span className="text-[#8292AD] text-[11px]">3 official company holidays remaining in 2026</span>
+        <span className="text-[#8292AD] text-[11px]">
+          Showing {displayedHolidays.length} official company holidays & events
+        </span>
         <span className="text-emerald-700 font-semibold text-xs flex items-center gap-1">
           <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
           <span>All Global Offices Observed</span>
@@ -114,4 +178,3 @@ export const Holidays3CardsView = () => {
     </div>
   );
 };
-
