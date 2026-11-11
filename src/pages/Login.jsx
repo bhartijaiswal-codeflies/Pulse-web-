@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { Eye, EyeOff, Loader2, ShieldCheck } from 'lucide-react';
 import { useToast } from '../context/NotificationContext';
 import { Modal } from '../components/common/Modal';
 
@@ -68,12 +68,15 @@ export const Login = () => {
 
   return (
     <div className="min-h-screen w-full bg-white flex flex-col justify-between overflow-x-hidden font-sans">
-      <div className="flex-1 flex flex-col lg:flex-row">
+      <div className="flex-1 flex flex-col lg:flex-row min-h-screen">
         {/* Left Side: Login Form */}
-        <div className="w-full lg:w-[48%] xl:w-[44%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 py-8 lg:py-10 bg-white z-10">
+        <div className="w-full lg:w-[46%] xl:w-[42%] 2xl:w-[40%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 py-8 lg:py-10 bg-white z-20 flex-shrink-0">
           {/* Top Brand Logo */}
-          <div className="flex items-center gap-2.5 select-none">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-1.5 shadow-md shadow-blue-500/20 ring-2 ring-blue-500/20">
+          <div className="flex items-center gap-3 select-none">
+            <div
+              className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 shadow-md shadow-blue-500/25 ring-2 ring-blue-500/30"
+              style={{ outline: '1px solid #fff', outlineOffset: '-2px' }}
+            >
               <img
                 src="/logo.png"
                 alt="Pulse Logo"
@@ -81,21 +84,21 @@ export const Login = () => {
               />
             </div>
             <div>
-              <div className="text-[17px] font-black text-[#0F172A] leading-tight tracking-tight flex items-center gap-1">
+              <div className="text-[19px] font-black text-[#0F172A] leading-tight tracking-tight flex items-center gap-1">
                 <span>Pulse</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></span>
               </div>
-              <div className="text-[9px] font-extrabold text-[#8292AD] tracking-[0.16em] uppercase">
+              <div className="text-[9.5px] font-extrabold text-[#8292AD] tracking-[0.18em] uppercase">
                 BY CODEFLIES
               </div>
             </div>
           </div>
 
           {/* Main Form Container */}
-          <div className="my-auto py-8 max-w-[420px] w-full mx-auto lg:mx-0">
+          <div className="my-auto py-8 max-w-[430px] w-full mx-auto lg:mx-0">
             {/* Heading & Subtitle */}
             <div className="mb-7">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
+              <h1 className="text-[26px] sm:text-[30px] font-black text-[#0F172A] tracking-tight leading-tight">
                 Sign In to your Account
               </h1>
               <p className="text-xs sm:text-sm text-[#64748B] mt-2 font-normal leading-relaxed">
@@ -108,7 +111,7 @@ export const Login = () => {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full h-11 rounded-xl border border-[#E2E8F0] hover:border-[#CBD5E1] bg-white hover:bg-[#F8FAFC] text-xs sm:text-sm font-semibold text-[#1E293B] flex items-center justify-center gap-3 transition-all shadow-xs active:scale-[0.99] cursor-pointer disabled:opacity-60 mb-5"
+              className="w-full h-12 rounded-2xl border border-[#E2E8F0] hover:border-[#CBD5E1] bg-white hover:bg-[#F8FAFC] text-xs sm:text-sm font-semibold text-[#1E293B] flex items-center justify-center gap-3 transition-all shadow-xs active:scale-[0.99] cursor-pointer disabled:opacity-60 mb-6"
             >
               {/* Google colored G icon */}
               <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
@@ -134,7 +137,7 @@ export const Login = () => {
 
             {/* Divider with text */}
             <div className="relative flex items-center justify-center mb-6">
-              <div className="border-t border-[#E2E8F0] w-full" />
+              <div className="border-t border-[#EEF2F6] w-full" />
               <span className="bg-white px-3 text-[11px] font-medium text-[#94A3B8] absolute">
                 or sign in with Email
               </span>
@@ -153,7 +156,7 @@ export const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter Email or Username"
-                  className="w-full px-3.5 h-11 text-xs sm:text-sm bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all font-medium"
+                  className="w-full px-4 h-12 text-xs sm:text-sm bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all font-medium"
                 />
               </div>
 
@@ -178,12 +181,12 @@ export const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter Password"
-                    className="w-full pl-3.5 pr-10 h-11 text-xs sm:text-sm bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all font-medium"
+                    className="w-full pl-4 pr-11 h-12 text-xs sm:text-sm bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all font-medium"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#1E293B] p-1 cursor-pointer transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#1E293B] p-1 cursor-pointer transition-colors"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -196,13 +199,13 @@ export const Login = () => {
               </div>
 
               {/* Remember Me Checkbox */}
-              <div className="flex items-center pt-0.5">
-                <label className="flex items-center gap-2 cursor-pointer select-none">
+              <div className="flex items-center pt-1">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-[#4F46E5] focus:ring-[#4F46E5]/20 cursor-pointer"
+                    className="w-4 h-4 rounded-md border-slate-300 text-[#4F46E5] focus:ring-[#4F46E5]/20 cursor-pointer accent-[#4F46E5]"
                   />
                   <span className="text-xs text-[#64748B] font-medium">
                     Remember me
@@ -215,7 +218,7 @@ export const Login = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-11 rounded-xl bg-gradient-to-r from-[#4F46E5] to-[#4338CA] hover:from-[#4338CA] hover:to-[#3730A3] text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-indigo-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                  className="w-full h-12 rounded-2xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-indigo-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
                 >
                   {isLoading ? (
                     <>
@@ -251,51 +254,74 @@ export const Login = () => {
         </div>
 
         {/* Right Side: Circular 3D Portal Illustration & Abstract Waves */}
-        <div className="hidden lg:flex w-full lg:w-[52%] xl:w-[56%] bg-gradient-to-br from-[#FAFCFF] via-[#F1F5F9] to-[#E2E8F0] relative overflow-hidden items-center justify-center p-8 xl:p-12">
+        <div className="hidden lg:flex w-full lg:w-[54%] xl:w-[58%] 2xl:w-[60%] h-screen bg-gradient-to-br from-[#FAFCFF] via-[#F4F6FB] to-[#E2E8F0] relative overflow-hidden items-center justify-end select-none">
           {/* Subtle Ambient Radial Glows */}
-          <div className="absolute w-[500px] h-[500px] rounded-full bg-blue-500/15 blur-3xl pointer-events-none -top-20 -right-20" />
-          <div className="absolute w-[450px] h-[450px] rounded-full bg-indigo-500/15 blur-3xl pointer-events-none -bottom-20 -left-20" />
+          <div className="absolute w-[600px] h-[600px] rounded-full bg-blue-500/12 blur-3xl pointer-events-none top-1/2 right-12 -translate-y-1/2" />
+          <div className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-3xl pointer-events-none bottom-0 right-0" />
+          <div className="absolute w-[400px] h-[400px] rounded-full bg-cyan-400/10 blur-3xl pointer-events-none top-0 right-20" />
 
-          {/* The Hero Circular Portal Illustration matching Reference */}
-          <div className="relative z-10 flex items-center justify-center">
-            {/* Outer Circular Rings */}
-            <div className="w-[460px] h-[460px] xl:w-[540px] xl:h-[540px] 2xl:w-[600px] 2xl:h-[600px] rounded-full p-2.5 bg-gradient-to-tr from-blue-500/30 via-indigo-500/20 to-cyan-400/40 shadow-2xl backdrop-blur-sm">
-              <div className="w-full h-full rounded-full overflow-hidden ring-4 ring-white/60 shadow-[0_20px_60px_rgba(37,99,235,0.25)] relative group bg-[#0A102A]">
+          {/* The Hero Circular Portal Illustration - Enlarged to span full height and touch right/bottom edges */}
+          <div className="relative z-10 flex items-center justify-end translate-x-[2%] xl:translate-x-[3%] flex-shrink-0">
+            {/* The Outer Circular Crop with Premium Soft Drop Shadows */}
+            <div className="w-[88vh] h-[88vh] min-w-[600px] min-h-[600px] max-w-[920px] max-h-[920px] xl:w-[93vh] xl:h-[93vh] 2xl:w-[95vh] 2xl:h-[95vh] rounded-full p-2 bg-gradient-to-tr from-blue-500/25 via-indigo-500/15 to-cyan-400/30 shadow-[0_30px_90px_rgba(15,23,42,0.22)] backdrop-blur-xs flex-shrink-0">
+              <div className="w-full h-full rounded-full overflow-hidden ring-4 ring-white/70 shadow-[0_20px_60px_rgba(37,99,235,0.25)] relative group bg-[#0A102A]">
                 <img
                   src="/login-hero.jpg"
                   alt="Pulse by Codeflies Portal"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none"
+                  className="w-full h-full object-cover scale-[1.12] object-[center_56%] transition-transform duration-700 group-hover:scale-[1.15] select-none pointer-events-none"
                 />
               </div>
             </div>
           </div>
 
-          {/* Abstract Layered Curved Waves in Bottom Right Corner (Matching Reference Image) */}
-          <div className="absolute -bottom-16 -right-16 w-80 h-80 pointer-events-none opacity-40">
+          {/* Abstract Layered Curved Wave Ribbons in Bottom Right Corner (Matching Reference Image) */}
+          <div className="absolute -bottom-8 -right-8 w-[380px] h-[380px] xl:w-[460px] xl:h-[460px] pointer-events-none z-0">
             <svg
-              viewBox="0 0 200 200"
+              viewBox="0 0 400 400"
+              fill="none"
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-full"
             >
               <path
+                d="M400 120 C280 120 180 220 180 340 C180 365 185 385 195 400 L400 400 Z"
+                fill="#CBD5E1"
+                fillOpacity="0.32"
+              />
+              <path
+                d="M400 190 C310 190 240 260 240 350 C240 370 245 388 255 400 L400 400 Z"
                 fill="#94A3B8"
-                d="M44.7,-76.4C58.8,-69.2,71.8,-59.1,79.6,-45.8C87.4,-32.5,90,-16.3,87.6,-0.8C85.2,14.6,77.7,29.3,68.4,42.4C59,55.5,47.7,67.1,34.2,73.5C20.7,79.9,4.9,81.1,-10.5,78.9C-25.9,76.6,-40.9,70.9,-53.4,61.8C-65.9,52.8,-76,40.3,-81.4,26.2C-86.7,12.1,-87.3,-3.6,-83.4,-18.2C-79.5,-32.8,-71.1,-46.2,-59.6,-54.3C-48.1,-62.4,-33.5,-65.2,-19.6,-70.5C-5.7,-75.8,7.5,-83.6,22,-84.9C36.5,-86.2,52.3,-81,44.7,-76.4Z"
-                transform="translate(100 100)"
-                opacity="0.25"
+                fillOpacity="0.25"
+              />
+              <path
+                d="M400 260 C340 260 295 305 295 365 C295 380 300 392 308 400 L400 400 Z"
+                fill="#64748B"
+                fillOpacity="0.18"
+              />
+              <path
+                d="M400 50 C240 70 110 200 110 360 C110 375 112 388 116 400 L155 400 C150 388 148 375 148 360 C148 220 255 105 400 85 Z"
+                fill="#94A3B8"
+                fillOpacity="0.15"
               />
             </svg>
           </div>
-          <div className="absolute -bottom-6 -right-6 w-96 h-96 pointer-events-none opacity-30">
+
+          {/* Abstract Subtle Soft Wave in Top Right Corner */}
+          <div className="absolute -top-12 -right-12 w-[300px] h-[300px] xl:w-[380px] xl:h-[380px] pointer-events-none z-0">
             <svg
-              viewBox="0 0 200 200"
+              viewBox="0 0 300 300"
+              fill="none"
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-full"
             >
               <path
+                d="M300 0 L300 220 C220 220 160 160 160 80 C160 40 175 10 190 0 Z"
                 fill="#CBD5E1"
-                d="M38.1,-63.9C49.9,-58.3,60.5,-49.2,67.8,-37.7C75.2,-26.2,79.2,-12.3,79.1,-0.1C79,12.1,74.7,22.6,67.7,31.7C60.7,40.8,50.9,48.5,40.3,56.1C29.6,63.7,18.1,71.2,5.7,73.4C-6.7,75.7,-20,72.7,-31.6,66.1C-43.2,59.5,-53.1,49.2,-61.6,37.3C-70.1,25.4,-77.2,11.8,-77.3,-1.7C-77.4,-15.2,-70.5,-28.7,-61.2,-39.3C-51.9,-49.8,-40.2,-57.4,-28.1,-62.7C-16,-67.9,-3.5,-70.8,8.2,-70.6C19.9,-70.5,31.8,-67.3,38.1,-63.9Z"
-                transform="translate(100 100)"
-                opacity="0.3"
+                fillOpacity="0.22"
+              />
+              <path
+                d="M300 0 L300 140 C250 140 210 100 210 50 C210 20 220 5 230 0 Z"
+                fill="#94A3B8"
+                fillOpacity="0.16"
               />
             </svg>
           </div>
@@ -322,7 +348,7 @@ export const Login = () => {
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
                 placeholder="name@pulsehr.com"
-                className="w-full px-3.5 py-2 text-xs border border-[#E2E8F0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 bg-white"
+                className="w-full px-4 py-2.5 text-xs sm:text-sm border border-[#E2E8F0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 bg-white"
               />
             </div>
             <div className="flex justify-end gap-2 pt-2 border-t border-[#E5EAF2]">
@@ -385,4 +411,3 @@ export const Login = () => {
     </div>
   );
 };
-
