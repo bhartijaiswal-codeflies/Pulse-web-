@@ -3,6 +3,7 @@ import { OnLeaveTodayWidget } from '../components/dashboard/OnLeaveTodayWidget';
 import { CheckInsCard } from '../components/dashboard/CheckInsCard';
 import { BirthdaysCard } from '../components/dashboard/BirthdaysCard';
 import { WorkAnniversariesCard } from '../components/dashboard/WorkAnniversariesCard';
+import { CodefliesEventsCard } from '../components/dashboard/CodefliesEventsCard';
 import { Holidays3CardsView } from '../components/dashboard/Holidays3CardsView';
 import { WorkingRemotelyWidget } from '../components/dashboard/WorkingRemotelyWidget';
 import { InboxLeaveRequestsCard } from '../components/dashboard/InboxLeaveRequestsCard';
@@ -39,9 +40,9 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* 3-Column Grid: Upcoming Holidays in 2 columns using previous 3 cards view */}
+      {/* 3-Column Grid: Comprehensive workforce & cultural operations */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch w-full">
-        {/* ROW 1: Col 1 -> Inbox leave requests (Above Today's Leaves) */}
+        {/* ROW 1: Col 1 -> Inbox leave requests */}
         <div className="w-full lg:col-start-1 lg:row-start-1 flex flex-col">
           <InboxLeaveRequestsCard
             requests={leaveRequests}
@@ -60,9 +61,9 @@ export const Dashboard = () => {
           <WorkAnniversariesCard />
         </div>
 
-        {/* ROW 2 & 3: Col 1 -> Today's Leaves (Spans 2 Rows alongside Anniversary & Holidays) */}
-        <div className="w-full lg:col-start-1 lg:row-start-2 lg:row-span-2 flex flex-col">
-          <OnLeaveTodayWidget />
+        {/* ROW 2: Col 1 -> Codeflies Events (Fun Friday, Pre-Diwali, Holi) */}
+        <div className="w-full lg:col-start-1 lg:row-start-2 flex flex-col">
+          <CodefliesEventsCard />
         </div>
 
         {/* ROW 2: Col 2 -> Working Remotely */}
@@ -73,6 +74,11 @@ export const Dashboard = () => {
         {/* ROW 2: Col 3 -> Check-in / Check-out (Admin Roster List View) */}
         <div className="w-full lg:col-start-3 lg:row-start-2 flex flex-col">
           <CheckInsCard />
+        </div>
+
+        {/* ROW 3: Col 1 -> Today's Leaves */}
+        <div className="w-full lg:col-start-1 lg:row-start-3 flex flex-col">
+          <OnLeaveTodayWidget />
         </div>
 
         {/* ROW 3: Col 2 & 3 -> Upcoming Holidays (Spans 2 Columns with Previous 3 Cards View) */}

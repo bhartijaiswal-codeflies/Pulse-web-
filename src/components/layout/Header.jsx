@@ -13,13 +13,17 @@ import {
   Clock,
   Sparkles,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { currentUser, notificationsList } from '../../data/mockData';
 import { useToast } from '../../context/NotificationContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const { isDark, toggleTheme } = useTheme();
 
   const [notifications, setNotifications] = useState(notificationsList);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -141,6 +145,20 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
           <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB]" />
           <span>Today: {formattedToday}</span>
         </div>
+
+        {/* Dark / Light Mode Switcher (YouTube Style) */}
+        <button
+          onClick={() => toggleTheme(true)}
+          className="relative p-2 text-[#8292AD] hover:text-[#172033] hover:bg-[#F7F9FC] rounded-xl transition-all duration-200 group cursor-pointer"
+          aria-label={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+          title={isDark ? 'Appearance: Dark (Click to switch to Light mode)' : 'Appearance: Light (Click to switch to Dark mode)'}
+        >
+          {isDark ? (
+            <Sun className="w-5 h-5 text-amber-500 group-hover:rotate-45 transition-transform" />
+          ) : (
+            <Moon className="w-5 h-5 text-[#2563EB] group-hover:-rotate-12 transition-transform" />
+          )}
+        </button>
 
         {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
@@ -272,6 +290,24 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
                 >
                   <Settings className="w-4 h-4 text-[#8292AD]" />
                   <span>System Settings</span>
+                </button>
+
+                {/* Appearance: Dark / Light Mode (YouTube Style) */}
+                <button
+                  onClick={() => toggleTheme(true)}
+                  className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-[#172033] hover:bg-[#F7F9FC] rounded-lg transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    {isDark ? (
+                      <Moon className="w-4 h-4 text-[#8292AD]" />
+                    ) : (
+                      <Sun className="w-4 h-4 text-amber-500" />
+                    )}
+                    <span>Appearance: <strong className="font-bold">{isDark ? 'Dark theme' : 'Light theme'}</strong></span>
+                  </div>
+                  <div className={`w-8 h-4.5 rounded-full p-0.5 transition-colors ${isDark ? 'bg-[#008080]' : 'bg-[#CBD5E1]'}`}>
+                    <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${isDark ? 'translate-x-3.5' : 'translate-x-0'}`} />
+                  </div>
                 </button>
               </div>
 

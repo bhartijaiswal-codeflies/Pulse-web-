@@ -3,11 +3,13 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { X, LogOut } from 'lucide-react';
 import { navigationItems } from './Sidebar';
 import { useToast } from '../../context/NotificationContext';
+import { useTheme } from '../../context/ThemeContext';
 
 export const MobileDrawer = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { addToast } = useToast();
+  const { isDark } = useTheme();
 
   useEffect(() => {
     onClose();
@@ -29,17 +31,27 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-50 md:hidden flex">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#060A18]/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       {/* Drawer */}
-      <div className="relative flex flex-col w-[76px] bg-[#060A18] text-[#8292AD] h-full shadow-2xl z-10 animate-fade-in border-r border-[#131B33] items-center py-4 justify-between overflow-hidden">
+      <div
+        className={`relative flex flex-col w-[76px] h-full shadow-2xl z-10 animate-fade-in items-center py-4 justify-between overflow-hidden transition-colors ${
+          isDark
+            ? 'bg-[#060A18] text-[#8292AD] border-r border-[#131B33]'
+            : 'bg-white text-[#64748B] border-r border-[#E5EAF2]'
+        }`}
+      >
         {/* Top Header */}
         <div className="flex flex-col items-center gap-2.5 w-full flex-shrink-0">
           <button
             onClick={onClose}
-            className="self-end mr-2 p-1 text-[#68758D] hover:text-white rounded-lg hover:bg-[#121A33] transition-colors"
+            className={`self-end mr-2 p-1 rounded-lg transition-colors ${
+              isDark
+                ? 'text-[#68758D] hover:text-white hover:bg-[#121A33]'
+                : 'text-[#64748B] hover:text-[#172033] hover:bg-[#F8FAFC]'
+            }`}
           >
             <X className="w-4 h-4" />
           </button>
@@ -67,24 +79,44 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
                   className={({ isActive }) =>
                     `relative w-[62px] h-[52px] flex-shrink-0 flex flex-col items-center justify-center rounded-xl transition-all ${
                       isActive
-                        ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
-                        : 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
+                        ? isDark
+                          ? 'bg-[#0D1938] border border-blue-500/50 text-white shadow-[0_0_14px_rgba(37,99,235,0.28)]'
+                          : 'bg-[#EFF6FF] border border-[#BFDBFE] text-[#2563EB] font-bold shadow-2xs'
+                        : isDark
+                        ? 'text-[#76849D] hover:text-white hover:bg-[#0D152D]/80 border border-transparent'
+                        : 'text-[#64748B] hover:text-[#172033] hover:bg-[#F8FAFC] border border-transparent'
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
                       {item.redDot && !item.badge && (
-                        <span className="absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ring-[#060A18]" />
+                        <span
+                          className={`absolute top-1.5 right-2 w-2 h-2 rounded-full bg-[#FF3B5B] ring-2 ${
+                            isDark ? 'ring-[#060A18]' : 'ring-white'
+                          }`}
+                        />
                       )}
                       <Icon
                         className={`w-[18px] h-[18px] mb-1 stroke-[1.8] ${
-                          isActive ? 'text-[#3B82F6]' : 'text-[#e8eaed]'
+                          isActive
+                            ? isDark
+                              ? 'text-[#3B82F6]'
+                              : 'text-[#2563EB]'
+                            : isDark
+                            ? 'text-[#e8eaed]'
+                            : 'text-[#64748B]'
                         }`}
                       />
                       <span
                         className={`text-[10px] tracking-tight leading-none text-center truncate max-w-[58px] ${
-                          isActive ? 'font-semibold text-[#93C5FD]' : 'font-medium text-[#e8eaed]'
+                          isActive
+                            ? isDark
+                              ? 'font-semibold text-[#93C5FD]'
+                              : 'font-bold text-[#2563EB]'
+                            : isDark
+                            ? 'font-medium text-[#e8eaed]'
+                            : 'font-medium text-[#64748B]'
                         }`}
                       >
                         {item.name}
@@ -95,7 +127,11 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
 
                 {/* Full-width Divider Line */}
                 {index < navigationItems.length - 1 && (
-                  <div className="w-full h-[1px] bg-[#141E38] my-1 flex-shrink-0" />
+                  <div
+                    className={`w-full h-[1px] my-1 flex-shrink-0 ${
+                      isDark ? 'bg-[#141E38]' : 'bg-[#F1F5F9]'
+                    }`}
+                  />
                 )}
               </React.Fragment>
             );
@@ -103,10 +139,18 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
         </div>
 
         {/* Logout */}
-        <div className="w-full px-1.5 pt-2 border-t border-[#141E38] flex-shrink-0">
+        <div
+          className={`w-full px-1.5 pt-2 flex-shrink-0 ${
+            isDark ? 'border-t border-[#141E38]' : 'border-t border-[#E5EAF2]'
+          }`}
+        >
           <button
             onClick={handleLogout}
-            className="w-[62px] h-[50px] mx-auto flex flex-col items-center justify-center rounded-xl text-[#76849D] hover:text-rose-400 hover:bg-[#1A1222] transition-colors"
+            className={`w-[62px] h-[50px] mx-auto flex flex-col items-center justify-center rounded-xl transition-colors ${
+              isDark
+                ? 'text-[#76849D] hover:text-rose-400 hover:bg-[#1A1222]'
+                : 'text-[#64748B] hover:text-rose-600 hover:bg-rose-50'
+            }`}
           >
             <LogOut className="w-[18px] h-[18px] mb-1 stroke-[1.8]" />
             <span className="text-[10px] font-medium leading-none">Logout</span>

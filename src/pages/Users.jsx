@@ -1545,7 +1545,115 @@ export const Users = () => {
 
               {/* COLUMN 2: Employment, Organization, Leaves & Salary Records */}
               <div className="space-y-4">
-                {/* Employment & Organizational Info */}
+                {/* 1st POSITION: Current Month Leave & Attendance Overview */}
+                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3.5">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#008080] flex items-center justify-center">
+                        <Calendar className="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-[#172033]">
+                          Current Month: {selectedUser.name}
+                        </h4>
+                        <p className="text-[10px] text-[#8292AD] font-medium">
+                          Active Cycle • {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-[#008080] border border-teal-200">
+                      Live Summary
+                    </span>
+                  </div>
+
+                  {/* 4 Enhanced Modern Metric Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {/* Leaves */}
+                    <div className="p-3 rounded-xl bg-gradient-to-b from-amber-50/80 to-white border border-amber-200/90 shadow-2xs transition-all hover:shadow-xs group flex flex-col justify-between">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-6 h-6 rounded-lg bg-amber-100 flex items-center justify-center text-amber-700 shadow-2xs group-hover:scale-105 transition-transform">
+                          <Coffee className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-[9px] font-bold text-amber-700 bg-amber-100/70 px-1.5 py-0.5 rounded">
+                          Approved
+                        </span>
+                      </div>
+                      <div className="text-2xl font-black text-amber-950 leading-none mb-1">
+                        {selectedUser.leaveStats?.leaves ?? 1}
+                      </div>
+                      <div className="text-[10px] font-extrabold text-[#172033]">
+                        Leaves Taken
+                      </div>
+                    </div>
+
+                    {/* Absents */}
+                    <div className="p-3 rounded-xl bg-gradient-to-b from-rose-50/80 to-white border border-rose-200/90 shadow-2xs transition-all hover:shadow-xs group flex flex-col justify-between">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-6 h-6 rounded-lg bg-rose-100 flex items-center justify-center text-rose-700 shadow-2xs group-hover:scale-105 transition-transform">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-[9px] font-bold text-rose-700 bg-rose-100/70 px-1.5 py-0.5 rounded">
+                          Loss of Pay
+                        </span>
+                      </div>
+                      <div className="text-2xl font-black text-rose-950 leading-none mb-1">
+                        {selectedUser.leaveStats?.absents ?? 3}
+                      </div>
+                      <div className="text-[10px] font-extrabold text-[#172033]">
+                        Absents
+                      </div>
+                    </div>
+
+                    {/* Sandwiches */}
+                    <div className="p-3 rounded-xl bg-gradient-to-b from-purple-50/80 to-white border border-purple-200/90 shadow-2xs transition-all hover:shadow-xs group flex flex-col justify-between">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-6 h-6 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700 shadow-2xs group-hover:scale-105 transition-transform">
+                          <Layers className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-[9px] font-bold text-purple-700 bg-purple-100/70 px-1.5 py-0.5 rounded">
+                          Bridge
+                        </span>
+                      </div>
+                      <div className="text-2xl font-black text-purple-950 leading-none mb-1">
+                        {selectedUser.leaveStats?.sandwiches ?? 2}
+                      </div>
+                      <div className="text-[10px] font-extrabold text-[#172033]">
+                        Sandwiches
+                      </div>
+                    </div>
+
+                    {/* Bucket Balance */}
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-[#008080] to-teal-700 border border-teal-800 text-white shadow-xs transition-all hover:shadow-md group flex flex-col justify-between">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-6 h-6 rounded-lg bg-teal-600/80 flex items-center justify-center text-white shadow-2xs group-hover:scale-105 transition-transform">
+                          <Wallet className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-[9px] font-bold text-teal-100 bg-teal-800/60 px-1.5 py-0.5 rounded">
+                          Paid
+                        </span>
+                      </div>
+                      <div className="text-2xl font-black text-white leading-none mb-1">
+                        {selectedUser.leaveStats?.bucket ?? 0}
+                      </div>
+                      <div className="text-[10px] font-extrabold text-teal-100">
+                        Leave Bucket
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Monthly Policy Banner */}
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-teal-50 border border-teal-200/80 text-teal-900">
+                    <div className="w-6 h-6 rounded-lg bg-[#008080] text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                    <p className="text-[11px] font-medium leading-snug">
+                      <strong className="font-bold text-teal-950">Accrual Policy: </strong>
+                      1 Paid leave is automatically credited to the employee bucket on the 1st of every month.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2nd POSITION: Employment & Organizational Info */}
                 <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
                   <div className="flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
                     <Briefcase className="w-4 h-4 text-[#2563EB]" />
@@ -1609,98 +1717,6 @@ export const Users = () => {
                         ))}
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                {/* Current Month Leave & Attendance Overview */}
-                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3.5">
-                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#008080] flex items-center justify-center">
-                        <Calendar className="w-3.5 h-3.5" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-[#172033]">
-                          Current Month: {selectedUser.name}
-                        </h4>
-                        <p className="text-[10px] text-[#8292AD] font-medium">
-                          Active Cycle • {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-[#008080] border border-teal-200">
-                      Live Summary
-                    </span>
-                  </div>
-
-                  {/* 4 Redesigned Modern Metric Cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {/* Leaves */}
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/90 shadow-2xs transition-all hover:shadow-xs group">
-                      <div className="flex items-center justify-between text-amber-700 mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-wider">Leaves</span>
-                        <div className="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-amber-700 group-hover:scale-105 transition-transform">
-                          <Coffee className="w-3 h-3" />
-                        </div>
-                      </div>
-                      <div className="text-2xl font-black text-amber-950 leading-none my-1">
-                        {selectedUser.leaveStats?.leaves ?? 1}
-                      </div>
-                      <div className="text-[9.5px] font-bold text-amber-700/80">Approved</div>
-                    </div>
-
-                    {/* Absents */}
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-rose-50 to-red-50/50 border border-rose-200/90 shadow-2xs transition-all hover:shadow-xs group">
-                      <div className="flex items-center justify-between text-rose-700 mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-wider">Absents</span>
-                        <div className="w-5 h-5 rounded-md bg-rose-100 flex items-center justify-center text-rose-700 group-hover:scale-105 transition-transform">
-                          <AlertCircle className="w-3 h-3" />
-                        </div>
-                      </div>
-                      <div className="text-2xl font-black text-rose-950 leading-none my-1">
-                        {selectedUser.leaveStats?.absents ?? 3}
-                      </div>
-                      <div className="text-[9.5px] font-bold text-rose-700/80">Loss of Pay</div>
-                    </div>
-
-                    {/* Sandwiches */}
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50/50 border border-purple-200/90 shadow-2xs transition-all hover:shadow-xs group">
-                      <div className="flex items-center justify-between text-purple-700 mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-wider">Sandwiches</span>
-                        <div className="w-5 h-5 rounded-md bg-purple-100 flex items-center justify-center text-purple-700 group-hover:scale-105 transition-transform">
-                          <Layers className="w-3 h-3" />
-                        </div>
-                      </div>
-                      <div className="text-2xl font-black text-purple-950 leading-none my-1">
-                        {selectedUser.leaveStats?.sandwiches ?? 2}
-                      </div>
-                      <div className="text-[9.5px] font-bold text-purple-700/80">Bridge Days</div>
-                    </div>
-
-                    {/* Bucket Balance - Highlighted */}
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-[#008080] to-teal-700 border border-teal-800 text-white shadow-xs transition-all hover:shadow-md group">
-                      <div className="flex items-center justify-between text-teal-100 mb-1">
-                        <span className="text-[10px] font-black uppercase tracking-wider">Bucket</span>
-                        <div className="w-5 h-5 rounded-md bg-teal-600/80 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
-                          <Wallet className="w-3 h-3" />
-                        </div>
-                      </div>
-                      <div className="text-2xl font-black text-white leading-none my-1">
-                        {selectedUser.leaveStats?.bucket ?? 0}
-                      </div>
-                      <div className="text-[9.5px] font-bold text-teal-100">Paid Balance</div>
-                    </div>
-                  </div>
-
-                  {/* Monthly Policy Banner */}
-                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-teal-50 border border-teal-200/80 text-teal-900">
-                    <div className="w-6 h-6 rounded-lg bg-[#008080] text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
-                      <Sparkles className="w-3.5 h-3.5" />
-                    </div>
-                    <p className="text-[11px] font-medium leading-snug">
-                      <strong className="font-bold text-teal-950">Accrual Policy: </strong>
-                      1 Paid leave is automatically credited to the employee bucket on the 1st of every month.
-                    </p>
                   </div>
                 </div>
               </div>
