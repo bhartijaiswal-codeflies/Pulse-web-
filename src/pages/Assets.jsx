@@ -823,7 +823,7 @@ export const Assets = () => {
               title="Report hardware malfunction, damage or missing equipment"
             >
               <Ticket className="w-3.5 h-3.5 text-amber-600" />
-              <span>+ Ticket</span>
+              <span>Ticket</span>
             </button>
 
             {/* Quick Button: Request Take-Home Gate Pass */}
@@ -833,7 +833,7 @@ export const Assets = () => {
               title="Request authorization to take hardware off premises"
             >
               <Briefcase className="w-3.5 h-3.5 text-purple-600" />
-              <span>+ Gate Pass</span>
+              <span>Gate Pass</span>
             </button>
 
             {/* Primary Action Button */}
