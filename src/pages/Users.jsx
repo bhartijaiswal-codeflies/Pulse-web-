@@ -37,6 +37,7 @@ import {
   Info,
   DollarSign,
   Coffee,
+  CalendarCheck,
   AlertCircle,
   Layers,
   Wallet,
@@ -1546,85 +1547,115 @@ export const Users = () => {
               {/* COLUMN 2: Employment, Organization, Leaves & Salary Records */}
               <div className="space-y-4">
                 {/* 1st POSITION: Current Month Leave & Attendance Overview */}
-                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#008080] flex items-center justify-center">
-                        <Calendar className="w-3.5 h-3.5" />
+                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3.5">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-teal-50 border border-teal-200/70 text-[#008080] flex items-center justify-center shadow-2xs">
+                        <Calendar className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-[#172033]">
+                        <h4 className="text-xs font-extrabold text-[#172033] tracking-tight">
                           Current Month: {selectedUser.name}
                         </h4>
-                        <p className="text-[10px] text-[#8292AD] font-medium">
-                          Active Cycle • {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+                        <p className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1.5 mt-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>Active Cycle • {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</span>
                         </p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-[#008080] border border-teal-200">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-[#008080] border border-teal-200 shadow-2xs">
                       Live Summary
                     </span>
                   </div>
 
-                  {/* 4 Clean Metric Cards (Signature Slate & Teal Design) */}
-                  <div className="grid grid-cols-4 gap-2.5 my-1">
+                  {/* 4 Modern Executive Metric Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     {/* Leaves */}
-                    <div
-                      className="py-3 px-2 rounded-xl bg-[#525E75] hover:bg-[#475569] text-white flex flex-col items-center justify-center shadow-xs transition-all hover:-translate-y-0.5 cursor-default select-none"
-                      title="Approved Leaves: 1"
-                    >
-                      <span className="text-2xl sm:text-[26px] font-black tracking-tight leading-none text-white">
+                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-blue-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600 transition-colors">
+                          Leaves
+                        </span>
+                        <div className="w-5 h-5 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center">
+                          <CalendarCheck className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-[#172033] tracking-tight leading-none my-1">
                         {selectedUser.leaveStats?.leaves ?? 1}
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-200 mt-1.5">
-                        Leaves
-                      </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[9.5px] font-semibold text-blue-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        <span>Approved</span>
+                      </div>
                     </div>
 
                     {/* Absents */}
-                    <div
-                      className="py-3 px-2 rounded-xl bg-[#525E75] hover:bg-[#475569] text-white flex flex-col items-center justify-center shadow-xs transition-all hover:-translate-y-0.5 cursor-default select-none"
-                      title="Loss of Pay Absents: 3"
-                    >
-                      <span className="text-2xl sm:text-[26px] font-black tracking-tight leading-none text-white">
+                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-rose-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-slate-600 group-hover:text-rose-600 transition-colors">
+                          Absents
+                        </span>
+                        <div className="w-5 h-5 rounded-md bg-rose-50 text-rose-600 flex items-center justify-center">
+                          <AlertCircle className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-[#172033] tracking-tight leading-none my-1">
                         {selectedUser.leaveStats?.absents ?? 3}
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-200 mt-1.5">
-                        Absents
-                      </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[9.5px] font-semibold text-rose-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        <span>Loss of Pay</span>
+                      </div>
                     </div>
 
                     {/* Sandwiches */}
-                    <div
-                      className="py-3 px-2 rounded-xl bg-[#525E75] hover:bg-[#475569] text-white flex flex-col items-center justify-center shadow-xs transition-all hover:-translate-y-0.5 cursor-default select-none"
-                      title="Bridge / Sandwich Days: 2"
-                    >
-                      <span className="text-2xl sm:text-[26px] font-black tracking-tight leading-none text-white">
+                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-purple-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-slate-600 group-hover:text-purple-600 transition-colors">
+                          Sandwiches
+                        </span>
+                        <div className="w-5 h-5 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center">
+                          <Layers className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-[#172033] tracking-tight leading-none my-1">
                         {selectedUser.leaveStats?.sandwiches ?? 2}
-                      </span>
-                      <span className="text-[11px] font-semibold text-slate-200 mt-1.5">
-                        Sandwiches
-                      </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[9.5px] font-semibold text-purple-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                        <span>Bridge Days</span>
+                      </div>
                     </div>
 
                     {/* Bucket */}
-                    <div
-                      className="py-3 px-2 rounded-xl bg-[#00897B] hover:bg-[#00796B] text-white flex flex-col items-center justify-center shadow-xs ring-1 ring-teal-600 transition-all hover:-translate-y-0.5 cursor-default select-none"
-                      title="Paid Leave Bucket Balance: 0"
-                    >
-                      <span className="text-2xl sm:text-[26px] font-black tracking-tight leading-none text-white">
+                    <div className="group rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50/50 hover:from-teal-100/60 hover:to-emerald-100/70 border border-teal-200 hover:border-teal-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-teal-900">
+                          Bucket
+                        </span>
+                        <div className="w-5 h-5 rounded-md bg-[#008080] text-white flex items-center justify-center shadow-2xs">
+                          <Wallet className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-teal-950 tracking-tight leading-none my-1">
                         {selectedUser.leaveStats?.bucket ?? 0}
-                      </span>
-                      <span className="text-[11px] font-semibold text-teal-100 mt-1.5">
-                        Bucket
-                      </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[9.5px] font-bold text-[#008080]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
+                        <span>Paid Balance</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Accrual Policy Note */}
-                  <p className="text-[11px] text-[#00897B] font-semibold pt-0.5 leading-normal">
-                    1 Paid leave would be added to your bucket every month.
-                  </p>
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-teal-50/60 border border-teal-200/70 text-teal-900">
+                    <div className="w-5 h-5 rounded-md bg-[#008080] text-white flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-3 h-3" />
+                    </div>
+                    <p className="text-[11px] font-medium leading-tight">
+                      <span className="font-bold text-teal-950">Accrual Policy:</span> 1 Paid leave is automatically credited to the employee bucket on the 1st of every month.
+                    </p>
+                  </div>
                 </div>
 
                 {/* 2nd POSITION: Employment & Organizational Info */}
