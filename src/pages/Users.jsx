@@ -1319,7 +1319,7 @@ export const Users = () => {
           subtitle={`pulse.codeflies.com/admin/employees • Comprehensive organizational, personal & verified document records for ${selectedUser.name}`}
           maxWidth="max-w-[1360px]"
         >
-          <div className="space-y-4 max-h-[82vh] overflow-y-auto pr-1">
+          <div className="space-y-4">
             {/* Top Identity & Action Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gradient-to-r from-blue-50/70 via-indigo-50/30 to-slate-50 rounded-2xl border border-blue-100">
               <div className="flex items-center gap-3.5">
@@ -1782,7 +1782,7 @@ export const Users = () => {
                       </span>
                     </div>
 
-                    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-0.5">
+                    <div className="space-y-2">
                       {(selectedUser.salaryHistory && selectedUser.salaryHistory.length > 0 ? selectedUser.salaryHistory : [
                         { amount: '₹ 35,000.00', date: 'Wed, 13-Nov-24 12:05 pm', reason: 'Initial Compensation' },
                         { amount: '₹ 40,000.00', date: 'Fri, 22-May-26 03:47 pm', reason: 'Annual Appraisal' },
@@ -1842,7 +1842,7 @@ export const Users = () => {
                   </div>
 
                 {selectedUser.documents && selectedUser.documents.length > 0 ? (
-                  <div className="space-y-2.5 max-h-[66vh] overflow-y-auto pr-1">
+                  <div className="space-y-2.5">
                     {selectedUser.documents.map((doc) => (
                       <div
                         key={doc.id || doc.name}
