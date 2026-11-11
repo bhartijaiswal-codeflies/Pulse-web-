@@ -36,6 +36,14 @@ import {
   Plus,
   Info,
   DollarSign,
+  Coffee,
+  AlertCircle,
+  Layers,
+  Wallet,
+  Sparkles,
+  TrendingUp,
+  History,
+  ArrowUpRight,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -69,6 +77,14 @@ export const Users = () => {
   const [showDocUploadModal, setShowDocUploadModal] = useState(false);
   const [newDocName, setNewDocName] = useState('');
   const [newDocType, setNewDocType] = useState('Identity Proof');
+
+  // Salary Management Modal State
+  const [showSalaryModal, setShowSalaryModal] = useState(false);
+  const [salaryCurrentAmount, setSalaryCurrentAmount] = useState('');
+  const [newSalaryRevisionAmount, setNewSalaryRevisionAmount] = useState('');
+  const [newSalaryRevisionDate, setNewSalaryRevisionDate] = useState('');
+  const [newSalaryRevisionReason, setNewSalaryRevisionReason] = useState('Annual Appraisal');
+  const [salaryHistoryList, setSalaryHistoryList] = useState([]);
 
   const { addToast } = useToast();
 
@@ -311,6 +327,140 @@ export const Users = () => {
     addToast({
       title: 'Document Removed',
       message: 'The selected document has been deleted from employee records.',
+      type: 'info',
+    });
+  };
+
+  // Salary Management Handlers
+  const handleOpenSalaryModal = (user) => {
+    if (!user) return;
+    const rawSalary = user.currentSalary ? String(user.currentSalary).replace(/[^\d.]/g, '') : '40000';
+    setSalaryCurrentAmount(rawSalary);
+    setNewSalaryRevisionAmount('');
+    const now = new Date();
+    const formattedDate = `${now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' })} ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}`;
+    setNewSalaryRevisionDate(formattedDate);
+    setNewSalaryRevisionReason('Annual Appraisal Revision');
+    setSalaryHistoryList(
+      user.salaryHistory && user.salaryHistory.length > 0
+        ? [...user.salaryHistory]
+        : [
+            { amount: '₹ 35,000.00', date: 'Wed, 13-Nov-24 12:05 pm', reason: 'Initial Joining' },
+            { amount: '₹ 40,000.00', date: 'Fri, 22-May-26 03:47 pm', reason: 'Annual Appraisal' },
+          ]
+    );
+    setShowSalaryModal(true);
+  };
+
+  const handleAddRevisionInModal = () => {
+    if (!newSalaryRevisionAmount.trim()) {
+      addToast({
+        title: 'Amount Required',
+        message: 'Please enter a revised salary amount.',
+        type: 'warning',
+      });
+      return;
+    }
+    const numAmount = parseFloat(newSalaryRevisionAmount.replace(/,/g, ''));
+    if (isNaN(numAmount) || numAmount <= 0) {
+      addToast({
+        title: 'Invalid Amount',
+        message: 'Please enter a valid positive numerical amount.',
+        type: 'warning',
+      });
+      return;
+    }
+    const formattedAmount = `₹ ${numAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const revisionDate = newSalaryRevisionDate.trim() || new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
+    const newRevision = {
+      amount: formattedAmount,
+      date: revisionDate,
+      reason: newSalaryRevisionReason.trim() || 'Salary Revision',
+    };
+    setSalaryHistoryList((prev) => [...prev, newRevision]);
+    setSalaryCurrentAmount(String(numAmount));
+    setNewSalaryRevisionAmount('');
+    setNewSalaryRevisionReason('Appraisal Revision');
+    addToast({
+      title: 'Revision Staged',
+      message: `${formattedAmount} staged in history. Click "Save Compensation" to apply.`,
+      type: 'info',
+    });
+  };
+
+  const handleSaveSalary = (e) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+
+    let updatedHistory = [...salaryHistoryList];
+
+    // Auto include revision if filled in without clicking stage button
+    if (newSalaryRevisionAmount.trim()) {
+      const numAmount = parseFloat(newSalaryRevisionAmount.replace(/,/g, ''));
+      if (!isNaN(numAmount) && numAmount > 0) {
+        const formattedAmount = `₹ ${numAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const revisionDate = newSalaryRevisionDate.trim() || new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true });
+        const newRevision = {
+          amount: formattedAmount,
+          date: revisionDate,
+          reason: newSalaryRevisionReason.trim() || 'Salary Revision',
+        };
+        updatedHistory = [...updatedHistory, newRevision];
+      }
+    }
+
+    // Determine current salary
+    let formattedCurrentSalary = selectedUser.currentSalary;
+    if (salaryCurrentAmount.trim()) {
+      const numCurr = parseFloat(salaryCurrentAmount.replace(/,/g, ''));
+      if (!isNaN(numCurr) && numCurr > 0) {
+        formattedCurrentSalary = `₹ ${numCurr.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+    } else if (updatedHistory.length > 0) {
+      formattedCurrentSalary = updatedHistory[updatedHistory.length - 1].amount;
+    }
+
+    const updatedUser = employeeService.updateEmployee(selectedUser.id, {
+      currentSalary: formattedCurrentSalary,
+      salaryHistory: updatedHistory,
+    });
+
+    setSelectedUser(updatedUser);
+    loadEmployees();
+    setShowSalaryModal(false);
+    addToast({
+      title: 'Compensation Updated',
+      message: `${selectedUser.name}'s salary is now set to ${formattedCurrentSalary}.`,
+      type: 'success',
+    });
+  };
+
+  const handleDeleteSalaryRevision = (index) => {
+    if (!selectedUser) return;
+    const currentHistory =
+      selectedUser.salaryHistory && selectedUser.salaryHistory.length > 0
+        ? selectedUser.salaryHistory
+        : [
+            { amount: '₹ 35,000.00', date: 'Wed, 13-Nov-24 12:05 pm', reason: 'Initial Joining' },
+            { amount: '₹ 40,000.00', date: 'Fri, 22-May-26 03:47 pm', reason: 'Annual Appraisal' },
+          ];
+    const updatedHistory = currentHistory.filter((_, idx) => idx !== index);
+    const newCurrent =
+      updatedHistory.length > 0
+        ? updatedHistory[updatedHistory.length - 1].amount
+        : selectedUser.currentSalary;
+
+    const updatedUser = employeeService.updateEmployee(selectedUser.id, {
+      salaryHistory: updatedHistory,
+      currentSalary: newCurrent,
+    });
+
+    setSelectedUser(updatedUser);
+    setSalaryHistoryList(updatedHistory);
+    loadEmployees();
+    addToast({
+      title: 'Revision Removed',
+      message: 'The revision record has been deleted from history.',
       type: 'info',
     });
   };
@@ -1462,36 +1612,96 @@ export const Users = () => {
                   </div>
                 </div>
 
-                {/* Current Month Leave Bucket Summary */}
-                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
-                    <h4 className="text-xs font-bold text-[#172033]">
-                      Current Month: {selectedUser.name}
-                    </h4>
-                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                {/* Current Month Leave & Attendance Overview */}
+                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3.5">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#008080] flex items-center justify-center">
+                        <Calendar className="w-3.5 h-3.5" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-[#172033]">
+                          Current Month: {selectedUser.name}
+                        </h4>
+                        <p className="text-[10px] text-[#8292AD] font-medium">
+                          Active Cycle • {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-[#008080] border border-teal-200">
+                      Live Summary
+                    </span>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2">
-                    <div className="bg-[#4B5563] text-white rounded-lg p-2 text-center">
-                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.leaves ?? 1}</div>
-                      <div className="text-[10px] font-medium text-slate-200 mt-1">Leaves</div>
+                  {/* 4 Redesigned Modern Metric Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Leaves */}
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/90 shadow-2xs transition-all hover:shadow-xs group">
+                      <div className="flex items-center justify-between text-amber-700 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-wider">Leaves</span>
+                        <div className="w-5 h-5 rounded-md bg-amber-100 flex items-center justify-center text-amber-700 group-hover:scale-105 transition-transform">
+                          <Coffee className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-amber-950 leading-none my-1">
+                        {selectedUser.leaveStats?.leaves ?? 1}
+                      </div>
+                      <div className="text-[9.5px] font-bold text-amber-700/80">Approved</div>
                     </div>
-                    <div className="bg-[#4B5563] text-white rounded-lg p-2 text-center">
-                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.absents ?? 3}</div>
-                      <div className="text-[10px] font-medium text-slate-200 mt-1">Absents</div>
+
+                    {/* Absents */}
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-rose-50 to-red-50/50 border border-rose-200/90 shadow-2xs transition-all hover:shadow-xs group">
+                      <div className="flex items-center justify-between text-rose-700 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-wider">Absents</span>
+                        <div className="w-5 h-5 rounded-md bg-rose-100 flex items-center justify-center text-rose-700 group-hover:scale-105 transition-transform">
+                          <AlertCircle className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-rose-950 leading-none my-1">
+                        {selectedUser.leaveStats?.absents ?? 3}
+                      </div>
+                      <div className="text-[9.5px] font-bold text-rose-700/80">Loss of Pay</div>
                     </div>
-                    <div className="bg-[#4B5563] text-white rounded-lg p-2 text-center">
-                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.sandwiches ?? 2}</div>
-                      <div className="text-[10px] font-medium text-slate-200 mt-1">Sandwiches</div>
+
+                    {/* Sandwiches */}
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-purple-50 to-indigo-50/50 border border-purple-200/90 shadow-2xs transition-all hover:shadow-xs group">
+                      <div className="flex items-center justify-between text-purple-700 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-wider">Sandwiches</span>
+                        <div className="w-5 h-5 rounded-md bg-purple-100 flex items-center justify-center text-purple-700 group-hover:scale-105 transition-transform">
+                          <Layers className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-purple-950 leading-none my-1">
+                        {selectedUser.leaveStats?.sandwiches ?? 2}
+                      </div>
+                      <div className="text-[9.5px] font-bold text-purple-700/80">Bridge Days</div>
                     </div>
-                    <div className="bg-[#008080] text-white rounded-lg p-2 text-center">
-                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.bucket ?? 0}</div>
-                      <div className="text-[10px] font-medium text-teal-100 mt-1">Bucket</div>
+
+                    {/* Bucket Balance - Highlighted */}
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-[#008080] to-teal-700 border border-teal-800 text-white shadow-xs transition-all hover:shadow-md group">
+                      <div className="flex items-center justify-between text-teal-100 mb-1">
+                        <span className="text-[10px] font-black uppercase tracking-wider">Bucket</span>
+                        <div className="w-5 h-5 rounded-md bg-teal-600/80 flex items-center justify-center text-white group-hover:scale-105 transition-transform">
+                          <Wallet className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="text-2xl font-black text-white leading-none my-1">
+                        {selectedUser.leaveStats?.bucket ?? 0}
+                      </div>
+                      <div className="text-[9.5px] font-bold text-teal-100">Paid Balance</div>
                     </div>
                   </div>
-                  <p className="text-[11px] font-medium text-teal-700 bg-teal-50 px-2.5 py-1.5 rounded-lg border border-teal-100">
-                    1 Paid leave would be added to your bucket every month.
-                  </p>
+
+                  {/* Monthly Policy Banner */}
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-teal-50 border border-teal-200/80 text-teal-900">
+                    <div className="w-6 h-6 rounded-lg bg-[#008080] text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                    <p className="text-[11px] font-medium leading-snug">
+                      <strong className="font-bold text-teal-950">Accrual Policy: </strong>
+                      1 Paid leave is automatically credited to the employee bucket on the 1st of every month.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -1506,39 +1716,88 @@ export const Users = () => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => addToast({ title: 'Salary Action', message: 'Salary modification mode active.', type: 'info' })}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer"
+                      onClick={() => handleOpenSalaryModal(selectedUser)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer transition-colors shadow-2xs"
                     >
-                      <Edit2 className="w-3 h-3 text-[#008080]" />
+                      <Edit2 className="w-3.5 h-3.5 text-[#008080]" />
                       <span>Edit / Add</span>
                     </button>
                   </div>
 
-                  <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs font-bold text-blue-900 flex items-center gap-2">
-                    <Info className="w-4 h-4 text-[#2563EB] flex-shrink-0" />
-                    <span>Employee's current salary is {selectedUser.currentSalary || '₹ 40000.00'}</span>
+                  {/* Current Active Salary Card */}
+                  <div className="p-3 bg-gradient-to-r from-blue-50/90 to-indigo-50/90 border border-blue-200/90 rounded-xl flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center font-black text-sm shadow-2xs">
+                        ₹
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
+                          Current Active Salary
+                        </div>
+                        <div className="text-sm font-black text-blue-950">
+                          {selectedUser.currentSalary || '₹ 40,000.00'}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenSalaryModal(selectedUser)}
+                      className="px-2.5 py-1 text-[11px] font-bold text-[#2563EB] bg-white hover:bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                    >
+                      <span>Update</span>
+                      <ArrowUpRight className="w-3 h-3" />
+                    </button>
                   </div>
 
-                  <div className="space-y-2">
-                    {(selectedUser.salaryHistory || [
-                      { amount: '₹ 35000.00', date: 'Wed, 13-Nov-24 12:05 pm' },
-                      { amount: '₹ 40000.00', date: 'Fri, 22-May-26 03:47 pm' },
-                    ]).map((sal, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2.5 bg-[#F8FAFC] border border-[#E5EAF2] rounded-xl text-xs">
-                        <div>
-                          <div className="font-black text-[#172033] text-sm">{sal.amount}</div>
-                          <div className="text-[10.5px] text-[#8292AD]">{sal.date}</div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => addToast({ title: 'Salary Record', message: 'Historical revision preserved.', type: 'info' })}
-                          className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
-                          title="Delete Salary Revision"
+                  {/* Revision History */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider flex items-center gap-1.5">
+                        <History className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Revision History</span>
+                      </span>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                        {(selectedUser.salaryHistory || []).length} Records
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-0.5">
+                      {(selectedUser.salaryHistory && selectedUser.salaryHistory.length > 0 ? selectedUser.salaryHistory : [
+                        { amount: '₹ 35,000.00', date: 'Wed, 13-Nov-24 12:05 pm', reason: 'Initial Compensation' },
+                        { amount: '₹ 40,000.00', date: 'Fri, 22-May-26 03:47 pm', reason: 'Annual Appraisal' },
+                      ]).map((sal, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between p-2.5 bg-[#F8FAFC] border border-[#E5EAF2] hover:border-blue-200 rounded-xl text-xs transition-colors group"
                         >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
+                          <div className="min-w-0 flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                              ₹
+                            </div>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-black text-[#172033] text-sm">{sal.amount}</span>
+                                {sal.reason && (
+                                  <span className="text-[9.5px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 truncate">
+                                    {sal.reason}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] text-[#8292AD] font-medium mt-0.5">{sal.date}</div>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSalaryRevision(idx)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-rose-500 transition-colors cursor-pointer"
+                            title="Delete Salary Revision"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -1638,6 +1897,174 @@ export const Users = () => {
           </div>
         </div>
       </Modal>
+      )}
+
+      {/* Edit / Add Salary Modal */}
+      {showSalaryModal && selectedUser && (
+        <Modal
+          isOpen={showSalaryModal}
+          onClose={() => setShowSalaryModal(false)}
+          title="Manage Salary & Compensation"
+          subtitle={`Update active salary and revision history for ${selectedUser.name}`}
+          maxWidth="max-w-lg"
+        >
+          <form onSubmit={handleSaveSalary} className="space-y-4">
+            {/* Current Base Salary */}
+            <div className="p-3.5 bg-gradient-to-br from-blue-50/80 to-indigo-50/80 border border-blue-200 rounded-2xl space-y-1.5">
+              <label className="block text-xs font-bold text-blue-950">
+                Active Monthly Salary *
+              </label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-black text-[#2563EB]">
+                  ₹
+                </span>
+                <input
+                  type="text"
+                  required
+                  value={salaryCurrentAmount}
+                  onChange={(e) => setSalaryCurrentAmount(e.target.value)}
+                  placeholder="e.g. 40000"
+                  className="w-full pl-8 pr-3 py-2 text-sm font-black text-slate-900 border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white shadow-2xs"
+                />
+              </div>
+              <p className="text-[10.5px] text-blue-700 font-medium">
+                This amount will be displayed as the primary active CTC in directory & payslips.
+              </p>
+            </div>
+
+            {/* Add New Salary Revision (Appraisal / Increment) */}
+            <div className="p-3.5 border border-[#E5EAF2] rounded-2xl bg-[#F8FAFC] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-[#172033] flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  <span>Log New Salary Revision / Appraisal</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                  Optional
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-[#64748B] mb-1">
+                    Revised Amount (₹)
+                  </label>
+                  <input
+                    type="text"
+                    value={newSalaryRevisionAmount}
+                    onChange={(e) => setNewSalaryRevisionAmount(e.target.value)}
+                    placeholder="e.g. 45000"
+                    className="w-full px-3 py-1.5 text-xs border border-[#CBD5E1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-[#64748B] mb-1">
+                    Effective Date & Time
+                  </label>
+                  <input
+                    type="text"
+                    value={newSalaryRevisionDate}
+                    onChange={(e) => setNewSalaryRevisionDate(e.target.value)}
+                    placeholder="e.g. 11 Nov, 2026 12:00 pm"
+                    className="w-full px-3 py-1.5 text-xs border border-[#CBD5E1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-[#64748B] mb-1">
+                  Reason / Revision Note
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSalaryRevisionReason}
+                    onChange={(e) => setNewSalaryRevisionReason(e.target.value)}
+                    placeholder="e.g. Annual Appraisal / Promotion"
+                    className="flex-1 px-3 py-1.5 text-xs border border-[#CBD5E1] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddRevisionInModal}
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors cursor-pointer flex-shrink-0"
+                  >
+                    + Add to Timeline
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Existing Timeline */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#172033]">
+                <span className="flex items-center gap-1.5">
+                  <History className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Salary History Timeline</span>
+                </span>
+                <span className="text-[10px] text-slate-500 font-bold bg-slate-100 px-2 py-0.5 rounded-full">
+                  {salaryHistoryList.length} Record{salaryHistoryList.length === 1 ? '' : 's'}
+                </span>
+              </div>
+
+              <div className="space-y-1.5 max-h-[160px] overflow-y-auto pr-1">
+                {salaryHistoryList.length > 0 ? (
+                  salaryHistoryList.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-2.5 rounded-xl border border-[#E5EAF2] hover:border-blue-200 bg-white text-xs transition-colors"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold text-[11px] flex-shrink-0">
+                          ₹
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-black text-slate-900">{item.amount}</span>
+                            {item.reason && (
+                              <span className="text-[9.5px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded truncate">
+                                {item.reason}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-[#8292AD] font-medium">{item.date}</div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSalaryHistoryList((prev) => prev.filter((_, i) => i !== idx))}
+                        className="text-slate-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Remove revision"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-slate-400 italic text-center py-3 bg-[#F8FAFC] rounded-xl border border-dashed border-[#E5EAF2]">
+                    No historical revisions found. Add a new revision above.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setShowSalaryModal(false)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-[#64748B] hover:bg-[#F8FAFC] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#008080] hover:bg-[#006666] text-white shadow-xs cursor-pointer transition-colors"
+              >
+                Save Compensation Details
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
 
       {/* Upload Document Modal */}
