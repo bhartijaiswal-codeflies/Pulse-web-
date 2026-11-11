@@ -121,8 +121,8 @@ export const Holidays3CardsView = () => {
         </div>
       </div>
 
-      {/* Cards View: Responsive 3-col grid with 6 cards (2 rows of 3) or 3 cards */}
-      <div className={`grid grid-cols-1 md:grid-cols-3 gap-3.5 my-3.5 ${viewCount === '6' ? 'max-h-[380px] overflow-y-auto pr-0.5' : ''}`}>
+      {/* Cards View: Responsive 3-col grid with 6 cards (2 rows of 3) or 3 cards (No inner scroll) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 my-3.5">
         {displayedHolidays.map((h) => (
           <div
             key={h.id}

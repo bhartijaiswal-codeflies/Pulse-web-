@@ -154,7 +154,6 @@ export const CodefliesEventsCard = () => {
   const [selectedMonth, setSelectedMonth] = useState('all'); // 'all', 'nov', 'dec', 'jan', 'mar'
   const [selectedEventId, setSelectedEventId] = useState('evt-1');
   const [rsvpdEvents, setRsvpdEvents] = useState(['evt-1', 'evt-2']);
-  const scrollContainerRef = useRef(null);
 
   // Filter events based on month selection:
   // 'all' shows the primary 6 cards.
@@ -187,18 +186,6 @@ export const CodefliesEventsCard = () => {
     }
   };
 
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -140, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 140, behavior: 'smooth' });
-    }
-  };
-
   return (
     <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
       {/* Header */}
@@ -218,92 +205,67 @@ export const CodefliesEventsCard = () => {
         </span>
       </div>
 
-      {/* Monthly Filter Tabs: All (6 Cards) or Monthly 4-5 Cards */}
-      <div className="flex items-center justify-between gap-1 pt-2.5 pb-1">
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-          <button
-            type="button"
-            onClick={() => setSelectedMonth('all')}
-            className={`px-2.5 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-              selectedMonth === 'all'
-                ? 'bg-[#2563EB] text-white shadow-xs'
-                : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
-            }`}
-          >
-            All (6 Cards)
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedMonth('nov')}
-            className={`px-2.5 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-              selectedMonth === 'nov'
-                ? 'bg-[#2563EB] text-white shadow-xs'
-                : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
-            }`}
-          >
-            Nov (5 Cards)
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedMonth('dec')}
-            className={`px-2 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-              selectedMonth === 'dec'
-                ? 'bg-[#2563EB] text-white shadow-xs'
-                : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
-            }`}
-          >
-            Dec
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedMonth('jan')}
-            className={`px-2 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-              selectedMonth === 'jan'
-                ? 'bg-[#2563EB] text-white shadow-xs'
-                : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
-            }`}
-          >
-            Jan
-          </button>
-          <button
-            type="button"
-            onClick={() => setSelectedMonth('mar')}
-            className={`px-2 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
-              selectedMonth === 'mar'
-                ? 'bg-[#2563EB] text-white shadow-xs'
-                : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
-            }`}
-          >
-            Mar
-          </button>
-        </div>
-
-        {/* Carousel Arrow Controls */}
-        <div className="flex items-center gap-0.5 flex-shrink-0">
-          <button
-            type="button"
-            onClick={scrollLeft}
-            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-            title="Scroll Left"
-          >
-            <ChevronLeft className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={scrollRight}
-            className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-            title="Scroll Right"
-          >
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
+      {/* Monthly Filter Tabs: All (6 Cards) or Monthly 4-5 Cards (No scroll, wraps naturally) */}
+      <div className="flex items-center flex-wrap gap-1.5 pt-2.5 pb-1">
+        <button
+          type="button"
+          onClick={() => setSelectedMonth('all')}
+          className={`px-2.5 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer ${
+            selectedMonth === 'all'
+              ? 'bg-[#2563EB] text-white shadow-xs'
+              : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
+          }`}
+        >
+          All (6 Cards)
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedMonth('nov')}
+          className={`px-2.5 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer ${
+            selectedMonth === 'nov'
+              ? 'bg-[#2563EB] text-white shadow-xs'
+              : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
+          }`}
+        >
+          Nov (5 Cards)
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedMonth('dec')}
+          className={`px-2 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer ${
+            selectedMonth === 'dec'
+              ? 'bg-[#2563EB] text-white shadow-xs'
+              : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
+          }`}
+        >
+          Dec
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedMonth('jan')}
+          className={`px-2 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer ${
+            selectedMonth === 'jan'
+              ? 'bg-[#2563EB] text-white shadow-xs'
+              : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
+          }`}
+        >
+          Jan
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedMonth('mar')}
+          className={`px-2 py-0.5 text-[10.5px] font-bold rounded-lg transition-colors cursor-pointer ${
+            selectedMonth === 'mar'
+              ? 'bg-[#2563EB] text-white shadow-xs'
+              : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#172033] hover:bg-slate-100 border border-[#E5EAF2]'
+          }`}
+        >
+          Mar
+        </button>
       </div>
 
-      {/* Circular Celebrations Horizontal Row (6 Cards or 4-5 Monthly Cards) */}
-      <div
-        ref={scrollContainerRef}
-        className="my-3 flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth py-1 px-0.5"
-      >
+      {/* Circular Celebrations Grid: 6 Cards (2 rows of 3) or 4-5 Cards (Zero scroll) */}
+      <div className="my-3 grid grid-cols-3 gap-y-3.5 gap-x-2 justify-items-center w-full py-1">
         {filteredEvents.map((item) => {
           const isSelected = item.id === activeEvent.id;
           const isRsvpd = rsvpdEvents.includes(item.id);
@@ -312,7 +274,7 @@ export const CodefliesEventsCard = () => {
             <div
               key={item.id}
               onClick={() => setSelectedEventId(item.id)}
-              className="flex flex-col items-center group cursor-pointer text-center flex-shrink-0"
+              className="flex flex-col items-center group cursor-pointer text-center w-full"
               title={`View ${item.name}`}
             >
               {/* Circle Avatar with Event Emoji & Glow Ring */}
@@ -337,7 +299,7 @@ export const CodefliesEventsCard = () => {
 
               {/* Event Name */}
               <p
-                className={`text-[11px] font-bold mt-1.5 truncate max-w-[76px] transition-colors ${
+                className={`text-[11px] font-bold mt-1.5 truncate max-w-[85px] transition-colors ${
                   isSelected ? 'text-[#2563EB]' : 'text-[#172033] group-hover:text-[#2563EB]'
                 }`}
               >
