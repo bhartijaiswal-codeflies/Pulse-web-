@@ -271,6 +271,30 @@ export const Assets = () => {
   };
 
   // --- TICKET & REQUEST ACTIONS ---
+  const handleOpenNewTicket = (preselectedAssetId = '') => {
+    setTicketForm({
+      issue: '',
+      assetId: preselectedAssetId || (assets[0]?.id || ''),
+      submittedBy: 'Devendra kumar',
+      priority: 'Normal',
+      description: '',
+    });
+    setShowNewTicketModal(true);
+  };
+
+  const handleOpenNewRequest = (preselectedAssetId = '') => {
+    const today = new Date().toISOString().slice(0, 10);
+    const inFiveDays = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    setRequestForm({
+      by: 'Chirag Verma',
+      assetId: preselectedAssetId || (assets[0]?.id || ''),
+      startDate: today,
+      endDate: inFiveDays,
+      reason: 'Work From Home',
+    });
+    setShowNewRequestModal(true);
+  };
+
   const handleSaveTicket = (e) => {
     e.preventDefault();
     const linkedAsset = assets.find((a) => a.id === ticketForm.assetId) || assets[0];
@@ -581,14 +605,22 @@ export const Assets = () => {
         const hasOpenTicket = tickets.some((t) => t.assetId === row.id && t.status === 'Open');
         return hasOpenTicket ? (
           <span
-            onClick={() => setActiveView('tickets')}
+            onClick={() => {
+              setActiveView('tickets');
+              setSearchQuery(row.name);
+            }}
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap shadow-2xs cursor-pointer hover:bg-amber-100"
+            title="Click to view open ticket for this asset"
           >
             <AlertCircle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
             <span>Ticket Open</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-2xs">
+          <span
+            onClick={() => handleOpenNewTicket(row.id)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shadow-2xs cursor-pointer hover:bg-emerald-100 transition-colors"
+            title="Operational • Click to report an issue"
+          >
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
             <span>Operational</span>
           </span>
@@ -767,7 +799,7 @@ export const Assets = () => {
         subtitle="Manage company hardware inventory, employee allocations, support tickets, and take-home gate passes."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Assets' }]}
         actions={
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             <button
               onClick={handleExportCSV}
               className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl border border-[#E5EAF2] bg-white text-[#64748B] hover:text-[#172033] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
@@ -776,6 +808,27 @@ export const Assets = () => {
               <span>Export CSV</span>
             </button>
 
+            {/* Quick Button: Report Support Ticket */}
+            <button
+              onClick={() => handleOpenNewTicket()}
+              className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl border border-amber-200 bg-amber-50/70 text-amber-800 hover:bg-amber-100 transition-all shadow-2xs cursor-pointer"
+              title="Report hardware malfunction, damage or missing equipment"
+            >
+              <Ticket className="w-3.5 h-3.5 text-amber-600" />
+              <span>+ Ticket</span>
+            </button>
+
+            {/* Quick Button: Request Take-Home Gate Pass */}
+            <button
+              onClick={() => handleOpenNewRequest()}
+              className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl border border-purple-200 bg-purple-50/70 text-purple-800 hover:bg-purple-100 transition-all shadow-2xs cursor-pointer"
+              title="Request authorization to take hardware off premises"
+            >
+              <Briefcase className="w-3.5 h-3.5 text-purple-600" />
+              <span>+ Gate Pass</span>
+            </button>
+
+            {/* Primary Action Button */}
             {activeView === 'assets' && (
               <button
                 onClick={handleOpenAddAsset}
@@ -788,7 +841,7 @@ export const Assets = () => {
 
             {activeView === 'tickets' && (
               <button
-                onClick={() => setShowNewTicketModal(true)}
+                onClick={() => handleOpenNewTicket()}
                 className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -798,7 +851,7 @@ export const Assets = () => {
 
             {activeView === 'requests' && (
               <button
-                onClick={() => setShowNewRequestModal(true)}
+                onClick={() => handleOpenNewRequest()}
                 className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
@@ -1080,25 +1133,56 @@ export const Assets = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2.5 pt-2 border-t border-[#E5EAF2]">
-              <button
-                type="button"
-                onClick={() => setSelectedAsset(null)}
-                className="px-4 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-slate-600 hover:bg-slate-50 cursor-pointer"
-              >
-                Close Dossier
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const asset = selectedAsset;
-                  setSelectedAsset(null);
-                  handleOpenEditAsset(asset);
-                }}
-                className="px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm cursor-pointer"
-              >
-                Edit Asset Details
-              </button>
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#E5EAF2]">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id = selectedAsset.id;
+                    setSelectedAsset(null);
+                    handleOpenNewTicket(id);
+                  }}
+                  className="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Raise a technical ticket for this hardware"
+                >
+                  <Ticket className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Report Ticket</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const id = selectedAsset.id;
+                    setSelectedAsset(null);
+                    handleOpenNewRequest(id);
+                  }}
+                  className="px-3 py-1.5 text-xs font-bold rounded-xl border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Request take-home gate pass for this hardware"
+                >
+                  <Briefcase className="w-3.5 h-3.5 text-purple-600" />
+                  <span>Request Gate Pass</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedAsset(null)}
+                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-slate-600 hover:bg-slate-50 cursor-pointer"
+                >
+                  Close Dossier
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const asset = selectedAsset;
+                    setSelectedAsset(null);
+                    handleOpenEditAsset(asset);
+                  }}
+                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm cursor-pointer"
+                >
+                  Edit Asset Details
+                </button>
+              </div>
             </div>
           </div>
         </Modal>
