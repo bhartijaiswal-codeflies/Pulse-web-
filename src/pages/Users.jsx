@@ -34,6 +34,7 @@ import {
   PhoneCall,
   AlertTriangle,
   Plus,
+  Info,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -281,6 +282,22 @@ export const Users = () => {
     addToast({
       title: 'Downloading Document',
       message: `Initiated secure download for "${doc.name}" (${doc.size}).`,
+      type: 'info',
+    });
+  };
+
+  const handleRemoveDoc = (docId) => {
+    if (!selectedUser) return;
+    const currentDocs = selectedUser.documents || [];
+    const updatedDocs = currentDocs.filter((d) => d.id !== docId && d.name !== docId);
+    const updatedUser = employeeService.updateEmployee(selectedUser.id, {
+      documents: updatedDocs,
+    });
+    setSelectedUser(updatedUser);
+    loadEmployees();
+    addToast({
+      title: 'Document Removed',
+      message: 'The selected document has been deleted from employee records.',
       type: 'info',
     });
   };
@@ -1103,18 +1120,18 @@ export const Users = () => {
         </Modal>
       )}
 
-      {/* Complete Information Bio Modal (View User) */}
+      {/* Complete Information Bio Modal (View User) - 3 Column Layout with Widescreen Width */}
       {selectedUser && (
         <Modal
           isOpen={!!selectedUser}
           onClose={() => setSelectedUser(null)}
-          title="Employee Dossier & Bio Profile"
-          subtitle={`Complete biographical & organizational records for ${selectedUser.name} (${selectedUser.id})`}
-          maxWidth="max-w-4xl"
+          title="Employee Dossier & Profile Record"
+          subtitle={`pulse.codeflies.com/admin/employees • Comprehensive organizational, personal & verified document records for ${selectedUser.name}`}
+          maxWidth="max-w-[1360px]"
         >
-          <div className="space-y-4 max-h-[78vh] overflow-y-auto pr-1">
-            {/* Top Identity Card */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gradient-to-r from-blue-50/60 via-indigo-50/30 to-slate-50 rounded-2xl border border-blue-100">
+          <div className="space-y-4 max-h-[82vh] overflow-y-auto pr-1">
+            {/* Top Identity & Action Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gradient-to-r from-blue-50/70 via-indigo-50/30 to-slate-50 rounded-2xl border border-blue-100">
               <div className="flex items-center gap-3.5">
                 <img
                   src={selectedUser.avatar}
@@ -1123,9 +1140,12 @@ export const Users = () => {
                 />
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-base font-bold text-[#111827]">
+                    <h3 className="text-lg font-black text-[#111827]">
                       {selectedUser.name}
                     </h3>
+                    <span className="text-xs font-black px-2 py-0.5 rounded bg-[#008080] text-white">
+                      {selectedUser.empCode || `CFT00${String(selectedUser.id).replace(/\D/g, '').padStart(3, '0') || '342'}`}
+                    </span>
                     <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-100 text-[#1D4ED8] border border-blue-200">
                       {selectedUser.role}
                     </span>
@@ -1135,18 +1155,15 @@ export const Users = () => {
                       showChevron={false}
                     />
                   </div>
-                  <p className="text-xs font-semibold text-[#2563EB] mt-0.5">
-                    {selectedUser.designation}
+                  <p className="text-xs font-bold text-[#2563EB] mt-0.5">
+                    {selectedUser.designation || 'Web Designer'}
                   </p>
-                  <p className="text-[11px] text-[#64748B] flex items-center gap-1.5 mt-0.5">
-                    <span className="font-semibold text-slate-700">
-                      ID: {selectedUser.id}
-                    </span>
+                  <p className="text-[11px] text-[#64748B] flex items-center gap-2 mt-0.5 flex-wrap">
+                    <span>ID: <strong className="text-slate-800">{selectedUser.id}</strong></span>
                     <span>•</span>
-                    <span>Reporting to: </span>
-                    <span className="font-semibold text-indigo-700">
-                      {selectedUser.reportTo || 'Saurabh H. (HR Admin)'}
-                    </span>
+                    <span>Email: <strong className="text-slate-800">{selectedUser.email}</strong></span>
+                    <span>•</span>
+                    <span>Reporting to: <strong className="text-indigo-700">{selectedUser.reportingTo || selectedUser.reportTo || 'Vivek Kumar Singh'}</strong></span>
                   </p>
                 </div>
               </div>
@@ -1155,9 +1172,7 @@ export const Users = () => {
               <div className="flex items-center gap-2 self-start sm:self-center">
                 <button
                   type="button"
-                  onClick={() => {
-                    handleOpenEditModal(selectedUser);
-                  }}
+                  onClick={() => handleOpenEditModal(selectedUser)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-white border border-[#CBD5E1] text-[#1E293B] hover:bg-[#F8FAFC] transition-colors shadow-2xs cursor-pointer"
                 >
                   <Edit2 className="w-3.5 h-3.5 text-[#2563EB]" />
@@ -1166,142 +1181,39 @@ export const Users = () => {
               </div>
             </div>
 
-            {/* Quick Metrics Bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="p-3 rounded-xl border border-[#E5EAF2] bg-white">
-                <div className="text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Calendar className="w-3 h-3 text-[#2563EB]" />
-                  <span>Joining Date</span>
-                </div>
-                <div className="font-bold text-[#172033] text-xs">
-                  {selectedUser.joiningDate || '15 Jan, 2022'}
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E5EAF2] bg-white">
-                <div className="text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Calendar className="w-3 h-3 text-slate-400" />
-                  <span>Exit Date</span>
-                </div>
-                <div
-                  className={`font-bold text-xs ${
-                    selectedUser.status === 'Inactive' ||
-                    (selectedUser.exitDate && selectedUser.exitDate !== '—')
-                      ? 'text-rose-600'
-                      : 'text-emerald-700'
-                  }`}
-                >
-                  {selectedUser.exitDate ||
-                    (selectedUser.status === 'Inactive'
-                      ? '30 Oct, 2026'
-                      : 'Currently Active')}
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E5EAF2] bg-white">
-                <div className="text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Heart className="w-3 h-3 text-rose-500 fill-rose-100" />
-                  <span>Blood Group</span>
-                </div>
-                <div className="font-bold text-rose-600 text-xs">
-                  {selectedUser.bloodGroup || 'O+'}
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl border border-[#E5EAF2] bg-white">
-                <div className="text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <FileText className="w-3 h-3 text-indigo-600" />
-                  <span>Dossier Docs</span>
-                </div>
-                <div className="font-bold text-[#172033] text-xs">
-                  {(selectedUser.documents || []).length} Verified Files
-                </div>
-              </div>
-            </div>
-
-            {/* Complete Bio Information Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Box 1: Family & Personal Bio */}
+            {/* 3-Column Detailed Data Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+              {/* COLUMN 1: Personal & Family Details (Employee Details) */}
               <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
-                  <UsersIcon className="w-4 h-4 text-[#2563EB]" />
-                  <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
-                    Family & Personal Bio
-                  </h4>
+                <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-xs font-black bg-[#008080] text-white">
+                      {selectedUser.empCode || `CFT00${String(selectedUser.id).replace(/\D/g, '').padStart(3, '0') || '342'}`}
+                    </span>
+                    <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
+                      Employee Details
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal(selectedUser)}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-lg text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer"
+                  >
+                    <Edit2 className="w-3 h-3 text-[#008080]" />
+                    <span>Edit</span>
+                  </button>
                 </div>
 
-                <div className="space-y-2.5 text-xs">
-                  <div className="flex justify-between items-center py-1 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Mother's Name</span>
-                    <span className="font-bold text-[#172033]">
-                      {selectedUser.mother || 'Sunita Sharma'}
-                    </span>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Name:</span>
+                    <span className="font-bold text-[#2563EB]">{selectedUser.name}</span>
                   </div>
 
-                  <div className="flex justify-between items-center py-1 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Father's Name</span>
-                    <span className="font-bold text-[#172033]">
-                      {selectedUser.father || 'Rajesh Sharma'}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center py-1 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Occupation</span>
-                    <span className="font-bold text-[#172033]">
-                      {selectedUser.occupation ||
-                        selectedUser.designation ||
-                        'Software Engineering'}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center py-1 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Blood Group</span>
-                    <span className="inline-flex items-center gap-1 font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
-                      <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
-                      {selectedUser.bloodGroup || 'O+'}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center py-1 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Date of Birth</span>
-                    <span className="font-bold text-[#172033]">
-                      {selectedUser.dob || '14 Aug, 1992'}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center py-1">
-                    <span className="text-[#8292AD] font-medium">Marital Status</span>
-                    <span className="font-bold text-[#172033]">
-                      {selectedUser.maritalStatus || 'Married'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Box 2: Address & Contact Details */}
-              <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
-                <div className="flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
-                  <Home className="w-4 h-4 text-[#2563EB]" />
-                  <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
-                    Address & Contact Information
-                  </h4>
-                </div>
-
-                <div className="space-y-2.5 text-xs">
-                  <div>
-                    <span className="text-[#8292AD] font-medium block text-[11px] mb-0.5">
-                      Residential Address
-                    </span>
-                    <div className="font-bold text-[#172033] flex items-start gap-1.5 bg-[#F8FAFC] p-2 rounded-xl border border-[#E5EAF2]">
-                      <MapPin className="w-3.5 h-3.5 text-[#2563EB] flex-shrink-0 mt-0.5" />
-                      <span>{selectedUser.address || selectedUser.location}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center py-1 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Work Email</span>
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Email:</span>
                     <div className="flex items-center gap-1.5 font-bold text-[#172033]">
-                      <span>{selectedUser.email}</span>
+                      <span className="truncate max-w-[180px]">{selectedUser.email}</span>
                       <button
                         type="button"
                         onClick={() => {
@@ -1320,8 +1232,8 @@ export const Users = () => {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center py-1 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Contact Phone</span>
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Mobile:</span>
                     <a
                       href={`tel:${selectedUser.phone}`}
                       className="font-bold text-emerald-700 hover:underline flex items-center gap-1"
@@ -1331,120 +1243,322 @@ export const Users = () => {
                     </a>
                   </div>
 
-                  <div className="flex justify-between items-center py-1">
-                    <span className="text-[#8292AD] font-medium">Emergency Contact</span>
-                    <span className="font-bold text-[#172033]">
-                      {selectedUser.emergencyContact || '+1 (555) 998-1122 (Family)'}
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Date Of Birth:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.dob || 'Thu, 02-Nov-00'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Roles:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.role}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Status:</span>
+                    <StatusBadge status={selectedUser.status} size="xs" />
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Created At:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.createdAt || 'Wed, 13-Nov-24 12:05 pm'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Alternate Mobile:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.altPhone || '—'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Father's Name:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.father || 'Shyam Sunder'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Father's Profession:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.fatherProfession || 'Business'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Mother Name:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.mother || 'Kalpana'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Mother Profession:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.motherProfession || 'Housewife'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Husband Name:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.spouseName || '—'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Husband Profession:</span>
+                    <span className="font-bold text-[#172033]">{selectedUser.spouseProfession || '—'}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Blood Group:</span>
+                    <span className="inline-flex items-center gap-1 font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                      <Heart className="w-3 h-3 fill-rose-500 text-rose-500" />
+                      <span>{selectedUser.bloodGroup || 'O+'}</span>
                     </span>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Box 3: Verified Documents Dossier */}
-            <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
-                <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[#2563EB]" />
-                  <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
-                    Verified Documents & Attachments
-                  </h4>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowDocUploadModal(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg text-[#2563EB] bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3 h-3 stroke-[2.5]" />
-                  <span>Upload Document</span>
-                </button>
-              </div>
-
-              {/* Documents List */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                {(selectedUser.documents && selectedUser.documents.length > 0
-                  ? selectedUser.documents
-                  : [
-                      {
-                        id: 'DOC-1',
-                        name: 'National ID & Aadhar Proof.pdf',
-                        type: 'PDF',
-                        size: '2.4 MB',
-                        uploadDate: '15 Jan, 2022',
-                        status: 'Verified',
-                      },
-                      {
-                        id: 'DOC-2',
-                        name: 'Educational Transcripts & Degree.pdf',
-                        type: 'PDF',
-                        size: '3.6 MB',
-                        uploadDate: '10 Jan, 2022',
-                        status: 'Verified',
-                      },
-                      {
-                        id: 'DOC-3',
-                        name: 'Signed Employment Agreement.pdf',
-                        type: 'PDF',
-                        size: '1.5 MB',
-                        uploadDate: '12 Jan, 2022',
-                        status: 'Signed',
-                      },
-                      {
-                        id: 'DOC-4',
-                        name: 'Previous Experience & Relieving.pdf',
-                        type: 'PDF',
-                        size: '1.2 MB',
-                        uploadDate: '08 Jan, 2022',
-                        status: 'Verified',
-                      },
-                      {
-                        id: 'DOC-5',
-                        name: 'Bank Passbook & Cancelled Cheque.pdf',
-                        type: 'PDF',
-                        size: '890 KB',
-                        uploadDate: '15 Jan, 2022',
-                        status: 'Approved',
-                      },
-                    ]
-                ).map((doc) => (
-                  <div
-                    key={doc.id || doc.name}
-                    className="flex items-center justify-between p-2.5 rounded-xl border border-[#E5EAF2] hover:border-blue-200 hover:bg-[#F8FAFC] transition-all bg-white group"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0 font-bold text-[10px] border border-red-100">
-                        PDF
-                      </div>
-                      <div className="min-w-0">
-                        <div
-                          className="font-bold text-xs text-[#172033] truncate group-hover:text-[#2563EB] cursor-pointer"
-                          title={doc.name}
-                          onClick={() => handleDownloadDoc(doc)}
-                        >
-                          {doc.name}
-                        </div>
-                        <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1.5">
-                          <span>{doc.size || '2.1 MB'}</span>
-                          <span>•</span>
-                          <span className="text-emerald-700 font-semibold">
-                            {doc.status || 'Verified'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleDownloadDoc(doc)}
-                        title="Download file"
-                        className="p-1.5 rounded-lg text-[#64748B] hover:text-[#2563EB] hover:bg-white transition-colors cursor-pointer"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </button>
+                  <div className="py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium block mb-1">Permanent Address:</span>
+                    <div className="font-bold text-[#172033] bg-[#F8FAFC] p-2 rounded-xl border border-[#E5EAF2] flex items-start gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-[#2563EB] flex-shrink-0 mt-0.5" />
+                      <span>{selectedUser.permanentAddress || selectedUser.address}</span>
                     </div>
                   </div>
-                ))}
+
+                  <div className="py-1.5">
+                    <span className="text-[#8292AD] font-medium block mb-1">Temporary Address:</span>
+                    <div className="font-bold text-[#172033] bg-[#F8FAFC] p-2 rounded-xl border border-[#E5EAF2] flex items-start gap-1.5">
+                      <Home className="w-3.5 h-3.5 text-slate-500 flex-shrink-0 mt-0.5" />
+                      <span>{selectedUser.temporaryAddress || selectedUser.address}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* COLUMN 2: Employment, Organization, Leaves & Salary Records */}
+              <div className="space-y-4">
+                {/* Employment & Organizational Info */}
+                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-[#F1F5F9]">
+                    <Briefcase className="w-4 h-4 text-[#2563EB]" />
+                    <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
+                      Employment & Organizational Info
+                    </h4>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                      <span className="text-[#8292AD] font-medium">Designation:</span>
+                      <span className="font-bold text-[#172033]">{selectedUser.designation || 'Web Designer'}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                      <span className="text-[#8292AD] font-medium">Joining Date:</span>
+                      <span className="font-bold text-[#172033]">{selectedUser.joiningDate || 'Wed, 13-Nov-24'}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                      <span className="text-[#8292AD] font-medium">Exit Date:</span>
+                      <span className={`font-bold ${selectedUser.exitDate && selectedUser.exitDate !== '—' ? 'text-rose-600' : 'text-[#172033]'}`}>
+                        {selectedUser.exitDate || '—'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                      <span className="text-[#8292AD] font-medium">Exit Reason:</span>
+                      <span className="font-bold text-[#172033]">{selectedUser.exitReason || '—'}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                      <span className="text-[#8292AD] font-medium">Full N' Final:</span>
+                      <span className="font-bold text-[#172033]">{selectedUser.fullAndFinal || 'No'}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                      <span className="text-[#8292AD] font-medium">PF Percent:</span>
+                      <span className="font-bold text-[#172033]">{selectedUser.pfPercent || '%'}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                      <span className="text-[#8292AD] font-medium">Reporting To:</span>
+                      <span className="font-bold text-indigo-700">{selectedUser.reportingTo || selectedUser.reportTo || 'Vivek Kumar Singh'}</span>
+                    </div>
+
+                    {/* Managers list */}
+                    <div className="pt-2">
+                      <span className="text-[#8292AD] font-medium block mb-1">Managers:</span>
+                      <div className="space-y-1.5 bg-[#F8FAFC] p-2.5 rounded-xl border border-[#E5EAF2]">
+                        {(selectedUser.managers || [
+                          { name: 'Vivek Kumar Singh', email: 'vivek@codeflies.com' },
+                          { name: 'Anurag Tyagi', email: 'anurag@codeflies.com' },
+                          { name: 'Bhupinderjit Singh', email: 'bhupinder@codeflies.com' },
+                          { name: 'Dharmesh Kumar', email: 'dharmesh@codeflies.com' },
+                        ]).map((mgr) => (
+                          <div key={mgr.email} className="flex justify-between items-center text-[11px]">
+                            <span className="font-bold text-[#172033]">{mgr.name}</span>
+                            <span className="text-slate-500 font-medium">{mgr.email}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Current Month Leave Bucket Summary */}
+                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                    <h4 className="text-xs font-bold text-[#172033]">
+                      Current Month: {selectedUser.name}
+                    </h4>
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="bg-[#4B5563] text-white rounded-lg p-2 text-center">
+                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.leaves ?? 1}</div>
+                      <div className="text-[10px] font-medium text-slate-200 mt-1">Leaves</div>
+                    </div>
+                    <div className="bg-[#4B5563] text-white rounded-lg p-2 text-center">
+                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.absents ?? 3}</div>
+                      <div className="text-[10px] font-medium text-slate-200 mt-1">Absents</div>
+                    </div>
+                    <div className="bg-[#4B5563] text-white rounded-lg p-2 text-center">
+                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.sandwiches ?? 2}</div>
+                      <div className="text-[10px] font-medium text-slate-200 mt-1">Sandwiches</div>
+                    </div>
+                    <div className="bg-[#008080] text-white rounded-lg p-2 text-center">
+                      <div className="text-base font-black leading-none">{selectedUser.leaveStats?.bucket ?? 0}</div>
+                      <div className="text-[10px] font-medium text-teal-100 mt-1">Bucket</div>
+                    </div>
+                  </div>
+                  <p className="text-[11px] font-medium text-teal-700 bg-teal-50 px-2.5 py-1.5 rounded-lg border border-teal-100">
+                    1 Paid leave would be added to your bucket every month.
+                  </p>
+                </div>
+
+                {/* Salaries Section */}
+                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                    <h4 className="text-xs font-bold text-[#172033]">Salaries</h4>
+                    <button
+                      type="button"
+                      onClick={() => addToast({ title: 'Salary Action', message: 'Salary modification mode active.', type: 'info' })}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 cursor-pointer"
+                    >
+                      <Edit2 className="w-3 h-3 text-[#008080]" />
+                      <span>Edit / Add</span>
+                    </button>
+                  </div>
+
+                  <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl text-xs font-bold text-blue-900 flex items-center gap-2">
+                    <Info className="w-4 h-4 text-[#2563EB] flex-shrink-0" />
+                    <span>Employee's current salary is {selectedUser.currentSalary || '₹ 40000.00'}</span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {(selectedUser.salaryHistory || [
+                      { amount: '₹ 35000.00', date: 'Wed, 13-Nov-24 12:05 pm' },
+                      { amount: '₹ 40000.00', date: 'Fri, 22-May-26 03:47 pm' },
+                    ]).map((sal, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-2.5 bg-[#F8FAFC] border border-[#E5EAF2] rounded-xl text-xs">
+                        <div>
+                          <div className="font-black text-[#172033] text-sm">{sal.amount}</div>
+                          <div className="text-[10.5px] text-[#8292AD]">{sal.date}</div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => addToast({ title: 'Salary Record', message: 'Historical revision preserved.', type: 'info' })}
+                          className="p-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white cursor-pointer"
+                          title="Delete Salary Revision"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* COLUMN 3: All Verified Documents Dossier */}
+              <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
+                <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#2563EB]" />
+                    <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
+                      Documents ({selectedUser.documents?.length || 0})
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDocUploadModal(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#008080] hover:bg-[#006666] text-white shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>Edit / Upload</span>
+                  </button>
+                </div>
+
+                {selectedUser.documents && selectedUser.documents.length > 0 ? (
+                  <div className="space-y-2.5 max-h-[66vh] overflow-y-auto pr-1">
+                    {selectedUser.documents.map((doc) => (
+                      <div
+                        key={doc.id || doc.name}
+                        className="flex items-center justify-between p-3 rounded-xl border border-[#E5EAF2] hover:border-blue-200 hover:bg-[#F8FAFC] transition-all bg-white group"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0 font-black text-[11px] border border-red-100">
+                            PDF
+                          </div>
+                          <div className="min-w-0">
+                            <div
+                              className="font-bold text-xs text-[#172033] truncate group-hover:text-[#2563EB] cursor-pointer"
+                              title={doc.name}
+                              onClick={() => handleDownloadDoc(doc)}
+                            >
+                              {doc.name}
+                            </div>
+                            <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1.5 mt-0.5">
+                              <span>{doc.size || '2.1 MB'}</span>
+                              <span>•</span>
+                              <span>{doc.uploadDate || 'Verified'}</span>
+                              <span>•</span>
+                              <span className="text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                                {doc.status || 'Verified'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadDoc(doc)}
+                            title="Download file"
+                            className="p-1.5 rounded-lg text-[#64748B] hover:text-[#2563EB] hover:bg-slate-100 transition-colors cursor-pointer"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveDoc(doc.id)}
+                            title="Delete file"
+                            className="p-1.5 rounded-lg text-[#64748B] hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  /* Empty state matching media_1794377794800_36777d94.jpg */
+                  <div className="py-14 px-4 text-center border-2 border-dashed border-red-200 rounded-2xl bg-red-50/30 flex flex-col items-center justify-center">
+                    <FileText className="w-10 h-10 text-red-400 mb-3" />
+                    <h5 className="text-lg font-black text-[#DC2626] tracking-tight">
+                      No Documents Uploaded
+                    </h5>
+                    <p className="text-xs text-slate-500 mt-1 max-w-xs">
+                      No official credentials or agreements attached for this employee yet.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowDocUploadModal(true)}
+                      className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#008080] hover:bg-[#006666] text-white shadow-xs cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Upload Documents Now</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -8,25 +8,60 @@ const ACTIVITIES_KEY = 'pulse_activities';
 export const employeeService = {
   getEmployees: () => {
     const defaultDocs = [
-      { id: 'DOC-101', name: 'National ID & Aadhar Proof.pdf', type: 'PDF', size: '2.4 MB', uploadDate: '15 Jan, 2022', status: 'Verified' },
-      { id: 'DOC-102', name: 'Master of Human Resources Degree.pdf', type: 'PDF', size: '3.6 MB', uploadDate: '10 Jan, 2022', status: 'Verified' },
-      { id: 'DOC-103', name: 'Signed Employment Agreement.pdf', type: 'PDF', size: '1.5 MB', uploadDate: '12 Jan, 2022', status: 'Signed' },
-      { id: 'DOC-104', name: 'Previous Experience & Relieving Letter.pdf', type: 'PDF', size: '1.2 MB', uploadDate: '08 Jan, 2022', status: 'Verified' },
-      { id: 'DOC-105', name: 'Bank Passbook & Cancelled Cheque.pdf', type: 'PDF', size: '890 KB', uploadDate: '15 Jan, 2022', status: 'Approved' },
+      { id: 'DOC-101', name: 'National ID & Aadhar Proof.pdf', type: 'PDF', size: '2.4 MB', uploadDate: '15 Jan, 2024', status: 'Verified' },
+      { id: 'DOC-102', name: 'PAN Card Verification.pdf', type: 'PDF', size: '1.1 MB', uploadDate: '15 Jan, 2024', status: 'Verified' },
+      { id: 'DOC-103', name: 'Bachelor Degree Transcripts.pdf', type: 'PDF', size: '3.6 MB', uploadDate: '10 Jan, 2024', status: 'Verified' },
+      { id: 'DOC-104', name: 'Signed Employment Agreement.pdf', type: 'PDF', size: '1.5 MB', uploadDate: '12 Jan, 2024', status: 'Signed' },
+      { id: 'DOC-105', name: 'Previous Experience & Relieving.pdf', type: 'PDF', size: '1.2 MB', uploadDate: '08 Jan, 2024', status: 'Verified' },
+      { id: 'DOC-106', name: 'Bank Passbook & Cancelled Cheque.pdf', type: 'PDF', size: '890 KB', uploadDate: '15 Jan, 2024', status: 'Approved' },
+    ];
+
+    const defaultManagers = [
+      { name: 'Vivek Kumar Singh', email: 'vivek@codeflies.com' },
+      { name: 'Anurag Tyagi', email: 'anurag@codeflies.com' },
+      { name: 'Bhupinderjit Singh', email: 'bhupinder@codeflies.com' },
+      { name: 'Dharmesh Kumar', email: 'dharmesh@codeflies.com' },
     ];
 
     const normalize = (emp) => ({
       ...emp,
       status: emp.status === 'Inactive' ? 'Inactive' : 'Active',
-      address: emp.address || emp.location || '742 Evergreen Terrace, San Francisco, CA',
-      location: emp.address || emp.location || '742 Evergreen Terrace, San Francisco, CA',
-      joiningDate: emp.joiningDate || '15 Jan, 2022',
+      empCode: emp.empCode || `CFT00${String(emp.id).replace(/\D/g, '').padStart(3, '0') || '342'}`,
+      address: emp.address || emp.location || 'Flat no - 209, East Sapphire, Block A, Noida 45, UP',
+      location: emp.address || emp.location || 'Flat no - 209, East Sapphire, Block A, Noida 45, UP',
+      permanentAddress: emp.permanentAddress || emp.address || 'Flat no - 209, East Sapphire, Block A, Noida 45, UP',
+      temporaryAddress: emp.temporaryAddress || emp.address || 'Flat no - 209, East Sapphire, Block A, Noida 45, UP',
+      joiningDate: emp.joiningDate || 'Wed, 13-Nov-24',
       exitDate: emp.exitDate || (emp.status === 'Inactive' ? '30 Oct, 2026' : '—'),
-      reportTo: emp.reportTo || (emp.role === 'HR Admin' ? 'Executive Board' : 'Saurabh H. (HR Admin)'),
-      mother: emp.mother || 'Sunita Sharma',
-      father: emp.father || 'Rajesh Sharma',
-      occupation: emp.occupation || emp.designation || 'Engineering & Operations',
+      exitReason: emp.exitReason || (emp.status === 'Inactive' ? 'Personal Relocation' : '—'),
+      fullAndFinal: emp.fullAndFinal || (emp.status === 'Inactive' ? 'Yes' : 'No'),
+      pfPercent: emp.pfPercent || '12%',
+      reportingTo: emp.reportingTo || emp.reportTo || 'Vivek Kumar Singh',
+      reportTo: emp.reportingTo || emp.reportTo || 'Vivek Kumar Singh',
+      managers: emp.managers && emp.managers.length > 0 ? emp.managers : defaultManagers,
+      mother: emp.mother || 'Kalpana',
+      motherProfession: emp.motherProfession || 'Housewife',
+      father: emp.father || 'Shyam Sunder',
+      fatherProfession: emp.fatherProfession || 'Business',
+      spouseName: emp.spouseName || '—',
+      spouseProfession: emp.spouseProfession || '—',
+      occupation: emp.occupation || emp.designation || 'Web Designer',
+      designation: emp.designation || 'Web Designer',
       bloodGroup: emp.bloodGroup || 'O+',
+      dob: emp.dob || 'Thu, 02-Nov-00',
+      altPhone: emp.altPhone || '—',
+      createdAt: emp.createdAt || 'Wed, 13-Nov-24 12:05 pm',
+      currentSalary: emp.currentSalary || emp.salary || '₹ 40,000.00',
+      salaryHistory: emp.salaryHistory || [
+        { amount: '₹ 35,000.00', date: 'Wed, 13-Nov-24 12:05 pm' },
+        { amount: '₹ 40,000.00', date: 'Fri, 22-May-26 03:47 pm' },
+      ],
+      leaveStats: emp.leaveStats || {
+        leaves: 1,
+        absents: 3,
+        sandwiches: 2,
+        bucket: 0,
+      },
       documents: emp.documents && emp.documents.length > 0 ? emp.documents : defaultDocs,
     });
 
