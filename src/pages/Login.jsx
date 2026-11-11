@@ -1,6 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Loader2, ShieldCheck } from 'lucide-react';
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  ShieldCheck,
+  Mail,
+  Lock,
+  Sparkles,
+  Users,
+  Laptop,
+  ArrowRight,
+  CheckCircle2,
+  Building2,
+  KeyRound,
+  Shield,
+} from 'lucide-react';
 import { useToast } from '../context/NotificationContext';
 import { Modal } from '../components/common/Modal';
 
@@ -13,9 +28,43 @@ export const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('HR Admin');
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+  // Quick 1-click demo role accounts for instant testing
+  const demoAccounts = [
+    {
+      role: 'HR Admin',
+      name: 'Saurabh H.',
+      email: 'saurabh.h@pulsehr.com',
+      password: 'PulseAdmin@2026',
+    },
+    {
+      role: 'Team Lead',
+      name: 'Elena Rostova',
+      email: 'elena.rostova@pulsehr.com',
+      password: 'LeadPulse@2026',
+    },
+    {
+      role: 'Employee',
+      name: 'Marcus Vance',
+      email: 'marcus.vance@pulsehr.com',
+      password: 'UserPulse@2026',
+    },
+  ];
+
+  const handleSelectDemoAccount = (acc) => {
+    setSelectedRole(acc.role);
+    setEmail(acc.email);
+    setPassword(acc.password);
+    addToast({
+      title: `${acc.role} Selected`,
+      message: `Loaded credentials for ${acc.name}.`,
+      type: 'info',
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,53 +116,104 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col justify-between overflow-x-hidden font-sans">
-      <div className="flex-1 flex flex-col lg:flex-row min-h-screen">
-        {/* Left Side: Login Form */}
-        <div className="w-full lg:w-[48%] xl:w-[46%] 2xl:w-[44%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 2xl:px-24 py-8 lg:py-10 bg-white z-20 flex-shrink-0">
-          {/* Top Brand Logo */}
-          <div className="flex items-center gap-3 select-none">
-            <div
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 shadow-md shadow-blue-500/25 ring-2 ring-blue-500/30"
-              style={{ outline: '1px solid #fff', outlineOffset: '-2px' }}
-            >
-              <img
-                src="/logo.png"
-                alt="Pulse Logo"
-                className="w-full h-full object-contain brightness-0 invert"
-              />
+    <div className="min-h-screen w-full bg-[#060913] text-slate-100 flex flex-col justify-between overflow-x-hidden font-sans relative selection:bg-blue-600 selection:text-white">
+      {/* Background Ambient Glows & Grid */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(37,99,235,0.18),rgba(255,255,255,0))] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+
+      <div className="flex-1 flex flex-col lg:flex-row min-h-screen relative z-10">
+        {/* ========================================================================= */}
+        {/* Left Side: Modern Executive Login Form                                    */}
+        {/* ========================================================================= */}
+        <div className="w-full lg:w-[48%] xl:w-[45%] 2xl:w-[42%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 py-8 lg:py-10 bg-[#070B18]/90 backdrop-blur-2xl border-r border-white/5 z-20 flex-shrink-0">
+          {/* Top Brand Logo & Status */}
+          <div className="flex items-center justify-between select-none">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#2563EB] via-[#3B82F6] to-[#60A5FA] flex items-center justify-center p-2 shadow-lg shadow-blue-500/30 ring-1 ring-white/30">
+                  <img
+                    src="/logo.png"
+                    alt="Pulse Logo"
+                    className="w-full h-full object-contain brightness-0 invert"
+                  />
+                </div>
+                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-[#070B18] animate-pulse" />
+              </div>
+              <div>
+                <div className="text-[20px] font-black text-white leading-tight tracking-tight flex items-center gap-1.5">
+                  <span>Pulse</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
+                </div>
+                <div className="text-[10px] font-extrabold text-[#60A5FA] tracking-[0.2em] uppercase">
+                  BY CODEFLIES
+                </div>
+              </div>
             </div>
-            <div>
-              <div className="text-[19px] font-black text-[#0F172A] leading-tight tracking-tight flex items-center gap-1">
-                <span>Pulse</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]"></span>
-              </div>
-              <div className="text-[9.5px] font-extrabold text-[#8292AD] tracking-[0.18em] uppercase">
-                BY CODEFLIES
-              </div>
+
+            {/* Enterprise Badge */}
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] font-medium text-slate-300 shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Enterprise SSO</span>
             </div>
           </div>
 
-          {/* Main Form Container */}
-          <div className="my-auto py-8 max-w-[420px] w-full mx-auto">
+          {/* Main Form Center Box */}
+          <div className="my-auto py-8 max-w-[430px] w-full mx-auto">
             {/* Heading & Subtitle */}
-            <div className="mb-7">
-              <h1 className="text-[26px] sm:text-[30px] font-black text-[#0F172A] tracking-tight leading-tight">
-                Sign In to your Account
+            <div className="mb-6">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-[#60A5FA] text-[11px] font-semibold mb-3">
+                <Sparkles className="w-3 h-3" />
+                <span>Workforce Operating System</span>
+              </div>
+              <h1 className="text-[28px] sm:text-[32px] font-black text-white tracking-tight leading-tight">
+                Welcome back
               </h1>
-              <p className="text-xs sm:text-sm text-[#64748B] mt-2 font-normal leading-relaxed">
-                Welcome back! Please enter your credentials to access your dashboard.
+              <p className="text-xs sm:text-sm text-slate-400 mt-2 font-normal leading-relaxed">
+                Enter your credentials to access your organization dashboard.
               </p>
             </div>
 
-            {/* Google Sign In Button */}
+            {/* 1-Click Demo Account Quick Fill */}
+            <div className="mb-6 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <KeyRound className="w-3 h-3 text-[#60A5FA]" />
+                  <span>1-Click Demo Login</span>
+                </span>
+                <span className="text-[10px] text-slate-500">Auto-fill credentials</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {demoAccounts.map((acc) => {
+                  const isActive = selectedRole === acc.role;
+                  return (
+                    <button
+                      key={acc.role}
+                      type="button"
+                      onClick={() => handleSelectDemoAccount(acc)}
+                      className={`px-2.5 py-2 rounded-xl text-left border transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-blue-600/20 border-blue-500/60 text-white shadow-xs ring-1 ring-blue-500/30'
+                          : 'bg-white/[0.02] border-white/5 text-slate-400 hover:bg-white/[0.05] hover:text-slate-200'
+                      }`}
+                    >
+                      <div className="text-[11px] font-bold truncate flex items-center gap-1">
+                        <span>{acc.role}</span>
+                        {isActive && <CheckCircle2 className="w-3 h-3 text-blue-400 ml-auto flex-shrink-0" />}
+                      </div>
+                      <div className="text-[10px] text-slate-500 truncate mt-0.5">{acc.name}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Google Workspace Sign-In Button */}
             <button
               type="button"
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full h-12 rounded-2xl border border-[#E2E8F0] hover:border-[#CBD5E1] bg-white hover:bg-[#F8FAFC] text-xs sm:text-sm font-semibold text-[#1E293B] flex items-center justify-center gap-3 transition-all shadow-xs active:scale-[0.99] cursor-pointer disabled:opacity-60 mb-6"
+              className="w-full h-12 rounded-xl border border-white/10 hover:border-white/25 bg-white/[0.04] hover:bg-white/[0.08] text-xs sm:text-sm font-semibold text-white flex items-center justify-center gap-3 transition-all shadow-xs active:scale-[0.99] cursor-pointer disabled:opacity-60 mb-5"
             >
-              {/* Google colored G icon */}
               <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -132,14 +232,14 @@ export const Login = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
                 />
               </svg>
-              <span>Sign in with Google</span>
+              <span>Continue with Google Workspace</span>
             </button>
 
-            {/* Divider with text */}
-            <div className="relative flex items-center justify-center mb-6">
-              <div className="border-t border-[#EEF2F6] w-full" />
-              <span className="bg-white px-3 text-[11px] font-medium text-[#94A3B8] absolute">
-                or sign in with Email
+            {/* Subtle Divider */}
+            <div className="relative flex items-center justify-center mb-5">
+              <div className="border-t border-white/10 w-full" />
+              <span className="bg-[#070B18] px-3 text-[11px] font-medium text-slate-500 uppercase tracking-wider absolute">
+                or sign in with email
               </span>
             </div>
 
@@ -147,46 +247,50 @@ export const Login = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Input */}
               <div>
-                <label className="block text-xs font-bold text-[#1E293B] mb-1.5">
-                  Email
+                <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  Work Email Address
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter Email or Username"
-                  className="w-full px-4 h-12 text-xs sm:text-sm bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all font-medium"
-                />
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@codeflies.com"
+                    className="w-full pl-10 pr-4 h-12 text-xs sm:text-sm bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder-slate-500 focus:bg-[#0E1528] focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 transition-all font-medium"
+                  />
+                </div>
               </div>
 
               {/* Password Input */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-[#1E293B]">
+                  <label className="block text-xs font-bold text-slate-300">
                     Password
                   </label>
                   <button
                     type="button"
                     onClick={() => setShowForgotModal(true)}
-                    className="text-xs font-semibold text-[#4F46E5] hover:text-[#4338CA] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-[#60A5FA] hover:text-blue-300 transition-colors cursor-pointer"
                   >
                     Forgot password?
                   </button>
                 </div>
                 <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter Password"
-                    className="w-full pl-4 pr-11 h-12 text-xs sm:text-sm bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl text-[#0F172A] placeholder-[#94A3B8] focus:bg-white focus:outline-none focus:border-[#4F46E5] focus:ring-4 focus:ring-[#4F46E5]/10 transition-all font-medium"
+                    placeholder="Enter password"
+                    className="w-full pl-10 pr-11 h-12 text-xs sm:text-sm bg-white/[0.04] border border-white/10 rounded-xl text-white placeholder-slate-500 focus:bg-[#0E1528] focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-blue-500/20 transition-all font-medium"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#94A3B8] hover:text-[#1E293B] p-1 cursor-pointer transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 cursor-pointer transition-colors"
                     title={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -198,131 +302,135 @@ export const Login = () => {
                 </div>
               </div>
 
-              {/* Remember Me Checkbox */}
-              <div className="flex items-center pt-1">
+              {/* Remember Me */}
+              <div className="flex items-center justify-between pt-1">
                 <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded-md border-slate-300 text-[#4F46E5] focus:ring-[#4F46E5]/20 cursor-pointer accent-[#4F46E5]"
+                    className="w-4 h-4 rounded-md border-white/20 bg-white/5 text-[#2563EB] focus:ring-blue-500/20 cursor-pointer accent-[#2563EB]"
                   />
-                  <span className="text-xs text-[#64748B] font-medium">
-                    Remember me
+                  <span className="text-xs text-slate-400 font-medium">
+                    Keep me logged in for 30 days
                   </span>
                 </label>
               </div>
 
-              {/* Sign In Button */}
+              {/* Sign In Primary Button */}
               <div className="pt-2">
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 rounded-2xl bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-indigo-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70"
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-[#2563EB] via-[#3B82F6] to-[#1D4ED8] hover:from-[#1D4ED8] hover:to-[#2563EB] text-white font-bold text-xs sm:text-sm tracking-wider uppercase shadow-lg shadow-blue-500/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 group"
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Signing In...</span>
+                      <span>Authenticating...</span>
                     </>
                   ) : (
-                    <span>SIGN IN</span>
+                    <>
+                      <span>SIGN IN TO DASHBOARD</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </>
                   )}
                 </button>
               </div>
 
-              {/* Not Registered Link */}
+              {/* Register Notice */}
               <div className="text-center pt-2">
-                <p className="text-xs text-[#64748B]">
-                  Not registered yet?{' '}
+                <p className="text-xs text-slate-400">
+                  New team member without an account?{' '}
                   <button
                     type="button"
                     onClick={() => setShowRegisterModal(true)}
-                    className="font-bold text-[#4F46E5] hover:text-[#4338CA] hover:underline cursor-pointer"
+                    className="font-bold text-[#60A5FA] hover:text-blue-300 hover:underline cursor-pointer"
                   >
-                    Create an account
+                    Request Provisioning
                   </button>
                 </p>
               </div>
             </form>
           </div>
 
-          {/* Bottom Copyright */}
-          <div className="text-[11px] text-[#94A3B8] pt-4">
-            © 2026 Pulse by Codeflies. All rights reserved.
+          {/* Bottom Trust & Copyright */}
+          <div className="pt-4 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
+            <div>© 2026 Pulse by Codeflies. All rights reserved.</div>
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <Shield className="w-3.5 h-3.5 text-emerald-400" />
+              <span>256-Bit SSL Encrypted</span>
+            </div>
           </div>
         </div>
 
-        {/* Right Side: Half-Circle 3D Portal touching right side corners */}
-        <div className="hidden lg:flex flex-1 h-screen bg-gradient-to-br from-[#FAFCFF] via-[#F4F6FB] to-[#EAEFF7] relative overflow-hidden items-center justify-end select-none">
-          {/* Subtle Ambient Radial Glows */}
-          <div className="absolute w-[600px] h-[600px] rounded-full bg-blue-500/15 blur-3xl pointer-events-none top-1/2 right-20 -translate-y-1/2" />
-          <div className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/12 blur-3xl pointer-events-none bottom-0 right-0" />
-          <div className="absolute w-[400px] h-[400px] rounded-full bg-cyan-400/12 blur-3xl pointer-events-none top-0 right-10" />
+        {/* ========================================================================= */}
+        {/* Right Side: Futuristic 3D Portal Showcase with Floating Live Badges       */}
+        {/* ========================================================================= */}
+        <div className="hidden lg:flex flex-1 min-h-screen bg-gradient-to-br from-[#060913] via-[#0A1024] to-[#040711] relative overflow-hidden items-center justify-center p-8 select-none">
+          {/* Ambient Radial Colored Nebulas */}
+          <div className="absolute w-[600px] h-[600px] rounded-full bg-blue-600/20 blur-[130px] pointer-events-none top-1/4 right-1/4" />
+          <div className="absolute w-[500px] h-[500px] rounded-full bg-cyan-400/15 blur-[120px] pointer-events-none bottom-10 left-10" />
+          <div className="absolute w-[400px] h-[400px] rounded-full bg-indigo-500/15 blur-[100px] pointer-events-none -top-10 left-1/3" />
 
-          {/* Half-Circle Portal: Diameter spans full viewport height, anchored to right edge so it touches top-right and bottom-right corners */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 h-[101vh] aspect-square z-10 flex items-center justify-center pointer-events-none">
-            <div className="w-full h-full rounded-full p-2.5 bg-gradient-to-tr from-blue-500/30 via-indigo-500/20 to-cyan-400/35 shadow-[-25px_0_75px_rgba(30,58,138,0.28)] ring-4 ring-white/80 pointer-events-auto">
-              <div className="w-full h-full rounded-full overflow-hidden relative group bg-[#0A102A]">
-                <img
-                  src="/login-hero.jpg"
-                  alt="Pulse Portal"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
-                />
+          {/* Centerpiece Showcase Container */}
+          <div className="relative z-10 flex flex-col items-center">
+            {/* Main Circular Portal with Multi-layered Glowing Ring */}
+            <div className="relative w-[460px] h-[460px] xl:w-[540px] xl:h-[540px] 2xl:w-[600px] 2xl:h-[600px] flex items-center justify-center">
+              {/* Outer Pulse Rings */}
+              <div className="absolute inset-0 rounded-full border border-blue-500/20 animate-ping opacity-25" />
+              <div className="absolute -inset-4 rounded-full border border-cyan-400/20 animate-pulse" />
+
+              {/* Portal Framing Circle with Ambient Shadow */}
+              <div className="w-full h-full rounded-full p-2.5 bg-gradient-to-tr from-cyan-400/40 via-blue-600/30 to-indigo-500/40 shadow-[0_0_90px_rgba(37,99,235,0.35)] ring-1 ring-white/20">
+                <div className="w-full h-full rounded-full overflow-hidden relative group bg-[#0A102A]">
+                  <img
+                    src="/login-hero.jpg"
+                    alt="Pulse Portal"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
+                  />
+                  {/* Subtle inner vignette */}
+                  <div className="absolute inset-0 rounded-full shadow-[inset_0_0_60px_rgba(5,8,22,0.6)] pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Floating Live Badge 1: Active Workforce (Top-Left) */}
+              <div className="absolute -top-3 -left-6 z-20 bg-[#0A1128]/85 backdrop-blur-xl border border-white/15 rounded-2xl p-3.5 shadow-2xl shadow-blue-950/60 flex items-center gap-3 transition-transform hover:scale-105">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-[#60A5FA]">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>224 Active Today</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-medium">99.2% Attendance Recorded</div>
+                </div>
+              </div>
+
+              {/* Floating Live Badge 2: Hardware Assets (Bottom-Right) */}
+              <div className="absolute -bottom-4 -right-4 z-20 bg-[#0A1128]/85 backdrop-blur-xl border border-white/15 rounded-2xl p-3.5 shadow-2xl shadow-blue-950/60 flex items-center gap-3 transition-transform hover:scale-105">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                  <Laptop className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white">234 Hardware Assets</div>
+                  <div className="text-[10px] text-slate-400 font-medium">Inventory Synced & Active</div>
+                </div>
+              </div>
+
+              {/* Floating Live Badge 3: Corporate Security (Top-Right) */}
+              <div className="absolute top-10 -right-6 z-20 bg-[#0A1128]/85 backdrop-blur-xl border border-white/15 rounded-2xl px-3.5 py-2.5 shadow-xl flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                <span className="text-[11px] font-bold text-white">SOC-2 Type II Verified</span>
               </div>
             </div>
-          </div>
 
-          {/* Abstract Layered Curved Wave Ribbons in Bottom Right Corner */}
-          <div className="absolute -bottom-8 -right-8 w-[380px] h-[380px] xl:w-[460px] xl:h-[460px] pointer-events-none z-0">
-            <svg
-              viewBox="0 0 400 400"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-full"
-            >
-              <path
-                d="M400 120 C280 120 180 220 180 340 C180 365 185 385 195 400 L400 400 Z"
-                fill="#CBD5E1"
-                fillOpacity="0.30"
-              />
-              <path
-                d="M400 190 C310 190 240 260 240 350 C240 370 245 388 255 400 L400 400 Z"
-                fill="#94A3B8"
-                fillOpacity="0.22"
-              />
-              <path
-                d="M400 260 C340 260 295 305 295 365 C295 380 300 392 308 400 L400 400 Z"
-                fill="#64748B"
-                fillOpacity="0.16"
-              />
-              <path
-                d="M400 50 C240 70 110 200 110 360 C110 375 112 388 116 400 L155 400 C150 388 148 375 148 360 C148 220 255 105 400 85 Z"
-                fill="#94A3B8"
-                fillOpacity="0.14"
-              />
-            </svg>
-          </div>
-
-          {/* Abstract Subtle Soft Wave in Top Right Corner */}
-          <div className="absolute -top-12 -right-12 w-[300px] h-[300px] xl:w-[380px] xl:h-[380px] pointer-events-none z-0">
-            <svg
-              viewBox="0 0 300 300"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-full"
-            >
-              <path
-                d="M300 0 L300 220 C220 220 160 160 160 80 C160 40 175 10 190 0 Z"
-                fill="#CBD5E1"
-                fillOpacity="0.20"
-              />
-              <path
-                d="M300 0 L300 140 C250 140 210 100 210 50 C210 20 220 5 230 0 Z"
-                fill="#94A3B8"
-                fillOpacity="0.15"
-              />
-            </svg>
+            {/* Bottom Caption Pill */}
+            <div className="mt-8 flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/[0.04] backdrop-blur-md border border-white/10 text-xs text-slate-300 shadow-lg">
+              <Building2 className="w-4 h-4 text-[#60A5FA]" />
+              <span>Unified HR, Payroll, Attendance & Asset Infrastructure for Codeflies</span>
+            </div>
           </div>
         </div>
       </div>
@@ -341,14 +449,17 @@ export const Login = () => {
               <label className="block text-xs font-bold text-[#1E293B] mb-1.5">
                 Work Email Address *
               </label>
-              <input
-                type="email"
-                required
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                placeholder="name@pulsehr.com"
-                className="w-full px-4 py-2.5 text-xs sm:text-sm border border-[#E2E8F0] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/20 bg-white"
-              />
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="email"
+                  required
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="name@codeflies.com"
+                  className="w-full pl-9 pr-4 py-2.5 text-xs sm:text-sm border border-[#E2E8F0] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
+                />
+              </div>
             </div>
             <div className="flex justify-end gap-2 pt-2 border-t border-[#E5EAF2]">
               <button
@@ -360,7 +471,7 @@ export const Login = () => {
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#4F46E5] text-white hover:bg-[#4338CA] shadow-sm cursor-pointer"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm cursor-pointer"
               >
                 Send Reset Link
               </button>
@@ -369,7 +480,7 @@ export const Login = () => {
         </Modal>
       )}
 
-      {/* Register Account Modal */}
+      {/* Enterprise Account Provisioning Modal */}
       {showRegisterModal && (
         <Modal
           isOpen={showRegisterModal}
@@ -379,11 +490,11 @@ export const Login = () => {
           maxWidth="max-w-md"
         >
           <div className="space-y-4 text-xs text-[#475569]">
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 flex items-start gap-3">
+            <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-[#2563EB] flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold">Managed Workforce Access</p>
-                <p className="mt-0.5 text-blue-700">
+                <p className="mt-0.5 text-blue-700 leading-relaxed">
                   New employee accounts are provisioned directly by the Codeflies HR and Operations department.
                 </p>
               </div>
@@ -391,9 +502,15 @@ export const Login = () => {
             <p>
               If you are a new team member and have not received your login credentials, please contact:
             </p>
-            <div className="p-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] font-medium text-slate-800 space-y-1">
-              <div>Email: <span className="font-bold text-[#2563EB]">hr@codeflies.com</span></div>
-              <div>IT Support: <span className="font-bold text-slate-900">ext. 10024</span></div>
+            <div className="p-3.5 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] font-medium text-slate-800 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[#8292AD]">HR Desk:</span>
+                <span className="font-bold text-[#2563EB]">hr@codeflies.com</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#8292AD]">IT Infrastructure:</span>
+                <span className="font-bold text-slate-900">ext. 10024</span>
+              </div>
             </div>
             <div className="flex justify-end pt-2 border-t border-[#E5EAF2]">
               <button
