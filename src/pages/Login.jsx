@@ -70,7 +70,7 @@ export const Login = () => {
     <div className="min-h-screen w-full bg-white flex flex-col justify-between overflow-x-hidden font-sans">
       <div className="flex-1 flex flex-col lg:flex-row min-h-screen">
         {/* Left Side: Login Form */}
-        <div className="w-full lg:w-[46%] xl:w-[42%] 2xl:w-[40%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 py-8 lg:py-10 bg-white z-20 flex-shrink-0">
+        <div className="w-full lg:w-[48%] xl:w-[44%] 2xl:w-[40%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 2xl:px-24 py-8 lg:py-10 bg-white z-20 flex-shrink-0">
           {/* Top Brand Logo */}
           <div className="flex items-center gap-3 select-none">
             <div
@@ -95,7 +95,7 @@ export const Login = () => {
           </div>
 
           {/* Main Form Container */}
-          <div className="my-auto py-8 max-w-[430px] w-full mx-auto lg:mx-0">
+          <div className="my-auto py-8 max-w-[420px] w-full mx-auto lg:mx-0">
             {/* Heading & Subtitle */}
             <div className="mb-7">
               <h1 className="text-[26px] sm:text-[30px] font-black text-[#0F172A] tracking-tight leading-tight">
@@ -254,21 +254,21 @@ export const Login = () => {
         </div>
 
         {/* Right Side: Circular 3D Portal Illustration & Abstract Waves */}
-        <div className="hidden lg:flex w-full lg:w-[54%] xl:w-[58%] 2xl:w-[60%] h-screen bg-gradient-to-br from-[#FAFCFF] via-[#F4F6FB] to-[#E2E8F0] relative overflow-hidden items-center justify-end select-none">
+        <div className="hidden lg:flex flex-1 h-screen bg-gradient-to-br from-[#FAFCFF] via-[#F4F6FB] to-[#EAEFF7] relative overflow-hidden items-center justify-center lg:justify-end pr-4 sm:pr-8 xl:pr-12 2xl:pr-16 select-none">
           {/* Subtle Ambient Radial Glows */}
           <div className="absolute w-[600px] h-[600px] rounded-full bg-blue-500/12 blur-3xl pointer-events-none top-1/2 right-12 -translate-y-1/2" />
           <div className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-3xl pointer-events-none bottom-0 right-0" />
           <div className="absolute w-[400px] h-[400px] rounded-full bg-cyan-400/10 blur-3xl pointer-events-none top-0 right-20" />
 
-          {/* The Hero Circular Portal Illustration - Enlarged to span full height and touch right/bottom edges */}
-          <div className="relative z-10 flex items-center justify-end translate-x-[2%] xl:translate-x-[3%] flex-shrink-0">
+          {/* The Hero Circular Portal Illustration - Properly constrained so entire circle, character & all 6 icons are 100% visible */}
+          <div className="relative z-10 flex items-center justify-center">
             {/* The Outer Circular Crop with Premium Soft Drop Shadows */}
-            <div className="w-[88vh] h-[88vh] min-w-[600px] min-h-[600px] max-w-[920px] max-h-[920px] xl:w-[93vh] xl:h-[93vh] 2xl:w-[95vh] 2xl:h-[95vh] rounded-full p-2 bg-gradient-to-tr from-blue-500/25 via-indigo-500/15 to-cyan-400/30 shadow-[0_30px_90px_rgba(15,23,42,0.22)] backdrop-blur-xs flex-shrink-0">
-              <div className="w-full h-full rounded-full overflow-hidden ring-4 ring-white/70 shadow-[0_20px_60px_rgba(37,99,235,0.25)] relative group bg-[#0A102A]">
+            <div className="w-[min(88vh,92%)] h-[min(88vh,92%)] aspect-square max-w-[820px] max-h-[820px] rounded-full p-2 bg-gradient-to-tr from-blue-500/25 via-indigo-500/15 to-cyan-400/30 shadow-[0_25px_80px_rgba(15,23,42,0.22)] backdrop-blur-xs flex-shrink-0">
+              <div className="w-full h-full rounded-full overflow-hidden ring-4 ring-white/80 shadow-[0_20px_60px_rgba(37,99,235,0.25)] relative group bg-[#0A102A]">
                 <img
                   src="/login-hero.jpg"
                   alt="Pulse by Codeflies Portal"
-                  className="w-full h-full object-cover scale-[1.12] object-[center_56%] transition-transform duration-700 group-hover:scale-[1.15] select-none pointer-events-none"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
                 />
               </div>
             </div>
@@ -285,22 +285,22 @@ export const Login = () => {
               <path
                 d="M400 120 C280 120 180 220 180 340 C180 365 185 385 195 400 L400 400 Z"
                 fill="#CBD5E1"
-                fillOpacity="0.32"
+                fillOpacity="0.30"
               />
               <path
                 d="M400 190 C310 190 240 260 240 350 C240 370 245 388 255 400 L400 400 Z"
                 fill="#94A3B8"
-                fillOpacity="0.25"
+                fillOpacity="0.22"
               />
               <path
                 d="M400 260 C340 260 295 305 295 365 C295 380 300 392 308 400 L400 400 Z"
                 fill="#64748B"
-                fillOpacity="0.18"
+                fillOpacity="0.16"
               />
               <path
                 d="M400 50 C240 70 110 200 110 360 C110 375 112 388 116 400 L155 400 C150 388 148 375 148 360 C148 220 255 105 400 85 Z"
                 fill="#94A3B8"
-                fillOpacity="0.15"
+                fillOpacity="0.14"
               />
             </svg>
           </div>
@@ -316,12 +316,12 @@ export const Login = () => {
               <path
                 d="M300 0 L300 220 C220 220 160 160 160 80 C160 40 175 10 190 0 Z"
                 fill="#CBD5E1"
-                fillOpacity="0.22"
+                fillOpacity="0.20"
               />
               <path
                 d="M300 0 L300 140 C250 140 210 100 210 50 C210 20 220 5 230 0 Z"
                 fill="#94A3B8"
-                fillOpacity="0.16"
+                fillOpacity="0.15"
               />
             </svg>
           </div>
