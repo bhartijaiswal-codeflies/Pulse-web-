@@ -2862,7 +2862,7 @@ export const Candidates = () => {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-700 text-white cursor-pointer shadow-2xs transition-colors"
                 >
                   <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                  <span>+ New Round</span>
+                  <span>New Round</span>
                 </button>
               </div>
 
