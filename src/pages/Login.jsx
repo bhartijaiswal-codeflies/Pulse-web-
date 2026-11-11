@@ -70,7 +70,7 @@ export const Login = () => {
     <div className="min-h-screen w-full bg-white flex flex-col justify-between overflow-x-hidden font-sans">
       <div className="flex-1 flex flex-col lg:flex-row min-h-screen">
         {/* Left Side: Login Form */}
-        <div className="w-full lg:w-[48%] xl:w-[44%] 2xl:w-[40%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 2xl:px-24 py-8 lg:py-10 bg-white z-20 flex-shrink-0">
+        <div className="w-full lg:w-[48%] xl:w-[46%] 2xl:w-[44%] min-h-screen flex flex-col justify-between px-6 sm:px-12 md:px-16 xl:px-20 2xl:px-24 py-8 lg:py-10 bg-white z-20 flex-shrink-0">
           {/* Top Brand Logo */}
           <div className="flex items-center gap-3 select-none">
             <div
@@ -95,7 +95,7 @@ export const Login = () => {
           </div>
 
           {/* Main Form Container */}
-          <div className="my-auto py-8 max-w-[420px] w-full mx-auto lg:mx-0">
+          <div className="my-auto py-8 max-w-[420px] w-full mx-auto">
             {/* Heading & Subtitle */}
             <div className="mb-7">
               <h1 className="text-[26px] sm:text-[30px] font-black text-[#0F172A] tracking-tight leading-tight">
@@ -253,28 +253,27 @@ export const Login = () => {
           </div>
         </div>
 
-        {/* Right Side: Circular 3D Portal Illustration & Abstract Waves */}
-        <div className="hidden lg:flex flex-1 h-screen bg-gradient-to-br from-[#FAFCFF] via-[#F4F6FB] to-[#EAEFF7] relative overflow-hidden items-center justify-center lg:justify-end pr-4 sm:pr-8 xl:pr-12 2xl:pr-16 select-none">
+        {/* Right Side: Half-Circle 3D Portal touching right side corners */}
+        <div className="hidden lg:flex flex-1 h-screen bg-gradient-to-br from-[#FAFCFF] via-[#F4F6FB] to-[#EAEFF7] relative overflow-hidden items-center justify-end select-none">
           {/* Subtle Ambient Radial Glows */}
-          <div className="absolute w-[600px] h-[600px] rounded-full bg-blue-500/12 blur-3xl pointer-events-none top-1/2 right-12 -translate-y-1/2" />
-          <div className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-3xl pointer-events-none bottom-0 right-0" />
-          <div className="absolute w-[400px] h-[400px] rounded-full bg-cyan-400/10 blur-3xl pointer-events-none top-0 right-20" />
+          <div className="absolute w-[600px] h-[600px] rounded-full bg-blue-500/15 blur-3xl pointer-events-none top-1/2 right-20 -translate-y-1/2" />
+          <div className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/12 blur-3xl pointer-events-none bottom-0 right-0" />
+          <div className="absolute w-[400px] h-[400px] rounded-full bg-cyan-400/12 blur-3xl pointer-events-none top-0 right-10" />
 
-          {/* The Hero Circular Portal Illustration - Properly constrained so entire circle, character & all 6 icons are 100% visible */}
-          <div className="relative z-10 flex items-center justify-center">
-            {/* The Outer Circular Crop with Premium Soft Drop Shadows */}
-            <div className="w-[min(88vh,92%)] h-[min(88vh,92%)] aspect-square max-w-[820px] max-h-[820px] rounded-full p-2 bg-gradient-to-tr from-blue-500/25 via-indigo-500/15 to-cyan-400/30 shadow-[0_25px_80px_rgba(15,23,42,0.22)] backdrop-blur-xs flex-shrink-0">
-              <div className="w-full h-full rounded-full overflow-hidden ring-4 ring-white/80 shadow-[0_20px_60px_rgba(37,99,235,0.25)] relative group bg-[#0A102A]">
+          {/* Half-Circle Portal: Diameter spans full viewport height, anchored to right edge so it touches top-right and bottom-right corners */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 h-[101vh] aspect-square z-10 flex items-center justify-center pointer-events-none">
+            <div className="w-full h-full rounded-full p-2.5 bg-gradient-to-tr from-blue-500/30 via-indigo-500/20 to-cyan-400/35 shadow-[-25px_0_75px_rgba(30,58,138,0.28)] ring-4 ring-white/80 pointer-events-auto">
+              <div className="w-full h-full rounded-full overflow-hidden relative group bg-[#0A102A]">
                 <img
                   src="/login-hero.jpg"
-                  alt="Pulse by Codeflies Portal"
+                  alt="Pulse Portal"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 select-none pointer-events-none"
                 />
               </div>
             </div>
           </div>
 
-          {/* Abstract Layered Curved Wave Ribbons in Bottom Right Corner (Matching Reference Image) */}
+          {/* Abstract Layered Curved Wave Ribbons in Bottom Right Corner */}
           <div className="absolute -bottom-8 -right-8 w-[380px] h-[380px] xl:w-[460px] xl:h-[460px] pointer-events-none z-0">
             <svg
               viewBox="0 0 400 400"
