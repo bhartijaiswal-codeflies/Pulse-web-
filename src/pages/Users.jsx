@@ -35,6 +35,7 @@ import {
   AlertTriangle,
   Plus,
   Info,
+  DollarSign,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -82,10 +83,13 @@ export const Users = () => {
   const [joiningDate, setJoiningDate] = useState('Today');
   const [exitDate, setExitDate] = useState('—');
   const [reportTo, setReportTo] = useState('Saurabh H. (HR Admin)');
-  const [mother, setMother] = useState('Sunita Sharma');
-  const [father, setFather] = useState('Rajesh Sharma');
-  const [occupation, setOccupation] = useState('Software Engineering');
+  const [mother, setMother] = useState('Kalpana');
+  const [father, setFather] = useState('Shyam Sunder');
+  const [occupation, setOccupation] = useState('Web Designer');
   const [bloodGroup, setBloodGroup] = useState('O+');
+  const [spouseName, setSpouseName] = useState('—');
+  const [spousePhone, setSpousePhone] = useState('—');
+  const [emergencyContact, setEmergencyContact] = useState('+91 98765 43210');
 
   const [starredUsers, setStarredUsers] = useState(['PLS-10024', 'PLS-1049']);
 
@@ -149,10 +153,13 @@ export const Users = () => {
     setJoiningDate('Today');
     setExitDate('—');
     setReportTo('Saurabh H. (HR Admin)');
-    setMother('Sunita Sharma');
-    setFather('Rajesh Sharma');
-    setOccupation('Software Engineering');
+    setMother('Kalpana');
+    setFather('Shyam Sunder');
+    setOccupation('Web Designer');
     setBloodGroup('O+');
+    setSpouseName('—');
+    setSpousePhone('—');
+    setEmergencyContact('+91 98765 43210');
     setEditingEmployee(null);
   };
 
@@ -173,10 +180,13 @@ export const Users = () => {
     setJoiningDate(emp.joiningDate || '15 Jan, 2022');
     setExitDate(emp.exitDate || (emp.status === 'Inactive' ? '30 Oct, 2026' : '—'));
     setReportTo(emp.reportTo || 'Saurabh H. (HR Admin)');
-    setMother(emp.mother || 'Sunita Sharma');
-    setFather(emp.father || 'Rajesh Sharma');
-    setOccupation(emp.occupation || emp.designation || 'Software Engineering');
+    setMother(emp.mother || 'Kalpana');
+    setFather(emp.father || 'Shyam Sunder');
+    setOccupation(emp.occupation || emp.designation || 'Web Designer');
     setBloodGroup(emp.bloodGroup || 'O+');
+    setSpouseName(emp.spouseName || '—');
+    setSpousePhone(emp.spousePhone || '—');
+    setEmergencyContact(emp.emergencyContact || '+91 98765 43210');
     setShowAddModal(true);
   };
 
@@ -203,10 +213,13 @@ export const Users = () => {
       joiningDate: joiningDate.trim() || 'Today',
       exitDate: status === 'Inactive' ? (exitDate.trim() || 'Today') : '—',
       reportTo: reportTo.trim() || 'Saurabh H. (HR Admin)',
-      mother: mother.trim() || 'Sunita Sharma',
-      father: father.trim() || 'Rajesh Sharma',
-      occupation: occupation.trim() || designation.trim() || 'Software Engineering',
+      mother: mother.trim() || 'Kalpana',
+      father: father.trim() || 'Shyam Sunder',
+      occupation: occupation.trim() || designation.trim() || 'Web Designer',
       bloodGroup: bloodGroup.trim() || 'O+',
+      spouseName: spouseName.trim() || '—',
+      spousePhone: spousePhone.trim() || '—',
+      emergencyContact: emergencyContact.trim() || '+91 98765 43210',
     };
 
     if (editingEmployee) {
@@ -1068,13 +1081,39 @@ export const Users = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-[#172033] mb-1">
-                    Occupation
+                    Spouse / Husband Name
                   </label>
                   <input
                     type="text"
-                    value={occupation}
-                    onChange={(e) => setOccupation(e.target.value)}
-                    placeholder="e.g. Software Architecture"
+                    value={spouseName}
+                    onChange={(e) => setSpouseName(e.target.value)}
+                    placeholder="e.g. Amit Sharma"
+                    className="w-full px-3 py-1.5 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#172033] mb-1">
+                    Spouse Contact Number
+                  </label>
+                  <input
+                    type="text"
+                    value={spousePhone}
+                    onChange={(e) => setSpousePhone(e.target.value)}
+                    placeholder="e.g. +91 98101 22334"
+                    className="w-full px-3 py-1.5 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-bold text-[#172033] mb-1">
+                    Emergency Contact & Relation
+                  </label>
+                  <input
+                    type="text"
+                    value={emergencyContact}
+                    onChange={(e) => setEmergencyContact(e.target.value)}
+                    placeholder="e.g. +91 98765 43210 (Father / Family)"
                     className="w-full px-3 py-1.5 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
                   />
                 </div>
@@ -1269,6 +1308,21 @@ export const Users = () => {
                   </div>
 
                   <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Emergency Contact:</span>
+                    {selectedUser.emergencyContact && selectedUser.emergencyContact !== '—' ? (
+                      <a
+                        href={`tel:${String(selectedUser.emergencyContact).replace(/[^+\d]/g, '')}`}
+                        className="font-bold text-rose-700 hover:underline flex items-center gap-1"
+                      >
+                        <Phone className="w-3 h-3 text-rose-600" />
+                        <span>{selectedUser.emergencyContact}</span>
+                      </a>
+                    ) : (
+                      <span className="font-bold text-[#172033]">—</span>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
                     <span className="text-[#8292AD] font-medium">Father's Name:</span>
                     <span className="font-bold text-[#172033]">{selectedUser.father || 'Shyam Sunder'}</span>
                   </div>
@@ -1289,12 +1343,27 @@ export const Users = () => {
                   </div>
 
                   <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Husband Name:</span>
+                    <span className="text-[#8292AD] font-medium">Spouse / Husband Name:</span>
                     <span className="font-bold text-[#172033]">{selectedUser.spouseName || '—'}</span>
                   </div>
 
                   <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
-                    <span className="text-[#8292AD] font-medium">Husband Profession:</span>
+                    <span className="text-[#8292AD] font-medium">Spouse Contact Number:</span>
+                    {selectedUser.spousePhone && selectedUser.spousePhone !== '—' ? (
+                      <a
+                        href={`tel:${String(selectedUser.spousePhone).replace(/[^+\d]/g, '')}`}
+                        className="font-bold text-indigo-700 hover:underline flex items-center gap-1"
+                      >
+                        <Phone className="w-3 h-3 text-indigo-600" />
+                        <span>{selectedUser.spousePhone}</span>
+                      </a>
+                    ) : (
+                      <span className="font-bold text-[#172033]">—</span>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-center py-1.5 border-b border-[#F8FAFC]">
+                    <span className="text-[#8292AD] font-medium">Spouse Profession:</span>
                     <span className="font-bold text-[#172033]">{selectedUser.spouseProfession || '—'}</span>
                   </div>
 
@@ -1424,11 +1493,17 @@ export const Users = () => {
                     1 Paid leave would be added to your bucket every month.
                   </p>
                 </div>
+              </div>
 
+              {/* COLUMN 3: Salaries & Verified Documents Dossier */}
+              <div className="space-y-4">
                 {/* Salaries Section */}
                 <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
                   <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
-                    <h4 className="text-xs font-bold text-[#172033]">Salaries</h4>
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-emerald-600" />
+                      <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">Salaries</h4>
+                    </div>
                     <button
                       type="button"
                       onClick={() => addToast({ title: 'Salary Action', message: 'Salary modification mode active.', type: 'info' })}
@@ -1466,26 +1541,25 @@ export const Users = () => {
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* COLUMN 3: All Verified Documents Dossier */}
-              <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
-                <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-[#2563EB]" />
-                    <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
-                      Documents ({selectedUser.documents?.length || 0})
-                    </h4>
+                {/* All Verified Documents Dossier */}
+                <div className="p-4 rounded-2xl border border-[#E5EAF2] bg-white shadow-2xs space-y-3">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F1F5F9]">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[#2563EB]" />
+                      <h4 className="text-xs font-bold text-[#172033] uppercase tracking-wider">
+                        Documents ({selectedUser.documents?.length || 0})
+                      </h4>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowDocUploadModal(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#008080] hover:bg-[#006666] text-white shadow-xs transition-colors cursor-pointer"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                      <span>Edit / Upload</span>
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowDocUploadModal(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-[#008080] hover:bg-[#006666] text-white shadow-xs transition-colors cursor-pointer"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                    <span>Edit / Upload</span>
-                  </button>
-                </div>
 
                 {selectedUser.documents && selectedUser.documents.length > 0 ? (
                   <div className="space-y-2.5 max-h-[66vh] overflow-y-auto pr-1">
@@ -1562,7 +1636,8 @@ export const Users = () => {
               </div>
             </div>
           </div>
-        </Modal>
+        </div>
+      </Modal>
       )}
 
       {/* Upload Document Modal */}
