@@ -34,7 +34,7 @@ export const Sidebar = () => {
       message: 'You have been signed out of Pulse HR Dashboard.',
       type: 'info',
     });
-    navigate('/');
+    navigate('/login');
   };
 
   return (

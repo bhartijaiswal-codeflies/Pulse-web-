@@ -10,12 +10,14 @@ import { Users } from './pages/Users';
 import { Assets } from './pages/Assets';
 import { Calendar } from './pages/Calendar';
 import { Profile } from './pages/Profile';
+import { Login } from './pages/Login';
 
 export default function App() {
   return (
     <NotificationProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Dashboard />} />
             <Route path="attendance" element={<Attendance />} />

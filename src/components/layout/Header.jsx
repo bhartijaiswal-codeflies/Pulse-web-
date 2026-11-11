@@ -82,7 +82,7 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
       message: 'You have been signed out of Pulse HR Dashboard.',
       type: 'info',
     });
-    navigate('/');
+    navigate('/login');
   };
 
   return (

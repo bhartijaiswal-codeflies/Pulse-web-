@@ -20,7 +20,7 @@ export const MobileDrawer = ({ isOpen, onClose }) => {
       message: 'You have been signed out of Pulse HR Dashboard.',
       type: 'info',
     });
-    navigate('/');
+    navigate('/login');
   };
 
   if (!isOpen) return null;
