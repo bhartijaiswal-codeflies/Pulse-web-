@@ -20,14 +20,6 @@ export const WorkingRemotelyWidget = () => {
       clockIn: '09:00 AM',
       department: 'UI/UX Design',
     },
-    {
-      id: 'R3',
-      name: 'Alexei Ivanov',
-      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80',
-      location: 'Berlin, DE',
-      clockIn: '09:15 AM',
-      department: 'DevOps & Cloud',
-    },
   ];
 
   return (
