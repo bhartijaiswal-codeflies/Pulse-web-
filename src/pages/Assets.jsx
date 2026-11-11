@@ -395,9 +395,7 @@ export const Assets = () => {
             <option value="custom">Custom Date Range...</option>
           </select>
           <Calendar className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
-            ▼
-          </span>
+          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
@@ -438,9 +436,7 @@ export const Assets = () => {
             <option value="Peripherals">Peripherals</option>
           </select>
           <Laptop className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
-            ▼
-          </span>
+          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 

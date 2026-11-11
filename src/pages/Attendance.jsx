@@ -676,9 +676,7 @@ export const Attendance = () => {
             <option value="custom">Custom Date Range...</option>
           </select>
           <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
-            ▼
-          </span>
+          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* 4. Custom Date Range Inputs (when 'custom' selected, same rounded-xl shape) */}
@@ -719,9 +717,7 @@ export const Attendance = () => {
             ))}
           </select>
           <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
-            ▼
-          </span>
+          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 
@@ -952,11 +948,7 @@ export const Attendance = () => {
                           </option>
                         ))}
                       </select>
-                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <svg className="w-3 h-3 fill-slate-400" viewBox="0 0 24 24">
-                          <path d="M7 10l5 5 5-5z" />
-                        </svg>
-                      </div>
+                      <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
                   </div>
 
@@ -1058,11 +1050,7 @@ export const Attendance = () => {
                           <option value="Second Half Leave">Second Half Leave</option>
                           <option value="Half Day Marked">Half Day Marked</option>
                         </select>
-                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                          <svg className="w-3 h-3 fill-slate-400" viewBox="0 0 24 24">
-                            <path d="M7 10l5 5 5-5z" />
-                          </svg>
-                        </div>
+                        <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
                     </div>
                   </div>
