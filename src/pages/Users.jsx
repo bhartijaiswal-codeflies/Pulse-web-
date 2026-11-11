@@ -1568,13 +1568,13 @@ export const Users = () => {
                     </span>
                   </div>
 
-                  {/* 4 Modern Executive Metric Cards */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  {/* 4 Modern Executive Metric Cards (2 boxes in 1 row: 2x2 grid) */}
+                  <div className="grid grid-cols-2 gap-3">
                     {/* Leaves */}
                     <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-blue-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600 transition-colors">
-                          Leaves
+                          Leaves Taken
                         </span>
                         <div className="w-5 h-5 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center">
                           <CalendarCheck className="w-3 h-3" />
@@ -1631,7 +1631,7 @@ export const Users = () => {
                     <div className="group rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50/50 hover:from-teal-100/60 hover:to-emerald-100/70 border border-teal-200 hover:border-teal-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-teal-900">
-                          Bucket
+                          Leave Bucket
                         </span>
                         <div className="w-5 h-5 rounded-md bg-[#008080] text-white flex items-center justify-center shadow-2xs">
                           <Wallet className="w-3 h-3" />
