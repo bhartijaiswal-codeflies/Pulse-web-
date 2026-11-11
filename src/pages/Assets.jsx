@@ -29,11 +29,14 @@ import {
   Clock,
   Sparkles,
   ExternalLink,
+  ChevronDown,
+  Shield,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
 import { DataTable } from '../components/common/DataTable';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { assetService } from '../services/assetService';
 import { employeeService } from '../services/employeeService';
@@ -345,13 +348,13 @@ export const Assets = () => {
     loadData();
   };
 
-  // --- FILTER BAR (MATCHING USER MANAGEMENT SCREENSHOT) ---
+  // --- FILTER BAR (MATCHING USER MANAGEMENT SCREENSHOT & FIXED DROPDOWN ICONS) ---
   const assetFilterBar = (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
       {/* Left side: View Dropdown + Search + Type & Status Dropdowns */}
-      <div className="flex flex-wrap items-center gap-2 flex-1">
-        {/* Blue View Pill Dropdown */}
-        <div className="relative">
+      <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+        {/* 1. Blue View Pill Dropdown with Fixed Icons */}
+        <div className="relative flex-shrink-0">
           <select
             value={activeView}
             onChange={(e) => {
@@ -360,22 +363,30 @@ export const Assets = () => {
               setTypeFilter('All');
               setStatusFilter('All');
             }}
-            className="appearance-none pl-3.5 pr-8 py-2 text-xs font-bold rounded-xl bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100/70 focus:outline-none cursor-pointer transition-colors shadow-2xs"
+            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-bold rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] hover:bg-blue-100/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-colors shadow-2xs"
           >
             <option value="assets">All Assets ({assets.length})</option>
             <option value="tickets">Support Tickets ({tickets.length})</option>
             <option value="requests">Take-Home Requests ({requests.length})</option>
           </select>
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-xs text-[#2563EB]">
-            ▾
-          </span>
+          {activeView === 'assets' && (
+            <Laptop className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          )}
+          {activeView === 'tickets' && (
+            <Ticket className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          )}
+          {activeView === 'requests' && (
+            <Briefcase className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          )}
+          <ChevronDown className="w-3.5 h-3.5 text-[#2563EB] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
-        {/* Search Input */}
-        <div className="relative min-w-[220px] flex-1 sm:flex-initial">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
+        {/* 2. Standard Search Input */}
+        <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
             placeholder={
               activeView === 'assets'
                 ? 'Search asset, model, tag, employee...'
@@ -383,19 +394,16 @@ export const Assets = () => {
                 ? 'Search ticket, issue, reporter...'
                 : 'Search request, employee, reason...'
             }
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB]"
           />
         </div>
 
-        {/* Dropdown 1: All Types (only in Assets view) */}
+        {/* 3. Dropdown 1: All Types (only in Assets view) with Fixed Tag & Chevron Icons */}
         {activeView === 'assets' && (
-          <div className="relative">
+          <div className="relative min-w-[145px] flex-shrink-0">
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="appearance-none pl-3 pr-7 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] font-semibold focus:outline-none focus:border-[#2563EB] cursor-pointer"
+              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Types</option>
               <option value="Laptop">Laptop</option>
@@ -405,18 +413,17 @@ export const Assets = () => {
               <option value="Monitors">Monitors</option>
               <option value="Mobile Devices">Mobile Devices</option>
             </select>
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
-              ▾
-            </span>
+            <Tag className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         )}
 
-        {/* Dropdown 2: All Statuses */}
-        <div className="relative">
+        {/* 4. Dropdown 2: All Statuses with Fixed Shield & Chevron Icons */}
+        <div className="relative min-w-[145px] flex-shrink-0">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none pl-3 pr-7 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] font-semibold focus:outline-none focus:border-[#2563EB] cursor-pointer"
+            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
           >
             <option value="All">All Statuses</option>
             {activeView === 'assets' && (
@@ -441,24 +448,25 @@ export const Assets = () => {
               </>
             )}
           </select>
-          <span className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[10px] text-slate-400">
-            ▾
-          </span>
+          <Shield className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 
       {/* Right side: Clear Button + Filter Counter + Refresh */}
-      <div className="flex items-center gap-2.5 self-end lg:self-auto flex-shrink-0">
+      <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0">
         {(searchQuery || typeFilter !== 'All' || statusFilter !== 'All') && (
           <button
+            type="button"
             onClick={() => {
               setSearchQuery('');
               setTypeFilter('All');
               setStatusFilter('All');
             }}
-            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer"
+            title="Clear all filters"
+            className="inline-flex items-center gap-1 px-2.5 h-7 text-[11px] font-bold rounded-lg text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-3 h-3 stroke-[2.5]" />
             <span>Clear</span>
           </button>
         )}
@@ -519,7 +527,7 @@ export const Assets = () => {
               className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${typeBadgeColor}`}
             >
               <span>{row.type}</span>
-              <span className="text-[9px] opacity-60">▾</span>
+              <ChevronDown className="w-2.5 h-2.5 opacity-60 ml-0.5" />
             </span>
           </div>
         );
