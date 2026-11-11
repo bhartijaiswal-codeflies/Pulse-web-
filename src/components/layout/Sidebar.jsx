@@ -43,7 +43,10 @@ export const Sidebar = () => {
       <div className="flex flex-col items-center w-full flex-1 overflow-hidden">
         {/* Brand Circular Glowing Logo */}
         <div className="relative group cursor-pointer pt-3 mb-4 flex-shrink-0">
-          <div className="w-[46px] h-[46px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 ring-2 ring-[#3B82F6]/70 shadow-[0_0_16px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105">
+          <div
+            className="w-[46px] h-[46px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 ring-2 ring-[#3B82F6]/70 shadow-[0_0_16px_rgba(37,99,235,0.45)] transition-transform duration-200 group-hover:scale-105"
+            style={{ outline: '1px solid #fff', outlineOffset: '-2px' }}
+          >
             <img
               src="/logo.png"
               alt="Pulse HR Logo"
