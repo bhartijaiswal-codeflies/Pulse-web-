@@ -101,12 +101,12 @@ export const Calendar = () => {
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Calendar' }]}
         actions={
           <div className="flex items-center gap-2">
-            <div className="inline-flex rounded-xl p-1 bg-white border border-[#E5EAF2]">
+            <div className="inline-flex items-center h-9 rounded-xl p-1 bg-white border border-[#E5EAF2]">
               {['month', 'week', 'day'].map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setViewMode(mode)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors ${
+                  className={`h-7 px-3 text-xs font-semibold rounded-lg capitalize transition-colors flex items-center cursor-pointer ${
                     viewMode === mode
                       ? 'bg-[#2563EB] text-white shadow-xs'
                       : 'text-[#8292AD] hover:text-[#172033]'
@@ -119,7 +119,7 @@ export const Calendar = () => {
 
             <button
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20"
+              className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Schedule Event</span>

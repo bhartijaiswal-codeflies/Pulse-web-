@@ -566,12 +566,12 @@ export const Assets = () => {
         subtitle="Track equipment inventory, employee assignments, return lifecycle and cloud sync."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Assets' }]}
         actions={
-          <div className="flex items-center gap-2.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Firebase Import Button */}
             <button
               onClick={handleImportFromFirebase}
               disabled={isImporting}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-all disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-all disabled:opacity-60 cursor-pointer"
             >
               {isImporting ? (
                 <>
@@ -589,7 +589,7 @@ export const Assets = () => {
             {/* Add Asset Button */}
             <button
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Add Asset</span>

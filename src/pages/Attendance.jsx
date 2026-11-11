@@ -768,10 +768,10 @@ export const Attendance = () => {
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Attendance' }]}
         actions={
           <div className="flex items-center gap-2">
-            <div className="inline-flex rounded-xl p-1 bg-white border border-[#E5EAF2]">
+            <div className="inline-flex items-center h-9 rounded-xl p-1 bg-white border border-[#E5EAF2]">
               <button
                 onClick={() => setViewMode('table')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                className={`h-7 px-3 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center ${
                   viewMode === 'table'
                     ? 'bg-[#2563EB] text-white shadow-xs'
                     : 'text-[#8292AD] hover:text-[#172033]'
@@ -781,7 +781,7 @@ export const Attendance = () => {
               </button>
               <button
                 onClick={() => setViewMode('calendar')}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
+                className={`h-7 px-3 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center ${
                   viewMode === 'calendar'
                     ? 'bg-[#2563EB] text-white shadow-xs'
                     : 'text-[#8292AD] hover:text-[#172033]'
@@ -793,7 +793,7 @@ export const Attendance = () => {
 
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-[#8292AD]" />
               <span>Export CSV</span>
@@ -802,7 +802,7 @@ export const Attendance = () => {
             {/* Create Button at the top */}
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Create</span>
