@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   CreditCard,
   DollarSign,
@@ -19,6 +19,21 @@ import {
   Clock,
   AlertTriangle,
   Building,
+  Users,
+  Wallet,
+  Briefcase,
+  Edit2,
+  Trash2,
+  Eye,
+  Printer,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Layers,
+  Sparkles,
+  ShieldCheck,
+  CheckCircle2,
+  Info,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -26,813 +41,1241 @@ import { DataTable } from '../components/common/DataTable';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
-import { financeService } from '../services/financeService';
+import {
+  financeService,
+  payrollMonthsList,
+  getDaysInMonth,
+  calculatePayrollRow,
+} from '../services/financeService';
 import { useToast } from '../context/NotificationContext';
 
 export const MyFinances = () => {
-  const [finances, setFinances] = useState(null);
-  const [activeTab, setActiveTab] = useState('payslips'); // 'payslips' or 'expenses'
-  const [showExpenseModal, setShowExpenseModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [categoryFilter, setCategoryFilter] = useState('All');
-  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
-  const typeDropdownRef = useRef(null);
-
-  // Period / Date filters
-  const [periodFilter, setPeriodFilter] = useState('all');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
-
   const { addToast } = useToast();
 
-  // New expense form
-  const [category, setCategory] = useState('Home Office Setup');
-  const [merchant, setMerchant] = useState('');
-  const [amount, setAmount] = useState('');
-  const [notes, setNotes] = useState('');
+  // Active View: 'payroll' (All Employees Monthly Calculation) | 'payslips' (Personal Slips) | 'expenses' (Expense Claims)
+  const [activeTab, setActiveTab] = useState('payroll');
 
-  const loadFinances = () => {
+  // Selected Month for Payroll Table (Defaults to Jan 2026 as per handwritten requirement)
+  const [selectedMonth, setSelectedMonth] = useState('Jan 2026');
+
+  // Payroll data state
+  const [payrollData, setPayrollData] = useState([]);
+
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+
+  // Existing finances state (for payslips & expenses tabs)
+  const [finances, setFinances] = useState(null);
+
+  // Modals state
+  const [editingPayrollRow, setEditingPayrollRow] = useState(null);
+  const [selectedPayslipRow, setSelectedPayslipRow] = useState(null);
+  const [showAddPayrollModal, setShowAddPayrollModal] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+
+  // Form states for Edit Payroll
+  const [editForm, setEditForm] = useState({
+    salary: 10000,
+    leaveTaken: 2,
+    bucketAvailable: 3,
+    otherDeduction: 1245,
+    deductionNotes: '',
+    status: 'Paid',
+    remarks: '',
+  });
+
+  // Form states for Add Payroll
+  const [addForm, setAddForm] = useState({
+    name: '',
+    empCode: '',
+    department: 'Engineering',
+    designation: 'Software Engineer',
+    salary: 25000,
+    leaveTaken: 0,
+    bucketAvailable: 2,
+    otherDeduction: 1500,
+    deductionNotes: 'PF + Professional Tax',
+    status: 'Processed',
+    remarks: 'Monthly addition',
+  });
+
+  // Expense claim form states
+  const [expenseForm, setExpenseForm] = useState({
+    category: 'Home Office Setup',
+    merchant: '',
+    amount: '',
+    notes: '',
+  });
+
+  // Load data for active month and finances
+  const loadData = () => {
     setFinances(financeService.getFinances());
+    const monthlyList = financeService.getMonthlyPayroll(selectedMonth);
+    setPayrollData(monthlyList);
   };
 
   useEffect(() => {
-    loadFinances();
-  }, []);
+    loadData();
+  }, [selectedMonth]);
 
-  // Close type dropdown on click outside
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (
-        typeDropdownRef.current &&
-        !typeDropdownRef.current.contains(e.target)
-      ) {
-        setShowTypeDropdown(false);
-      }
+  // Days in selected month
+  const daysInCurrentMonth = useMemo(() => {
+    return getDaysInMonth(selectedMonth);
+  }, [selectedMonth]);
+
+  // Navigate to previous month
+  const handlePrevMonth = () => {
+    const currentIndex = payrollMonthsList.findIndex((m) => m.key === selectedMonth);
+    if (currentIndex < payrollMonthsList.length - 1) {
+      setSelectedMonth(payrollMonthsList[currentIndex + 1].key);
+    }
+  };
+
+  // Navigate to next month
+  const handleNextMonth = () => {
+    const currentIndex = payrollMonthsList.findIndex((m) => m.key === selectedMonth);
+    if (currentIndex > 0) {
+      setSelectedMonth(payrollMonthsList[currentIndex - 1].key);
+    }
+  };
+
+  // Filtered Payroll Data
+  const filteredPayroll = useMemo(() => {
+    return payrollData.filter((row) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        row.name?.toLowerCase().includes(q) ||
+        row.empCode?.toLowerCase().includes(q) ||
+        row.department?.toLowerCase().includes(q) ||
+        row.designation?.toLowerCase().includes(q);
+
+      const matchesDept = departmentFilter === 'All' || row.department === departmentFilter;
+      const matchesStatus = statusFilter === 'All' || row.status === statusFilter;
+
+      return matchesSearch && matchesDept && matchesStatus;
+    });
+  }, [payrollData, searchQuery, departmentFilter, statusFilter]);
+
+  // Calculate top summary metrics for selected month
+  const summaryMetrics = useMemo(() => {
+    const totalGross = filteredPayroll.reduce((acc, row) => acc + (Number(row.salary) || 0), 0);
+    const totalPayable = filteredPayroll.reduce((acc, row) => acc + (Number(row.payable) || 0), 0);
+    const totalUnpaidLeaves = filteredPayroll.reduce((acc, row) => acc + (Number(row.unpaidLeave) || 0), 0);
+    const totalUnpaidDeduction = filteredPayroll.reduce((acc, row) => acc + (Number(row.unpaidDeductionAmount) || 0), 0);
+    const totalOtherDeductions = filteredPayroll.reduce((acc, row) => acc + (Number(row.otherDeduction) || 0), 0);
+
+    return {
+      totalGross,
+      totalPayable,
+      totalUnpaidLeaves,
+      totalUnpaidDeduction,
+      totalOtherDeductions,
+      totalDeductions: totalUnpaidDeduction + totalOtherDeductions,
+      headcount: filteredPayroll.length,
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [filteredPayroll]);
 
-  const handlePayslipStatusChange = (id, newStatus) => {
-    setFinances((prev) => ({
-      ...prev,
-      payslips: prev.payslips.map((p) =>
-        p.id === id ? { ...p, status: newStatus } : p
-      ),
-    }));
-    addToast({
-      title: 'Status Updated',
-      message: `Payslip status changed to "${newStatus}".`,
-      type: 'info',
+  // --- ACTIONS ---
+
+  // Open Edit Modal
+  const handleOpenEdit = (row) => {
+    setEditingPayrollRow(row);
+    setEditForm({
+      salary: row.salary,
+      leaveTaken: row.leaveTaken,
+      bucketAvailable: row.bucketAvailable,
+      otherDeduction: row.otherDeduction,
+      deductionNotes: row.deductionNotes || '',
+      status: row.status || 'Paid',
+      remarks: row.remarks || '',
     });
   };
 
-  const handleExpenseStatusChange = (id, newStatus) => {
-    setFinances((prev) => ({
-      ...prev,
-      expenses: prev.expenses.map((e) =>
-        e.id === id ? { ...e, status: newStatus } : e
-      ),
-    }));
-    addToast({
-      title: 'Status Updated',
-      message: `Expense claim status changed to "${newStatus}".`,
-      type: 'info',
+  // Save Edit Payroll
+  const handleSaveEditPayroll = (e) => {
+    e.preventDefault();
+    if (!editingPayrollRow) return;
+
+    financeService.updatePayrollEntry(selectedMonth, editingPayrollRow.id, {
+      salary: Number(editForm.salary),
+      leaveTaken: Number(editForm.leaveTaken),
+      bucketAvailable: Number(editForm.bucketAvailable),
+      otherDeduction: Number(editForm.otherDeduction),
+      deductionNotes: editForm.deductionNotes,
+      status: editForm.status,
+      remarks: editForm.remarks,
     });
+
+    addToast({
+      title: 'Payroll Updated ✓',
+      message: `${editingPayrollRow.name}'s salary and leave calculation saved for ${selectedMonth}.`,
+      type: 'success',
+    });
+
+    setEditingPayrollRow(null);
+    loadData();
   };
 
-  const handleDownloadPayslip = (slip) => {
+  // Add Payroll Entry
+  const handleSaveAddPayroll = (e) => {
+    e.preventDefault();
+    if (!addForm.name.trim()) {
+      addToast({ title: 'Name Required', message: 'Please provide employee name.', type: 'warning' });
+      return;
+    }
+
+    const newEntry = {
+      id: `EMP-${Date.now().toString().slice(-4)}`,
+      name: addForm.name.trim(),
+      empCode: addForm.empCode || `CFT-${Math.floor(100 + Math.random() * 900)}`,
+      department: addForm.department,
+      designation: addForm.designation,
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+      salary: Number(addForm.salary),
+      leaveTaken: Number(addForm.leaveTaken),
+      bucketAvailable: Number(addForm.bucketAvailable),
+      otherDeduction: Number(addForm.otherDeduction),
+      deductionNotes: addForm.deductionNotes,
+      status: addForm.status,
+      paymentDate: `28 ${selectedMonth}`,
+      remarks: addForm.remarks,
+    };
+
+    financeService.addPayrollEntry(selectedMonth, newEntry);
+
     addToast({
-      title: 'Downloading Payslip PDF',
-      message: `Payslip for ${slip.month} (${slip.id}) is downloading...`,
+      title: 'Employee Added ✓',
+      message: `${newEntry.name} added to ${selectedMonth} payroll sheet.`,
+      type: 'success',
+    });
+
+    setShowAddPayrollModal(false);
+    loadData();
+  };
+
+  // Delete Payroll Entry
+  const handleDeletePayroll = (row) => {
+    financeService.deletePayrollEntry(selectedMonth, row.id);
+    addToast({
+      title: 'Record Removed',
+      message: `${row.name}'s payroll entry removed for ${selectedMonth}.`,
+      type: 'info',
+    });
+    loadData();
+  };
+
+  // Export to CSV matching the handwritten sheet
+  const handleExportCSV = () => {
+    let csv = `Employee Name,Employee Code,Department,Month,Base Salary (INR),Leaves Taken,Bucket Available,Unpaid Leaves,New Bucket Leave,Other Deductions (INR),Net Payable Salary (INR),Status\n`;
+
+    filteredPayroll.forEach((row) => {
+      csv += `"${row.name}","${row.empCode}","${row.department}","${selectedMonth}",${row.salary},${row.leaveTaken},${row.bucketAvailable},${row.unpaidLeave},${row.newBucket},${row.otherDeduction},${row.payable},"${row.status}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Pulse_Payroll_Calculation_${selectedMonth.replace(/\s+/g, '_')}.csv`;
+    link.click();
+
+    addToast({
+      title: 'Payroll Exported ✓',
+      message: `Downloaded CSV payroll sheet for ${selectedMonth}.`,
       type: 'success',
     });
   };
 
+  // Handle New Expense Claim
   const handleCreateExpense = (e) => {
     e.preventDefault();
-    if (!merchant.trim() || !amount) {
-      addToast({
-        title: 'Missing information',
-        message: 'Please provide merchant name and expense amount.',
-        type: 'warning',
-      });
+    if (!expenseForm.merchant.trim() || !expenseForm.amount) {
+      addToast({ title: 'Missing Information', message: 'Please provide merchant and amount.', type: 'warning' });
       return;
     }
 
     financeService.addExpense({
-      category,
-      merchant: merchant.trim(),
-      amount: `$${parseFloat(amount).toFixed(2)}`,
-      notes,
+      category: expenseForm.category,
+      merchant: expenseForm.merchant.trim(),
+      amount: `₹${parseFloat(expenseForm.amount).toFixed(2)}`,
+      notes: expenseForm.notes,
     });
 
     addToast({
       title: 'Expense Claim Submitted',
-      message: `Claim for $${parseFloat(amount).toFixed(
-        2
-      )} at ${merchant.trim()} queued for Finance approval.`,
+      message: `Claim for ₹${expenseForm.amount} queued for approval.`,
       type: 'success',
     });
 
-    loadFinances();
     setShowExpenseModal(false);
-    setMerchant('');
-    setAmount('');
-    setNotes('');
+    setExpenseForm({ category: 'Home Office Setup', merchant: '', amount: '', notes: '' });
+    loadData();
   };
 
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    setStatusFilter('All');
-    setCategoryFilter('All');
-    setPeriodFilter('all');
-    setFromDate('');
-    setToDate('');
-    addToast({
-      title: 'Filters Cleared',
-      message: `Reset filters for ${
-        activeTab === 'payslips' ? 'Monthly Payslips' : 'Expense Claims'
-      }.`,
-      type: 'info',
-    });
+  // Format currency helper
+  const formatCurrency = (val) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(val || 0);
   };
 
-  if (!finances) return null;
-
-  // Filter Payslips
-  const filteredPayslips = (finances.payslips || []).filter((p) => {
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !q ||
-      p.month.toLowerCase().includes(q) ||
-      p.payPeriod.toLowerCase().includes(q) ||
-      p.id.toLowerCase().includes(q);
-
-    const matchesStatus =
-      statusFilter === 'All' ||
-      p.status.toLowerCase() === statusFilter.toLowerCase();
-
-    let matchesDate = true;
-    if (periodFilter !== 'all') {
-      const pDate = new Date(p.paymentDate || p.month);
-      const now = new Date();
-      if (!isNaN(pDate.getTime())) {
-        if (periodFilter === 'this-month') {
-          matchesDate =
-            pDate.getMonth() === now.getMonth() &&
-            pDate.getFullYear() === now.getFullYear();
-        } else if (periodFilter === 'last-month') {
-          const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
-          const lastYear =
-            now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-          matchesDate =
-            pDate.getMonth() === lastMonth && pDate.getFullYear() === lastYear;
-        } else if (periodFilter === 'this-year') {
-          matchesDate = pDate.getFullYear() === now.getFullYear();
-        } else if (periodFilter === 'custom') {
-          if (fromDate) {
-            const from = new Date(fromDate);
-            from.setHours(0, 0, 0, 0);
-            if (pDate < from) matchesDate = false;
-          }
-          if (toDate) {
-            const to = new Date(toDate);
-            to.setHours(23, 59, 59, 999);
-            if (pDate > to) matchesDate = false;
-          }
-        }
-      }
-    }
-
-    return matchesSearch && matchesStatus && matchesDate;
-  });
-
-  // Filter Expenses
-  const filteredExpenses = (finances.expenses || []).filter((e) => {
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !q ||
-      e.id.toLowerCase().includes(q) ||
-      e.merchant.toLowerCase().includes(q) ||
-      e.category.toLowerCase().includes(q) ||
-      (e.notes && e.notes.toLowerCase().includes(q));
-
-    const matchesStatus =
-      statusFilter === 'All' ||
-      e.status.toLowerCase() === statusFilter.toLowerCase();
-
-    const matchesCat =
-      categoryFilter === 'All' ||
-      e.category.toLowerCase() === categoryFilter.toLowerCase();
-
-    let matchesDate = true;
-    if (periodFilter !== 'all') {
-      const eDate = new Date(e.date);
-      const now = new Date();
-      if (!isNaN(eDate.getTime())) {
-        if (periodFilter === 'today') {
-          matchesDate = eDate.toDateString() === now.toDateString();
-        } else if (periodFilter === 'this-month') {
-          matchesDate =
-            eDate.getMonth() === now.getMonth() &&
-            eDate.getFullYear() === now.getFullYear();
-        } else if (periodFilter === 'this-year') {
-          matchesDate = eDate.getFullYear() === now.getFullYear();
-        } else if (periodFilter === 'custom') {
-          if (fromDate) {
-            const from = new Date(fromDate);
-            from.setHours(0, 0, 0, 0);
-            if (eDate < from) matchesDate = false;
-          }
-          if (toDate) {
-            const to = new Date(toDate);
-            to.setHours(23, 59, 59, 999);
-            if (eDate > to) matchesDate = false;
-          }
-        }
-      }
-    }
-
-    return matchesSearch && matchesStatus && matchesCat && matchesDate;
-  });
-
-  // Financial View Dropdown Configuration
-  const typeFilterConfig = {
-    payslips: {
-      label: 'Monthly Payslips',
-      count: (finances.payslips || []).length,
-      icon: <FileText className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.2]" />,
-      pillClass:
-        'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE] hover:bg-blue-100/70',
-      badgeClass: 'bg-[#DBEAFE] text-[#1D4ED8]',
-    },
-    expenses: {
-      label: 'Expense Claims',
-      count: (finances.expenses || []).length,
-      icon: <Receipt className="w-3.5 h-3.5 text-purple-600 stroke-[2.2]" />,
-      pillClass:
-        'bg-[#FAF5FF] text-purple-700 border-[#E9D5FF] hover:bg-purple-100/70',
-      badgeClass: 'bg-[#F3E8FF] text-[#6B21A8]',
-    },
-  };
-
-  const currentTypeConfig =
-    typeFilterConfig[activeTab] || typeFilterConfig.payslips;
-
-  const currentFilteredData =
-    activeTab === 'payslips' ? filteredPayslips : filteredExpenses;
-  const currentTotalData =
-    activeTab === 'payslips' ? finances.payslips : finances.expenses;
-
-  // Single-Row Filter Bar matching Candidates design
-  const financeFilterBar = (
-    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-      {/* Left: All Filters in 1 Row */}
-      <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
-        {/* 1. View Type Dropdown Pill (Payslips / Expenses) */}
-        <div className="relative flex-shrink-0" ref={typeDropdownRef}>
-          <button
-            type="button"
-            onClick={() => setShowTypeDropdown((prev) => !prev)}
-            className={`inline-flex items-center gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentTypeConfig.pillClass}`}
-          >
-            <span className="flex-shrink-0">{currentTypeConfig.icon}</span>
-            <span>
-              {currentTypeConfig.label} ({currentTypeConfig.count})
-            </span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                showTypeDropdown ? 'rotate-180' : ''
-              }`}
-            />
-          </button>
-
-          {/* View Type Dropdown Popover */}
-          {showTypeDropdown && (
-            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[220px] animate-fade-in text-left">
-              <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider border-b border-[#F1F5F9] mb-1">
-                Select Finance View
-              </div>
-              {Object.entries(typeFilterConfig).map(([key, cfg]) => {
-                const isSelected = activeTab === key;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => {
-                      setActiveTab(key);
-                      setStatusFilter('All');
-                      setCategoryFilter('All');
-                      setShowTypeDropdown(false);
-                    }}
-                    className={`w-full px-3.5 py-2 text-xs flex items-center justify-between gap-3 transition-colors cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#F8FAFC] font-bold'
-                        : 'hover:bg-[#F8FAFC] font-medium text-[#4E5D78]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="flex-shrink-0">{cfg.icon}</span>
-                      <span className={isSelected ? 'text-[#172033]' : ''}>
-                        {cfg.label}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.badgeClass}`}
-                      >
-                        {cfg.count}
-                      </span>
-                      {isSelected && (
-                        <Check className="w-3.5 h-3.5 text-[#2563EB] stroke-[2.5]" />
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* 2. Search Bar */}
-        <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            placeholder={
-              activeTab === 'payslips'
-                ? 'Search pay period, month, ID...'
-                : 'Search merchant, expense ID, notes...'
-            }
-          />
-        </div>
-
-        {/* 3. Quick Period Dropdown */}
-        <div className="relative min-w-[150px] flex-shrink-0">
-          <select
-            value={periodFilter}
-            onChange={(e) => {
-              const val = e.target.value;
-              setPeriodFilter(val);
-              if (val !== 'custom') {
-                setFromDate('');
-                setToDate('');
-              }
-            }}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            <option value="all">All Dates</option>
-            {activeTab === 'expenses' && <option value="today">Today</option>}
-            <option value="this-month">This Month</option>
-            <option value="last-month">Last Month</option>
-            <option value="this-year">This Year</option>
-            <option value="custom">Custom Date Range...</option>
-          </select>
-          <Calendar className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
-
-        {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
-        {periodFilter === 'custom' && (
-          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] flex-shrink-0">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
-              <span className="text-[11px] text-[#8292AD]">From:</span>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="px-2 py-1 h-7 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
-              />
-            </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
-              <span className="text-[11px] text-[#8292AD]">To:</span>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="px-2 py-1 h-7 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#172033] font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* 5. Status Filter Dropdown */}
-        <div className="relative min-w-[145px] flex-shrink-0">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            <option value="All">All Statuses</option>
-            {activeTab === 'payslips' ? (
-              <>
-                <option value="Paid">Paid</option>
-                <option value="Processing">Processing</option>
-                <option value="Pending">Pending</option>
-              </>
-            ) : (
-              <>
-                <option value="Approved">Approved</option>
-                <option value="Processing">Processing</option>
-                <option value="Reimbursed">Reimbursed</option>
-                <option value="Declined">Declined</option>
-              </>
-            )}
-          </select>
-          <CheckCircle className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
-
-        {/* 6. Category Filter Dropdown (for Expense Claims) */}
-        {activeTab === 'expenses' && (
-          <div className="relative min-w-[160px] flex-shrink-0">
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-            >
-              <option value="All">All Categories</option>
-              <option value="Home Office Setup">Home Office Setup</option>
-              <option value="Client Dinner / Travel">Client Dinner / Travel</option>
-              <option value="Conference Registration">Conference Registration</option>
-              <option value="Software & Subscriptions">Software & Subscriptions</option>
-              <option value="Wellness & Medical">Wellness & Medical</option>
-            </select>
-            <Receipt className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-        )}
-      </div>
-
-      {/* Right: Clear with cross + Live Filter Counter + Refresh */}
-      <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
-        {/* Clear Button with Cross - Very Small */}
-        <button
-          type="button"
-          onClick={handleResetFilters}
-          title="Clear all filters"
-          className="inline-flex items-center gap-1 px-2.5 h-7 text-[11px] font-bold rounded-lg text-[#DC2626] bg-[#FEF2F2] hover:bg-rose-100 border border-[#FECACA] transition-all cursor-pointer shadow-2xs whitespace-nowrap active:scale-95"
-        >
-          <X className="w-3 h-3 stroke-[2.5]" />
-          <span>Clear</span>
-        </button>
-
-        {/* Divider */}
-        <div className="h-6 w-px bg-[#E5EAF2] hidden sm:block mx-0.5" />
-
-        {/* Live Filter Counter + Refresh */}
-        <div className="text-xs text-[#8292AD] font-medium flex items-center gap-1.5 whitespace-nowrap select-none">
-          <span>
-            Filtered: {currentFilteredData.length} Shown of {currentTotalData.length}
-          </span>
-          <button
-            onClick={() => loadFinances()}
-            title="Refresh Financial Records"
-            className="p-1 hover:bg-[#F8FAFC] rounded-lg transition-transform active:rotate-180 cursor-pointer"
-          >
-            <RotateCw className="w-3.5 h-3.5 text-[#8292AD] hover:text-[#2563EB] transition-colors" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const payslipColumns = [
+  // --- TABLE COLUMNS CONFIGURATION (MATCHING USER HANDWRITTEN SHEET) ---
+  const payrollColumns = [
     {
-      header: 'PAY PERIOD',
-      accessor: 'month',
+      header: 'EMPLOYEE LIST',
+      accessor: 'name',
       render: (row) => (
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold text-xs">
-            <FileText className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="font-bold text-[#172033] text-xs">{row.month}</div>
-            <div className="text-[10px] text-[#8292AD] font-medium">
-              {row.payPeriod}
+          <img
+            src={row.avatar}
+            alt={row.name}
+            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0"
+          />
+          <div className="min-w-0">
+            <div
+              onClick={() => setSelectedPayslipRow(row)}
+              className="font-bold text-[#172033] text-xs hover:text-[#2563EB] cursor-pointer truncate"
+              title={`View ${row.name} payslip`}
+            >
+              {row.name}
+            </div>
+            <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5">
+              <span className="font-mono text-slate-700">{row.empCode}</span>
+              <span>•</span>
+              <span>{row.department}</span>
             </div>
           </div>
         </div>
       ),
     },
     {
-      header: 'BASIC PAY',
-      accessor: 'basicPay',
+      header: 'SALARY',
+      accessor: 'salary',
       render: (row) => (
-        <span className="text-xs font-bold text-[#172033]">
-          {row.basicPay}
+        <span className="font-bold text-[#172033] text-xs">
+          {formatCurrency(row.salary)}
         </span>
       ),
     },
     {
-      header: 'ALLOWANCES',
-      accessor: 'allowances',
+      header: 'LEAVE TAKEN',
+      accessor: 'leaveTaken',
       render: (row) => (
-        <span className="text-xs font-bold text-emerald-600">
-          +{row.allowances}
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+          <Calendar className="w-3 h-3 text-slate-500" />
+          <span>{row.leaveTaken} {row.leaveTaken === 1 ? 'Day' : 'Days'}</span>
         </span>
       ),
     },
     {
-      header: 'DEDUCTIONS',
-      accessor: 'taxDeduction',
+      header: 'BUCKET AVAILABLE',
+      accessor: 'bucketAvailable',
       render: (row) => (
-        <span className="text-xs font-bold text-rose-600">
-          -{row.taxDeduction}
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1D4ED8] border border-blue-200">
+          <Wallet className="w-3 h-3 text-[#2563EB]" />
+          <span>{row.bucketAvailable} {row.bucketAvailable === 1 ? 'Day' : 'Days'}</span>
         </span>
       ),
     },
     {
-      header: 'NET DISBURSED',
-      accessor: 'netSalary',
+      header: 'UNPAID LEAVE',
+      accessor: 'unpaidLeave',
+      render: (row) => {
+        if (row.unpaidLeave > 0) {
+          return (
+            <span
+              title={`Deduction: -${formatCurrency(row.unpaidDeductionAmount)} (${daysInCurrentMonth} days divisor)`}
+              className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200"
+            >
+              <AlertTriangle className="w-3 h-3 text-rose-600" />
+              <span>{row.unpaidLeave} {row.unpaidLeave === 1 ? 'Day' : 'Days'} LOP</span>
+            </span>
+          );
+        }
+        return (
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <Check className="w-3 h-3 text-emerald-600" />
+            <span>0 Days</span>
+          </span>
+        );
+      },
+    },
+    {
+      header: 'NEW BUCKET',
+      accessor: 'newBucket',
       render: (row) => (
-        <span className="text-xs font-black text-[#172033]">
-          {row.netSalary}
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-[#008080] border border-teal-200">
+          <Layers className="w-3 h-3 text-[#008080]" />
+          <span>{row.newBucket} {row.newBucket === 1 ? 'Day' : 'Days'}</span>
         </span>
       ),
     },
     {
-      header: 'STATUS',
-      accessor: 'status',
-      align: 'center',
+      header: 'OTHER DEDUCTION',
+      accessor: 'otherDeduction',
       render: (row) => (
-        <StatusBadge
-          status={row.status}
-          size="xs"
-          showChevron={true}
-          onStatusChange={(newStatus) =>
-            handlePayslipStatusChange(row.id, newStatus)
-          }
-        />
-      ),
-    },
-  ];
-
-  const expenseColumns = [
-    {
-      header: 'EXPENSE ID / DATE',
-      accessor: 'id',
-      render: (row) => (
-        <div>
-          <div className="font-bold text-[#172033] text-xs">{row.id}</div>
-          <div className="text-[10px] text-[#8292AD] font-medium">
-            {row.date}
-          </div>
+        <div className="flex flex-col">
+          <span className="font-semibold text-rose-700 text-xs">
+            -{formatCurrency(row.otherDeduction)}
+          </span>
+          {row.deductionNotes && (
+            <span className="text-[9.5px] text-[#8292AD] truncate max-w-[120px]" title={row.deductionNotes}>
+              {row.deductionNotes}
+            </span>
+          )}
         </div>
       ),
     },
     {
-      header: 'CATEGORY',
-      accessor: 'category',
+      header: 'PAYABLE SALARY',
+      accessor: 'payable',
       render: (row) => (
-        <span className="text-[11px] font-semibold text-[#172033] px-2.5 py-0.5 rounded-full bg-[#F7F9FC] border border-[#E5EAF2]">
-          {row.category}
-        </span>
-      ),
-    },
-    {
-      header: 'MERCHANT',
-      accessor: 'merchant',
-      render: (row) => (
-        <span className="text-xs text-[#4E5D78] font-medium">
-          {row.merchant}
-        </span>
-      ),
-    },
-    {
-      header: 'CLAIM AMOUNT',
-      accessor: 'amount',
-      render: (row) => (
-        <span className="text-xs font-black text-[#172033]">
-          {row.amount}
-        </span>
-      ),
-    },
-    {
-      header: 'STATUS',
-      accessor: 'status',
-      align: 'center',
-      render: (row) => (
-        <StatusBadge
-          status={row.status}
-          size="xs"
-          showChevron={true}
-          onStatusChange={(newStatus) =>
-            handleExpenseStatusChange(row.id, newStatus)
-          }
-        />
+        <div className="flex flex-col">
+          <span className="font-black text-emerald-700 text-sm">
+            {formatCurrency(row.payable)}
+          </span>
+          <span className="text-[9.5px] text-emerald-600 font-bold flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span>{row.status}</span>
+          </span>
+        </div>
       ),
     },
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
-      {/* Header */}
+    <div className="space-y-6 animate-fade-in pb-16">
+      {/* 1. Page Header */}
       <PageHeader
-        title="Payroll & Finances"
-        badgeText="Admin Finance Hub"
-        subtitle="Manage company payroll distributions, tax compliance, and team expense reimbursements."
+        title="Finance & Payroll"
+        badgeText="Executive Disbursement"
+        subtitle="Manage monthly workforce salary calculations, leave buckets, loss of pay deductions, and payslips."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Finances' }]}
         actions={
-          <button
-            onClick={() => setShowExpenseModal(true)}
-            className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 stroke-[2.5]" />
-            <span>Process Reimbursement</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Export CSV Button (Matching Handwritten Sheet) */}
+            <button
+              onClick={handleExportCSV}
+              className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-white border border-[#E5EAF2] text-[#172033] hover:bg-slate-50 shadow-2xs transition-all cursor-pointer"
+              title="Download full monthly payroll calculations CSV"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-500" />
+              <span>Export CSV</span>
+            </button>
+
+            {/* Primary Action Button */}
+            {activeTab === 'payroll' ? (
+              <button
+                onClick={() => setShowAddPayrollModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>Add Record</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowExpenseModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>New Expense Claim</span>
+              </button>
+            )}
+          </div>
         }
       />
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title="Monthly Base Pay"
-          value={finances.summary.baseSalary}
-          subtext="Gross monthly contract"
-          badgeText="Active"
-          badgeType="success"
-          icon={CreditCard}
-          iconBg="bg-blue-50 text-[#2563EB]"
-        />
-        <StatsCard
-          title="Net Take-Home"
-          value={finances.summary.netPayable}
-          subtext="Direct deposit on 30th"
-          badgeText="Disbursed"
-          badgeType="success"
-          icon={DollarSign}
-          iconBg="bg-emerald-50 text-emerald-600"
-        />
-        <StatsCard
-          title="Taxes & Benefits"
-          value={finances.summary.deductions}
-          subtext="Federal, state, and 401(k)"
-          badgeText="19.3%"
-          badgeType="default"
-          icon={TrendingDown}
-          iconBg="bg-amber-50 text-amber-600"
-        />
-        <StatsCard
-          title="Reimbursements"
-          value={finances.summary.reimbursements}
-          subtext="Approved Q4 claims"
-          badgeText="Pending Deposit"
-          badgeType="default"
-          icon={Receipt}
-          iconBg="bg-purple-50 text-purple-600"
-        />
+      {/* 2. Top Summary Metrics Cards for Selected Month */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: Total Net Payable */}
+        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Net Payable</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <DollarSign className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-emerald-950 mt-2">
+            {formatCurrency(summaryMetrics.totalPayable)}
+          </div>
+          <div className="text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1">
+            <span>Cycle: {selectedMonth}</span>
+          </div>
+        </div>
+
+        {/* Card 2: Total Gross Base Salary */}
+        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Gross Base Payroll</span>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold">
+              <CreditCard className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-[#172033] mt-2">
+            {formatCurrency(summaryMetrics.totalGross)}
+          </div>
+          <div className="text-[11px] text-[#8292AD] font-semibold mt-0.5">
+            {summaryMetrics.headcount} Total Employees
+          </div>
+        </div>
+
+        {/* Card 3: Total Unpaid LOP Leaves */}
+        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Unpaid LOP Leaves</span>
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-rose-700 mt-2">
+            {summaryMetrics.totalUnpaidLeaves} Days
+          </div>
+          <div className="text-[11px] text-rose-600 font-semibold mt-0.5">
+            -{formatCurrency(summaryMetrics.totalUnpaidDeduction)} deducted
+          </div>
+        </div>
+
+        {/* Card 4: Total Other Deductions */}
+        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Other Deductions</span>
+            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+              <Receipt className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-2xl font-black text-[#172033] mt-2">
+            {formatCurrency(summaryMetrics.totalOtherDeductions)}
+          </div>
+          <div className="text-[11px] text-purple-700 font-semibold mt-0.5">
+            PF, ESI, Taxes & Advances
+          </div>
+        </div>
       </div>
 
-      {/* Table Content with Filter Bar matching Candidates design */}
-      {activeTab === 'payslips' ? (
-        <DataTable
-          columns={payslipColumns}
-          data={filteredPayslips}
-          pageSize={6}
-          filterBar={financeFilterBar}
-          entityName="statements"
-          emptyMessage="No payslips match your search"
-          emptySubtext="Try adjusting your status or clearing search query."
-          actions={(row) => (
-            <div className="inline-flex items-center justify-end gap-1.5">
-              <button
-                onClick={() => handleDownloadPayslip(row)}
-                title="Download Payslip PDF"
-                className="w-7 h-7 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 flex items-center justify-center hover:bg-blue-100 hover:scale-105 transition-all shadow-2xs cursor-pointer"
+      {/* 3. View Switcher Tabs Bar */}
+      <div className="flex items-center gap-2 border-b border-[#E5EAF2] pb-1 overflow-x-auto no-scrollbar">
+        {[
+          { id: 'payroll', label: 'Monthly Payroll Calculation', count: filteredPayroll.length, icon: Briefcase },
+          { id: 'payslips', label: 'My Personal Payslips', count: finances?.payslips?.length || 4, icon: FileText },
+          { id: 'expenses', label: 'Expense Claims', count: finances?.expenses?.length || 6, icon: Receipt },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-2xl whitespace-nowrap transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#2563EB] text-white shadow-md shadow-blue-500/20'
+                  : 'text-[#8292AD] hover:text-[#172033] hover:bg-white border border-transparent'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+              <span
+                className={`text-[9.5px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                }`}
               >
-                <Download className="w-3.5 h-3.5" />
-              </button>
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* VIEW 1: MONTHLY PAYROLL CALCULATION (CORE REQUIREMENT)                    */}
+      {/* ========================================================================= */}
+      {activeTab === 'payroll' && (
+        <DataTable
+          columns={payrollColumns}
+          data={filteredPayroll}
+          pageSize={8}
+          entityName="employees"
+          emptyMessage="No payroll records found"
+          emptySubtext="Try selecting another month from the filter dropdown or adjusting your search."
+          filterBar={
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+              {/* Left Side: Month Dropdown + Prev/Next Buttons + Search + Dept Filter */}
+              <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+                {/* 1. Month Selector Dropdown (with Prev / Next buttons) */}
+                <div className="flex items-center gap-1 border border-[#BFDBFE] rounded-xl p-0.5 bg-[#EFF6FF] shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={handlePrevMonth}
+                    title="Previous Month"
+                    className="p-1.5 rounded-lg hover:bg-blue-100 text-[#2563EB] transition-colors cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="relative">
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className="appearance-none pl-7 pr-7 h-7 text-xs font-extrabold rounded-lg bg-transparent text-[#2563EB] focus:outline-none cursor-pointer"
+                    >
+                      {payrollMonthsList.map((m) => (
+                        <option key={m.key} value={m.key} className="text-[#172033] font-semibold">
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Calendar className="w-3.5 h-3.5 text-[#2563EB] absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown className="w-3 h-3 text-[#2563EB] absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleNextMonth}
+                    title="Next Month"
+                    className="p-1.5 rounded-lg hover:bg-blue-100 text-[#2563EB] transition-colors cursor-pointer"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* 2. Search Input */}
+                <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
+                  <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    onClear={() => setSearchQuery('')}
+                    placeholder="Search Anuj, Ajay, Bharat, code..."
+                  />
+                </div>
+
+                {/* 3. Department Dropdown */}
+                <div className="relative min-w-[145px] flex-shrink-0">
+                  <select
+                    value={departmentFilter}
+                    onChange={(e) => setDepartmentFilter(e.target.value)}
+                    className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+                  >
+                    <option value="All">All Departments</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Web Design">Web Design</option>
+                    <option value="Frontend Tech">Frontend Tech</option>
+                    <option value="People Operations">People Operations</option>
+                    <option value="Product Design">Product Design</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Data & Analytics">Data & Analytics</option>
+                    <option value="Security & QA">Security & QA</option>
+                  </select>
+                  <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* 4. Status Filter */}
+                <div className="relative min-w-[130px] flex-shrink-0">
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+                  >
+                    <option value="All">All Statuses</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Processed">Processed</option>
+                    <option value="Pending">Pending</option>
+                  </select>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                {/* Clear Filter Button */}
+                {(searchQuery || departmentFilter !== 'All' || statusFilter !== 'All') && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setDepartmentFilter('All');
+                      setStatusFilter('All');
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-semibold rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors shadow-2xs cursor-pointer flex-shrink-0"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Clear</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Right Side: Refresh & Count Indicator */}
+              <div className="flex items-center gap-2 text-xs text-[#8292AD] font-medium flex-shrink-0 select-none">
+                <span>
+                  Showing {filteredPayroll.length} of {payrollData.length} records
+                </span>
+                <button
+                  onClick={loadData}
+                  title="Recalculate and Refresh"
+                  className="p-1 hover:bg-[#F8FAFC] rounded-lg transition-transform active:rotate-180 cursor-pointer"
+                >
+                  <RotateCw className="w-3.5 h-3.5 text-[#8292AD] hover:text-[#2563EB]" />
+                </button>
+              </div>
             </div>
-          )}
-        />
-      ) : (
-        <DataTable
-          columns={expenseColumns}
-          data={filteredExpenses}
-          pageSize={6}
-          filterBar={financeFilterBar}
-          entityName="claims"
-          emptyMessage="No expense claims match your search"
-          emptySubtext="Try selecting another category or clearing search query."
+          }
           actions={(row) => (
             <div className="inline-flex items-center justify-end gap-1.5">
+              {/* View Payslip */}
               <button
-                onClick={() =>
-                  addToast({
-                    title: 'Expense Claim Approved',
-                    message: `Claim for ${row.id} marked as Approved.`,
-                    type: 'success',
-                  })
-                }
-                title="Approve Claim"
-                className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center hover:bg-emerald-100 hover:scale-105 transition-all shadow-2xs cursor-pointer"
+                type="button"
+                onClick={() => setSelectedPayslipRow(row)}
+                title={`View ${row.name}'s Salary Slip`}
+                className="w-7 h-7 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
               >
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                <Eye className="w-3.5 h-3.5 text-[#2563EB]" />
               </button>
+
+              {/* Edit / Adjust Calculation */}
               <button
-                onClick={() =>
-                  addToast({
-                    title: 'Expense Claim Declined',
-                    message: `Claim for ${row.id} declined.`,
-                    type: 'error',
-                  })
-                }
-                title="Decline Claim"
-                className="w-7 h-7 rounded-full bg-rose-50 text-rose-500 border border-rose-200 flex items-center justify-center hover:bg-rose-100 hover:scale-105 transition-all shadow-2xs cursor-pointer"
+                type="button"
+                onClick={() => handleOpenEdit(row)}
+                title={`Adjust ${row.name}'s salary or deductions`}
+                className="w-7 h-7 rounded-full bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
               >
-                <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                <Edit2 className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Delete */}
+              <button
+                type="button"
+                onClick={() => handleDeletePayroll(row)}
+                title={`Remove ${row.name} from ${selectedMonth}`}
+                className="w-7 h-7 rounded-full bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
         />
       )}
 
-      {/* Claim Expense Modal */}
-      {showExpenseModal && (
-        <Modal
-          isOpen={showExpenseModal}
-          onClose={() => setShowExpenseModal(false)}
-          title="Submit Expense Claim"
-          subtitle="Upload receipt and specify business expense category"
-        >
-          <form onSubmit={handleCreateExpense} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                Expense Category *
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white"
+      {/* ========================================================================= */}
+      {/* VIEW 2: MY PERSONAL PAYSLIPS (PRESERVED PREVIOUS FEATURE)                 */}
+      {/* ========================================================================= */}
+      {activeTab === 'payslips' && finances && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {finances.payslips.map((slip) => (
+              <div
+                key={slip.id}
+                className="p-5 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-blue-300 transition-all flex flex-col justify-between"
               >
-                <option value="Home Office Setup">Home Office Setup</option>
-                <option value="Client Dinner / Travel">Client Dinner / Travel</option>
-                <option value="Conference Registration">Conference Registration</option>
-                <option value="Software & Subscriptions">Software & Subscriptions</option>
-                <option value="Wellness & Medical">Wellness & Medical</option>
-              </select>
-            </div>
+                <div>
+                  <div className="flex items-center justify-between pb-2 border-b border-[#F7F9FC]">
+                    <span className="text-xs font-bold text-[#172033]">{slip.month}</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {slip.status}
+                    </span>
+                  </div>
+                  <div className="text-xl font-black text-emerald-700 mt-3">{slip.netSalary}</div>
+                  <p className="text-[11px] text-[#8292AD] mt-1 font-mono">ID: {slip.id}</p>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Merchant / Vendor Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={merchant}
-                  onChange={(e) => setMerchant(e.target.value)}
-                  placeholder="e.g. Delta Airlines, AWS"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-                />
+                <div className="pt-3 border-t border-[#E5EAF2] mt-4 flex items-center justify-between">
+                  <span className="text-[10px] text-slate-500">{slip.paymentDate}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addToast({
+                        title: 'Downloading Payslip',
+                        message: `Payslip for ${slip.month} downloaded.`,
+                        type: 'success',
+                      });
+                    }}
+                    className="p-1.5 rounded-lg border border-[#E5EAF2] text-slate-600 hover:bg-blue-50 hover:text-[#2563EB] cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
+      {/* ========================================================================= */}
+      {/* VIEW 3: EXPENSE CLAIMS (PRESERVED PREVIOUS FEATURE)                       */}
+      {activeTab === 'expenses' && finances && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {finances.expenses.map((exp) => (
+              <div
+                key={exp.id}
+                className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+                    <Receipt className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-[#172033]">{exp.merchant}</h4>
+                    <span className="text-[10px] text-[#8292AD]">{exp.category}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-black text-[#172033]">{exp.amount}</span>
+                  <span className="block text-[10px] font-bold text-amber-600">{exp.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODALS SECTION                                                           */}
+      {/* ========================================================================= */}
+
+      {/* Modal 1: Edit / Adjust Payroll Calculation Modal */}
+      {editingPayrollRow && (
+        <Modal
+          isOpen={!!editingPayrollRow}
+          onClose={() => setEditingPayrollRow(null)}
+          title={`Adjust Payroll: ${editingPayrollRow.name}`}
+          subtitle={`Calculation sheet for ${selectedMonth} (${daysInCurrentMonth} calendar days)`}
+          maxWidth="max-w-xl"
+        >
+          <form onSubmit={handleSaveEditPayroll} className="space-y-4 text-xs">
+            {/* Live Calculation Preview Banner */}
+            {(() => {
+              const preview = calculatePayrollRow(
+                {
+                  ...editingPayrollRow,
+                  salary: Number(editForm.salary) || 0,
+                  leaveTaken: Number(editForm.leaveTaken) || 0,
+                  bucketAvailable: Number(editForm.bucketAvailable) || 0,
+                  otherDeduction: Number(editForm.otherDeduction) || 0,
+                },
+                daysInCurrentMonth
+              );
+
+              return (
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-50/80 via-indigo-50/40 to-slate-50 border border-blue-200">
+                  <div className="flex items-center justify-between pb-2 border-b border-blue-100">
+                    <span className="font-extrabold text-[#172033] text-xs">Live Calculation Preview</span>
+                    <span className="text-base font-black text-emerald-700">
+                      Net: {formatCurrency(preview.payable)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2 text-[10.5px] pt-2 text-[#172033]">
+                    <div>
+                      <span className="text-[#8292AD] block">Gross Salary:</span>
+                      <strong className="font-bold">{formatCurrency(preview.salary)}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#8292AD] block">Unpaid (LOP):</span>
+                      <strong className="text-rose-700 font-bold">{preview.unpaidLeave} Days</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#8292AD] block">New Bucket:</span>
+                      <strong className="text-teal-700 font-bold">{preview.newBucket} Days</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#8292AD] block">Total Deductions:</span>
+                      <strong className="text-rose-700 font-bold">
+                        -{formatCurrency(preview.unpaidDeductionAmount + preview.otherDeduction)}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                  Amount (USD) *
-                </label>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Base Monthly Salary (₹) *</label>
                 <input
                   type="number"
-                  step="0.01"
-                  min="1"
                   required
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+                  value={editForm.salary}
+                  onChange={(e) => setEditForm({ ...editForm, salary: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Payment Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                >
+                  <option value="Paid">Paid</option>
+                  <option value="Processed">Processed</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Leaves Taken in {selectedMonth} *</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="31"
+                  required
+                  value={editForm.leaveTaken}
+                  onChange={(e) => setEditForm({ ...editForm, leaveTaken: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Available Bucket Leaves *</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="30"
+                  required
+                  value={editForm.bucketAvailable}
+                  onChange={(e) => setEditForm({ ...editForm, bucketAvailable: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Other Deductions (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={editForm.otherDeduction}
+                  onChange={(e) => setEditForm({ ...editForm, otherDeduction: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Deduction Notes / Remarks</label>
+                <input
+                  type="text"
+                  placeholder="e.g. PF + PT + Advance Repayment"
+                  value={editForm.deductionNotes}
+                  onChange={(e) => setEditForm({ ...editForm, deductionNotes: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#172033] mb-1.5">
-                Notes / Justification
-              </label>
-              <textarea
-                rows={2}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Explain the business purpose of this expenditure..."
-                className="w-full px-3.5 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-3 border-t border-[#E5EAF2]">
+            <div className="flex justify-end gap-2.5 pt-3 border-t border-[#E5EAF2]">
               <button
                 type="button"
-                onClick={() => setShowExpenseModal(false)}
-                className="px-4 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#8292AD] hover:bg-[#F7F9FC] cursor-pointer"
+                onClick={() => setEditingPayrollRow(null)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-slate-600 hover:bg-slate-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 text-xs font-semibold rounded-xl bg-[#2563EB] text-white hover:bg-blue-700 shadow-sm cursor-pointer"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm cursor-pointer"
+              >
+                Save Calculation
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Modal 2: Employee Monthly Salary Slip Modal */}
+      {selectedPayslipRow && (
+        <Modal
+          isOpen={!!selectedPayslipRow}
+          onClose={() => setSelectedPayslipRow(null)}
+          title={`Salary Slip: ${selectedPayslipRow.name}`}
+          subtitle={`Pay Period: ${selectedMonth} • Disbursed ${selectedPayslipRow.paymentDate}`}
+          maxWidth="max-w-lg"
+        >
+          <div className="space-y-4 text-xs">
+            {/* Payslip Header Card */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/70 to-indigo-50/30 border border-blue-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <img
+                  src={selectedPayslipRow.avatar}
+                  alt={selectedPayslipRow.name}
+                  className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white shadow-xs"
+                />
+                <div>
+                  <h3 className="text-base font-extrabold text-[#172033]">{selectedPayslipRow.name}</h3>
+                  <p className="text-[11px] text-[#8292AD] font-medium">
+                    ID: <strong className="text-slate-800">{selectedPayslipRow.empCode}</strong> • {selectedPayslipRow.department}
+                  </p>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                {selectedPayslipRow.status}
+              </span>
+            </div>
+
+            {/* Salary Breakdown Table */}
+            <div className="border border-[#E5EAF2] rounded-2xl overflow-hidden divide-y divide-[#E5EAF2]">
+              <div className="bg-slate-50/80 px-4 py-2 text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex justify-between">
+                <span>Earnings Breakdown</span>
+                <span>Amount (INR)</span>
+              </div>
+              <div className="p-3.5 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Base Monthly Salary</span>
+                  <span className="font-bold text-[#172033]">{formatCurrency(selectedPayslipRow.salary)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Special Allowances & HRA</span>
+                  <span className="font-semibold text-slate-700">Included in Base</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-50/80 px-4 py-2 text-[11px] font-extrabold text-slate-700 uppercase tracking-wider flex justify-between">
+                <span>Leaves & Deductions</span>
+                <span>Amount (INR)</span>
+              </div>
+              <div className="p-3.5 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-600">
+                    Loss of Pay ({selectedPayslipRow.unpaidLeave} Unpaid Days / {daysInCurrentMonth} days)
+                  </span>
+                  <span className="font-bold text-rose-700">
+                    -{formatCurrency(selectedPayslipRow.unpaidDeductionAmount)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">
+                    Other Deductions ({selectedPayslipRow.deductionNotes || 'Statutory'})
+                  </span>
+                  <span className="font-bold text-rose-700">
+                    -{formatCurrency(selectedPayslipRow.otherDeduction)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Net Pay Total Banner */}
+              <div className="p-4 bg-emerald-50/60 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-extrabold text-emerald-900 block">Net Payable Salary</span>
+                  <span className="text-xs text-emerald-700">Disbursed via Corporate Transfer</span>
+                </div>
+                <span className="text-2xl font-black text-emerald-800">
+                  {formatCurrency(selectedPayslipRow.payable)}
+                </span>
+              </div>
+            </div>
+
+            {/* Leave Bucket Balance Status */}
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 text-[11px] flex items-center justify-between">
+              <span>Paid Leave Bucket Remaining for Next Month:</span>
+              <strong className="text-teal-700 font-bold">{selectedPayslipRow.newBucket} Days</strong>
+            </div>
+
+            <div className="flex justify-end gap-2.5 pt-2 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => {
+                  addToast({
+                    title: 'Printing Payslip',
+                    message: `Sending payslip for ${selectedPayslipRow.name} to printer.`,
+                    type: 'info',
+                  });
+                }}
+                className="px-3.5 py-1.5 rounded-xl border border-[#E5EAF2] text-slate-700 font-bold flex items-center gap-1.5 hover:bg-slate-50 cursor-pointer"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Print</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedPayslipRow(null)}
+                className="px-4 py-1.5 rounded-xl bg-[#2563EB] text-white font-bold hover:bg-blue-700 cursor-pointer shadow-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal 3: Add Employee to Monthly Payroll */}
+      {showAddPayrollModal && (
+        <Modal
+          isOpen={showAddPayrollModal}
+          onClose={() => setShowAddPayrollModal(false)}
+          title={`Add Employee to ${selectedMonth} Payroll`}
+          subtitle="Configure salary, leave bucket, and deduction metrics"
+          maxWidth="max-w-xl"
+        >
+          <form onSubmit={handleSaveAddPayroll} className="space-y-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-[#172033] mb-1">Employee Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Bharat Kumar"
+                  value={addForm.name}
+                  onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Department</label>
+                <select
+                  value={addForm.department}
+                  onChange={(e) => setAddForm({ ...addForm, department: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                >
+                  <option value="Engineering">Engineering</option>
+                  <option value="Web Design">Web Design</option>
+                  <option value="Frontend Tech">Frontend Tech</option>
+                  <option value="People Operations">People Operations</option>
+                  <option value="Marketing">Marketing</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Monthly Gross Salary (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  value={addForm.salary}
+                  onChange={(e) => setAddForm({ ...addForm, salary: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Leaves Taken</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={addForm.leaveTaken}
+                  onChange={(e) => setAddForm({ ...addForm, leaveTaken: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Available Bucket Leaves</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={addForm.bucketAvailable}
+                  onChange={(e) => setAddForm({ ...addForm, bucketAvailable: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Other Deductions (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={addForm.otherDeduction}
+                  onChange={(e) => setAddForm({ ...addForm, otherDeduction: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Deduction Description</label>
+                <input
+                  type="text"
+                  value={addForm.deductionNotes}
+                  onChange={(e) => setAddForm({ ...addForm, deductionNotes: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2.5 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setShowAddPayrollModal(false)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-slate-600 hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm cursor-pointer"
+              >
+                Add to Payroll
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Modal 4: Expense Claim Modal */}
+      {showExpenseModal && (
+        <Modal
+          isOpen={showExpenseModal}
+          onClose={() => setShowExpenseModal(false)}
+          title="Submit Expense Claim"
+          subtitle="File receipt for corporate reimbursement"
+          maxWidth="max-w-md"
+        >
+          <form onSubmit={handleCreateExpense} className="space-y-4 text-xs">
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1">Merchant / Vendor *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Apple Store / WeWork"
+                value={expenseForm.merchant}
+                onChange={(e) => setExpenseForm({ ...expenseForm, merchant: e.target.value })}
+                className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1">Expense Amount (₹) *</label>
+              <input
+                type="number"
+                required
+                placeholder="1500"
+                value={expenseForm.amount}
+                onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1">Category</label>
+              <select
+                value={expenseForm.category}
+                onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
+                className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB] cursor-pointer"
+              >
+                <option value="Home Office Setup">Home Office Setup</option>
+                <option value="Travel & Logistics">Travel & Logistics</option>
+                <option value="Client Entertainment">Client Entertainment</option>
+                <option value="Software & Subscriptions">Software & Subscriptions</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[#172033] mb-1">Notes & Justification</label>
+              <textarea
+                rows={2}
+                value={expenseForm.notes}
+                onChange={(e) => setExpenseForm({ ...expenseForm, notes: e.target.value })}
+                className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2.5 pt-3 border-t border-[#E5EAF2]">
+              <button
+                type="button"
+                onClick={() => setShowExpenseModal(false)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-slate-600 hover:bg-slate-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm cursor-pointer"
               >
                 Submit Claim
               </button>
