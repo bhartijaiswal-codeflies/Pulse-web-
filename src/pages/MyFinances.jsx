@@ -92,8 +92,11 @@ export const MyFinances = () => {
     salary: 25000,
     leaveTaken: 0,
     bucketAvailable: 2,
-    otherDeduction: 1500,
-    deductionNotes: 'PF + Professional Tax',
+    pf: 6000,  // 24% of 25000
+    esi: 1000, // 4% of 25000
+    tds: 0,    // Manual entry
+    otherDeduction: 200,
+    deductionNotes: 'Professional Tax',
     status: 'Processed',
     remarks: 'Monthly addition',
   });
@@ -160,20 +163,40 @@ export const MyFinances = () => {
     const totalPayable = filteredPayroll.reduce((acc, row) => acc + (Number(row.payable) || 0), 0);
     const totalUnpaidLeaves = filteredPayroll.reduce((acc, row) => acc + (Number(row.unpaidLeave) || 0), 0);
     const totalUnpaidDeduction = filteredPayroll.reduce((acc, row) => acc + (Number(row.unpaidDeductionAmount) || 0), 0);
+    const totalPf = filteredPayroll.reduce((acc, row) => acc + (Number(row.pf) || 0), 0);
+    const totalEsi = filteredPayroll.reduce((acc, row) => acc + (Number(row.esi) || 0), 0);
+    const totalTds = filteredPayroll.reduce((acc, row) => acc + (Number(row.tds) || 0), 0);
     const totalOtherDeductions = filteredPayroll.reduce((acc, row) => acc + (Number(row.otherDeduction) || 0), 0);
+    const totalDeductions = totalUnpaidDeduction + totalPf + totalEsi + totalTds + totalOtherDeductions;
 
     return {
       totalGross,
       totalPayable,
       totalUnpaidLeaves,
       totalUnpaidDeduction,
+      totalPf,
+      totalEsi,
+      totalTds,
       totalOtherDeductions,
-      totalDeductions: totalUnpaidDeduction + totalOtherDeductions,
+      totalDeductions,
       headcount: filteredPayroll.length,
     };
   }, [filteredPayroll]);
 
   // --- ACTIONS ---
+
+  // Direct Inline Manual TDS Update in Table Row
+  const handleInlineTdsChange = (employeeId, val) => {
+    const cleanVal = val === '' ? 0 : Math.max(0, Number(val) || 0);
+    financeService.updatePayrollEntry(selectedMonth, employeeId, { tds: cleanVal });
+    setPayrollData((prev) =>
+      prev.map((r) =>
+        r.id === employeeId || r.empCode === employeeId
+          ? calculatePayrollRow({ ...r, tds: cleanVal }, daysInCurrentMonth)
+          : r
+      )
+    );
+  };
 
   // Open Edit Modal
   const handleOpenEdit = (row) => {
@@ -182,6 +205,9 @@ export const MyFinances = () => {
       salary: row.salary,
       leaveTaken: row.leaveTaken,
       bucketAvailable: row.bucketAvailable,
+      pf: row.pf !== undefined ? row.pf : Math.round(row.salary * 0.24),
+      esi: row.esi !== undefined ? row.esi : Math.round(row.salary * 0.04),
+      tds: row.tds || 0,
       otherDeduction: row.otherDeduction,
       deductionNotes: row.deductionNotes || '',
       status: row.status || 'Paid',
@@ -198,6 +224,9 @@ export const MyFinances = () => {
       salary: Number(editForm.salary),
       leaveTaken: Number(editForm.leaveTaken),
       bucketAvailable: Number(editForm.bucketAvailable),
+      pf: Number(editForm.pf),
+      esi: Number(editForm.esi),
+      tds: Number(editForm.tds),
       otherDeduction: Number(editForm.otherDeduction),
       deductionNotes: editForm.deductionNotes,
       status: editForm.status,
@@ -206,7 +235,7 @@ export const MyFinances = () => {
 
     addToast({
       title: 'Payroll Updated ✓',
-      message: `${editingPayrollRow.name}'s salary and leave calculation saved for ${selectedMonth}.`,
+      message: `${editingPayrollRow.name}'s calculation saved for ${selectedMonth}.`,
       type: 'success',
     });
 
@@ -231,6 +260,9 @@ export const MyFinances = () => {
       salary: Number(addForm.salary),
       leaveTaken: Number(addForm.leaveTaken),
       bucketAvailable: Number(addForm.bucketAvailable),
+      pf: Number(addForm.pf),
+      esi: Number(addForm.esi),
+      tds: Number(addForm.tds),
       otherDeduction: Number(addForm.otherDeduction),
       deductionNotes: addForm.deductionNotes,
       status: addForm.status,
@@ -261,12 +293,12 @@ export const MyFinances = () => {
     loadData();
   };
 
-  // Export to CSV matching the handwritten sheet
+  // Export to CSV matching the handwritten sheet with PF 24%, ESI 4%, and TDS
   const handleExportCSV = () => {
-    let csv = `Employee Name,Employee Code,Month,Base Salary (INR),Leaves Taken,Bucket Available,Unpaid Leaves,New Bucket Leave,Other Deductions (INR),Net Payable Salary (INR),Status\n`;
+    let csv = `Employee Name,Employee Code,Month,Base Salary (INR),Leaves Taken,Bucket Available,Unpaid Leaves,New Bucket Leave,PF 24% (INR),ESI 4% (INR),TDS Manual (INR),Other Deductions (INR),Total Deductions (INR),Net Payable Salary (INR),Status\n`;
 
     filteredPayroll.forEach((row) => {
-      csv += `"${row.name}","${row.empCode}","${selectedMonth}",${row.salary},${row.leaveTaken},${row.bucketAvailable},${row.unpaidLeave},${row.newBucket},${row.otherDeduction},${row.payable},"${row.status}"\n`;
+      csv += `"${row.name}","${row.empCode}","${selectedMonth}",${row.salary},${row.leaveTaken},${row.bucketAvailable},${row.unpaidLeave},${row.newBucket},${row.pf},${row.esi},${row.tds},${row.otherDeduction},${row.totalDeductions},${row.payable},"${row.status}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -399,6 +431,7 @@ export const MyFinances = () => {
     {
       header: 'NEW BUCKET',
       accessor: 'newBucket',
+      className: 'min-w-[100px]',
       render: (row) => (
         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-[#008080] border border-teal-200">
           <Layers className="w-3 h-3 text-[#008080]" />
@@ -407,8 +440,63 @@ export const MyFinances = () => {
       ),
     },
     {
+      header: 'PF (24%)',
+      accessor: 'pf',
+      className: 'min-w-[110px]',
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="font-bold text-rose-700 text-xs">
+            -{formatCurrency(row.pf)}
+          </span>
+          <span className="text-[9.5px] text-[#8292AD] font-semibold flex items-center gap-1 mt-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span>24% Statutory</span>
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: 'ESI (4%)',
+      accessor: 'esi',
+      className: 'min-w-[100px]',
+      render: (row) => (
+        <div className="flex flex-col">
+          <span className="font-bold text-rose-700 text-xs">
+            -{formatCurrency(row.esi)}
+          </span>
+          <span className="text-[9.5px] text-[#8292AD] font-semibold flex items-center gap-1 mt-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+            <span>4% Insurance</span>
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: 'TDS (MANUAL)',
+      accessor: 'tds',
+      className: 'min-w-[140px]',
+      render: (row) => (
+        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <div className="relative flex items-center">
+            <span className="absolute left-2.5 text-slate-400 text-xs font-bold pointer-events-none">₹</span>
+            <input
+              type="number"
+              min="0"
+              step="50"
+              value={row.tds ?? ''}
+              placeholder="0"
+              onChange={(e) => handleInlineTdsChange(row.id, e.target.value)}
+              className="w-24 pl-5 pr-2 py-1 text-xs font-bold text-rose-700 bg-rose-50/50 hover:bg-white focus:bg-white border border-rose-200 focus:border-[#2563EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all text-right shadow-2xs"
+              title="Click to enter manual TDS deduction"
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
       header: 'OTHER DEDUCTION',
       accessor: 'otherDeduction',
+      className: 'min-w-[120px]',
       render: (row) => (
         <div className="flex flex-col">
           <span className="font-semibold text-rose-700 text-xs">
@@ -531,19 +619,19 @@ export const MyFinances = () => {
           </div>
         </div>
 
-        {/* Card 4: Total Other Deductions */}
+        {/* Card 4: Total Statutory & Other Deductions */}
         <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Other Deductions</span>
+            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Deductions</span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
               <Receipt className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-[#172033] mt-2">
-            {formatCurrency(summaryMetrics.totalOtherDeductions)}
+          <div className="text-2xl font-black text-rose-700 mt-2">
+            -{formatCurrency(summaryMetrics.totalDeductions)}
           </div>
-          <div className="text-[11px] text-purple-700 font-semibold mt-0.5">
-            PF, ESI, Taxes & Advances
+          <div className="text-[10px] text-[#8292AD] font-semibold mt-0.5 truncate" title={`PF 24%: ${formatCurrency(summaryMetrics.totalPf)} | ESI 4%: ${formatCurrency(summaryMetrics.totalEsi)} | TDS: ${formatCurrency(summaryMetrics.totalTds)}`}>
+            PF: {formatCurrency(summaryMetrics.totalPf)} • ESI: {formatCurrency(summaryMetrics.totalEsi)} • TDS: {formatCurrency(summaryMetrics.totalTds)}
           </div>
         </div>
       </div>
@@ -820,6 +908,9 @@ export const MyFinances = () => {
                   salary: Number(editForm.salary) || 0,
                   leaveTaken: Number(editForm.leaveTaken) || 0,
                   bucketAvailable: Number(editForm.bucketAvailable) || 0,
+                  pf: Number(editForm.pf),
+                  esi: Number(editForm.esi),
+                  tds: Number(editForm.tds) || 0,
                   otherDeduction: Number(editForm.otherDeduction) || 0,
                 },
                 daysInCurrentMonth
@@ -833,24 +924,30 @@ export const MyFinances = () => {
                       Net: {formatCurrency(preview.payable)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-4 gap-2 text-[10.5px] pt-2 text-[#172033]">
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-[10.5px] pt-2 text-[#172033]">
                     <div>
                       <span className="text-[#8292AD] block">Gross Salary:</span>
                       <strong className="font-bold">{formatCurrency(preview.salary)}</strong>
                     </div>
                     <div>
-                      <span className="text-[#8292AD] block">Unpaid (LOP):</span>
+                      <span className="text-[#8292AD] block">Unpaid LOP:</span>
                       <strong className="text-rose-700 font-bold">{preview.unpaidLeave} Days</strong>
                     </div>
                     <div>
-                      <span className="text-[#8292AD] block">New Bucket:</span>
-                      <strong className="text-teal-700 font-bold">{preview.newBucket} Days</strong>
+                      <span className="text-[#8292AD] block">PF (24%):</span>
+                      <strong className="text-rose-700 font-bold">-{formatCurrency(preview.pf)}</strong>
                     </div>
                     <div>
-                      <span className="text-[#8292AD] block">Total Deductions:</span>
-                      <strong className="text-rose-700 font-bold">
-                        -{formatCurrency(preview.unpaidDeductionAmount + preview.otherDeduction)}
-                      </strong>
+                      <span className="text-[#8292AD] block">ESI (4%):</span>
+                      <strong className="text-rose-700 font-bold">-{formatCurrency(preview.esi)}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#8292AD] block">TDS (Manual):</span>
+                      <strong className="text-rose-700 font-bold">-{formatCurrency(preview.tds)}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#8292AD] block">Net Payable:</span>
+                      <strong className="text-emerald-700 font-black">{formatCurrency(preview.payable)}</strong>
                     </div>
                   </div>
                 </div>
@@ -864,7 +961,16 @@ export const MyFinances = () => {
                   type="number"
                   required
                   value={editForm.salary}
-                  onChange={(e) => setEditForm({ ...editForm, salary: e.target.value })}
+                  onChange={(e) => {
+                    const sal = e.target.value;
+                    const num = Number(sal) || 0;
+                    setEditForm({
+                      ...editForm,
+                      salary: sal,
+                      pf: Math.round(num * 0.24),
+                      esi: Math.round(num * 0.04),
+                    });
+                  }}
                   className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
                 />
               </div>
@@ -908,6 +1014,61 @@ export const MyFinances = () => {
                 />
               </div>
 
+              {/* PF (24%) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-[#172033]">PF (24%) (₹)</label>
+                  <button
+                    type="button"
+                    onClick={() => setEditForm({ ...editForm, pf: Math.round((Number(editForm.salary) || 0) * 0.24) })}
+                    className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
+                  >
+                    Reset 24%
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  value={editForm.pf}
+                  onChange={(e) => setEditForm({ ...editForm, pf: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              {/* ESI (4%) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-[#172033]">ESI (4%) (₹)</label>
+                  <button
+                    type="button"
+                    onClick={() => setEditForm({ ...editForm, esi: Math.round((Number(editForm.salary) || 0) * 0.04) })}
+                    className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
+                  >
+                    Reset 4%
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  value={editForm.esi}
+                  onChange={(e) => setEditForm({ ...editForm, esi: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              {/* TDS (Manual Entry) */}
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">TDS (Manual Entry) (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={editForm.tds}
+                  onChange={(e) => setEditForm({ ...editForm, tds: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-rose-200 bg-rose-50/30 rounded-xl focus:outline-none focus:border-[#2563EB] font-semibold text-rose-700"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Other Deductions (₹)</label>
                 <input
@@ -919,11 +1080,11 @@ export const MyFinances = () => {
                 />
               </div>
 
-              <div>
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-[#172033] mb-1">Deduction Notes / Remarks</label>
                 <input
                   type="text"
-                  placeholder="e.g. PF + PT + Advance Repayment"
+                  placeholder="e.g. PT + Advance Repayment"
                   value={editForm.deductionNotes}
                   onChange={(e) => setEditForm({ ...editForm, deductionNotes: e.target.value })}
                   className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
@@ -1011,13 +1172,33 @@ export const MyFinances = () => {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600">
-                    Other Deductions ({selectedPayslipRow.deductionNotes || 'Statutory'})
-                  </span>
+                  <span className="text-slate-600">Provident Fund (PF 24%)</span>
                   <span className="font-bold text-rose-700">
-                    -{formatCurrency(selectedPayslipRow.otherDeduction)}
+                    -{formatCurrency(selectedPayslipRow.pf)}
                   </span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Employee State Insurance (ESI 4%)</span>
+                  <span className="font-bold text-rose-700">
+                    -{formatCurrency(selectedPayslipRow.esi)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Tax Deducted at Source (TDS)</span>
+                  <span className="font-bold text-rose-700">
+                    -{formatCurrency(selectedPayslipRow.tds || 0)}
+                  </span>
+                </div>
+                {Number(selectedPayslipRow.otherDeduction) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-600">
+                      Other Deductions ({selectedPayslipRow.deductionNotes || 'Misc'})
+                    </span>
+                    <span className="font-bold text-rose-700">
+                      -{formatCurrency(selectedPayslipRow.otherDeduction)}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Net Pay Total Banner */}
@@ -1105,7 +1286,16 @@ export const MyFinances = () => {
                   type="number"
                   required
                   value={addForm.salary}
-                  onChange={(e) => setAddForm({ ...addForm, salary: e.target.value })}
+                  onChange={(e) => {
+                    const sal = e.target.value;
+                    const num = Number(sal) || 0;
+                    setAddForm({
+                      ...addForm,
+                      salary: sal,
+                      pf: Math.round(num * 0.24),
+                      esi: Math.round(num * 0.04),
+                    });
+                  }}
                   className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
                 />
               </div>
@@ -1132,6 +1322,43 @@ export const MyFinances = () => {
                 />
               </div>
 
+              {/* PF (24%) */}
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">PF (24%) (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={addForm.pf}
+                  onChange={(e) => setAddForm({ ...addForm, pf: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              {/* ESI (4%) */}
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">ESI (4%) (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={addForm.esi}
+                  onChange={(e) => setAddForm({ ...addForm, esi: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
+              </div>
+
+              {/* TDS (Manual Entry) */}
+              <div>
+                <label className="block text-xs font-bold text-[#172033] mb-1">TDS (Manual Entry) (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={addForm.tds}
+                  onChange={(e) => setAddForm({ ...addForm, tds: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-rose-200 bg-rose-50/30 rounded-xl focus:outline-none focus:border-[#2563EB] font-semibold text-rose-700"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Other Deductions (₹)</label>
                 <input
@@ -1143,7 +1370,7 @@ export const MyFinances = () => {
                 />
               </div>
 
-              <div>
+              <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-[#172033] mb-1">Deduction Description</label>
                 <input
                   type="text"

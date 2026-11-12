@@ -1,7 +1,7 @@
 import { financesData } from '../data/mockData';
 
 const FINANCES_KEY = 'pulse_finances';
-const PAYROLL_KEY = 'pulse_monthly_payroll_directory';
+const PAYROLL_KEY = 'pulse_monthly_payroll_directory_v3';
 
 // Month helper: days in month
 export const getDaysInMonth = (monthKey) => {
@@ -44,11 +44,13 @@ const initialJan2026Payroll = [
     salary: 10000,
     leaveTaken: 2,
     bucketAvailable: 3,
-    unpaidLeave: 1,
-    newBucket: 2,
-    otherDeduction: 1245,
-    deductionNotes: 'Provident Fund (₹1,200) + Prof Tax (₹45)',
-    payable: 8432,
+    unpaidLeave: 0,
+    newBucket: 1,
+    pf: 2400,
+    esi: 400,
+    tds: 0,
+    otherDeduction: 200,
+    deductionNotes: 'Professional Tax (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: 'Salary processed on time via Direct Bank Transfer',
@@ -65,9 +67,11 @@ const initialJan2026Payroll = [
     bucketAvailable: 2,
     unpaidLeave: 0,
     newBucket: 1,
-    otherDeduction: 2500,
-    deductionNotes: 'PF (₹2,300) + Professional Tax (₹200)',
-    payable: 32500,
+    pf: 8400,
+    esi: 1400,
+    tds: 1000,
+    otherDeduction: 200,
+    deductionNotes: 'PF + Professional Tax (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: 'Disbursed via HDFC Corporate',
@@ -84,12 +88,14 @@ const initialJan2026Payroll = [
     bucketAvailable: 2,
     unpaidLeave: 2,
     newBucket: 0,
-    otherDeduction: 3200,
-    deductionNotes: 'PF (₹3,000) + PT (₹200)',
-    payable: 38897,
+    pf: 10800,
+    esi: 1800,
+    tds: 1500,
+    otherDeduction: 200,
+    deductionNotes: 'PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
-    remarks: '2 LOP days deducted (₹2,903)',
+    remarks: '2 LOP days deducted',
   },
   {
     id: 'PLS-10024',
@@ -233,6 +239,14 @@ export const calculatePayrollRow = (row, daysInMonth = 30) => {
   const bucketAvailable = Number(row.bucketAvailable) || 0;
   const otherDeduction = Number(row.otherDeduction) || 0;
 
+  // 3 Statutory & Tax Columns:
+  // 1. PF (24% of salary)
+  // 2. ESI (4% of salary)
+  // 3. TDS (Manual entry)
+  const pf = row.pf !== undefined && row.pf !== null ? Number(row.pf) : Math.round(salary * 0.24);
+  const esi = row.esi !== undefined && row.esi !== null ? Number(row.esi) : Math.round(salary * 0.04);
+  const tds = Number(row.tds) || 0;
+
   let unpaidLeave = 0;
   let newBucket = 0;
 
@@ -248,8 +262,11 @@ export const calculatePayrollRow = (row, daysInMonth = 30) => {
   const perDaySalary = daysInMonth > 0 ? salary / daysInMonth : 0;
   const unpaidDeductionAmount = Math.round(unpaidLeave * perDaySalary);
 
+  // Total deductions: Unpaid Leave LOP + PF (24%) + ESI (4%) + TDS (Manual) + Other Deductions
+  const totalDeductions = unpaidDeductionAmount + pf + esi + tds + otherDeduction;
+
   // Net payable
-  const payable = Math.max(0, Math.round(salary - unpaidDeductionAmount - otherDeduction));
+  const payable = Math.max(0, Math.round(salary - totalDeductions));
 
   return {
     ...row,
@@ -258,8 +275,12 @@ export const calculatePayrollRow = (row, daysInMonth = 30) => {
     bucketAvailable,
     unpaidLeave,
     newBucket,
+    pf,
+    esi,
+    tds,
     otherDeduction,
     unpaidDeductionAmount,
+    totalDeductions,
     payable,
   };
 };
