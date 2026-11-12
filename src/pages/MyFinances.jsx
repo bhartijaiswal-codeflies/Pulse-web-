@@ -18,7 +18,6 @@ import {
   RotateCw,
   Clock,
   AlertTriangle,
-  Building,
   Users,
   Wallet,
   Briefcase,
@@ -63,7 +62,6 @@ export const MyFinances = () => {
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
 
   // Existing finances state (for payslips & expenses tabs)
@@ -90,8 +88,7 @@ export const MyFinances = () => {
   const [addForm, setAddForm] = useState({
     name: '',
     empCode: '',
-    department: 'Engineering',
-    designation: 'Software Engineer',
+    designation: 'Executive',
     salary: 25000,
     leaveTaken: 0,
     bucketAvailable: 2,
@@ -149,15 +146,13 @@ export const MyFinances = () => {
         !q ||
         row.name?.toLowerCase().includes(q) ||
         row.empCode?.toLowerCase().includes(q) ||
-        row.department?.toLowerCase().includes(q) ||
         row.designation?.toLowerCase().includes(q);
 
-      const matchesDept = departmentFilter === 'All' || row.department === departmentFilter;
       const matchesStatus = statusFilter === 'All' || row.status === statusFilter;
 
-      return matchesSearch && matchesDept && matchesStatus;
+      return matchesSearch && matchesStatus;
     });
-  }, [payrollData, searchQuery, departmentFilter, statusFilter]);
+  }, [payrollData, searchQuery, statusFilter]);
 
   // Calculate top summary metrics for selected month
   const summaryMetrics = useMemo(() => {
@@ -231,7 +226,6 @@ export const MyFinances = () => {
       id: `EMP-${Date.now().toString().slice(-4)}`,
       name: addForm.name.trim(),
       empCode: addForm.empCode || `CFT-${Math.floor(100 + Math.random() * 900)}`,
-      department: addForm.department,
       designation: addForm.designation,
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
       salary: Number(addForm.salary),
@@ -269,10 +263,10 @@ export const MyFinances = () => {
 
   // Export to CSV matching the handwritten sheet
   const handleExportCSV = () => {
-    let csv = `Employee Name,Employee Code,Department,Month,Base Salary (INR),Leaves Taken,Bucket Available,Unpaid Leaves,New Bucket Leave,Other Deductions (INR),Net Payable Salary (INR),Status\n`;
+    let csv = `Employee Name,Employee Code,Month,Base Salary (INR),Leaves Taken,Bucket Available,Unpaid Leaves,New Bucket Leave,Other Deductions (INR),Net Payable Salary (INR),Status\n`;
 
     filteredPayroll.forEach((row) => {
-      csv += `"${row.name}","${row.empCode}","${row.department}","${selectedMonth}",${row.salary},${row.leaveTaken},${row.bucketAvailable},${row.unpaidLeave},${row.newBucket},${row.otherDeduction},${row.payable},"${row.status}"\n`;
+      csv += `"${row.name}","${row.empCode}","${selectedMonth}",${row.salary},${row.leaveTaken},${row.bucketAvailable},${row.unpaidLeave},${row.newBucket},${row.otherDeduction},${row.payable},"${row.status}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -343,10 +337,8 @@ export const MyFinances = () => {
             >
               {row.name}
             </div>
-            <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[10px] text-[#8292AD] font-medium mt-0.5">
               <span className="font-mono text-slate-700">{row.empCode}</span>
-              <span>•</span>
-              <span>{row.department}</span>
             </div>
           </div>
         </div>
@@ -651,28 +643,7 @@ export const MyFinances = () => {
                   />
                 </div>
 
-                {/* 3. Department Dropdown */}
-                <div className="relative min-w-[145px] flex-shrink-0">
-                  <select
-                    value={departmentFilter}
-                    onChange={(e) => setDepartmentFilter(e.target.value)}
-                    className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-                  >
-                    <option value="All">All Departments</option>
-                    <option value="Engineering">Engineering</option>
-                    <option value="Web Design">Web Design</option>
-                    <option value="Frontend Tech">Frontend Tech</option>
-                    <option value="People Operations">People Operations</option>
-                    <option value="Product Design">Product Design</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Data & Analytics">Data & Analytics</option>
-                    <option value="Security & QA">Security & QA</option>
-                  </select>
-                  <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-
-                {/* 4. Status Filter */}
+                {/* 3. Status Filter */}
                 <div className="relative min-w-[130px] flex-shrink-0">
                   <select
                     value={statusFilter}
@@ -689,11 +660,10 @@ export const MyFinances = () => {
                 </div>
 
                 {/* Clear Filter Button */}
-                {(searchQuery || departmentFilter !== 'All' || statusFilter !== 'All') && (
+                {(searchQuery || statusFilter !== 'All') && (
                   <button
                     onClick={() => {
                       setSearchQuery('');
-                      setDepartmentFilter('All');
                       setStatusFilter('All');
                     }}
                     className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-semibold rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors shadow-2xs cursor-pointer flex-shrink-0"
@@ -1001,7 +971,7 @@ export const MyFinances = () => {
                 <div>
                   <h3 className="text-base font-extrabold text-[#172033]">{selectedPayslipRow.name}</h3>
                   <p className="text-[11px] text-[#8292AD] font-medium">
-                    ID: <strong className="text-slate-800">{selectedPayslipRow.empCode}</strong> • {selectedPayslipRow.department}
+                    ID: <strong className="text-slate-800">{selectedPayslipRow.empCode}</strong>
                   </p>
                 </div>
               </div>
@@ -1119,18 +1089,14 @@ export const MyFinances = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1">Department</label>
-                <select
-                  value={addForm.department}
-                  onChange={(e) => setAddForm({ ...addForm, department: e.target.value })}
-                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  <option value="Engineering">Engineering</option>
-                  <option value="Web Design">Web Design</option>
-                  <option value="Frontend Tech">Frontend Tech</option>
-                  <option value="People Operations">People Operations</option>
-                  <option value="Marketing">Marketing</option>
-                </select>
+                <label className="block text-xs font-bold text-[#172033] mb-1">Employee Code</label>
+                <input
+                  type="text"
+                  placeholder="e.g. CFT-101"
+                  value={addForm.empCode}
+                  onChange={(e) => setAddForm({ ...addForm, empCode: e.target.value })}
+                  className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB]"
+                />
               </div>
 
               <div>
