@@ -31,6 +31,12 @@ import {
   ExternalLink,
   ChevronDown,
   Shield,
+  UploadCloud,
+  ImageIcon,
+  ChevronLeft,
+  ChevronRight,
+  ImagePlus,
+  Maximize2,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -72,7 +78,11 @@ export const Assets = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showNewRequestModal, setShowNewRequestModal] = useState(false);
 
-  // Forms
+  // Forms & Image States
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const [urlInput, setUrlInput] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+
   const [assetForm, setAssetForm] = useState({
     name: '',
     details: '',
@@ -82,6 +92,7 @@ export const Assets = () => {
     status: 'Active',
     condition: 'Excellent',
     image: '',
+    images: [],
     serial: '',
     purchaseDate: '12 Jan, 2024',
   });
@@ -164,6 +175,130 @@ export const Assets = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // --- MULTI-IMAGE UPLOAD & GALLERY HANDLERS ---
+  const handleMultipleFilesUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const validImageFiles = files.filter((file) => file.type.startsWith('image/'));
+    if (validImageFiles.length === 0) {
+      addToast({
+        title: 'Invalid File',
+        message: 'Please select valid image files (PNG, JPG, WEBP, etc.)',
+        type: 'warning',
+      });
+      return;
+    }
+
+    let loadedCount = 0;
+    const newImages = [];
+
+    validImageFiles.forEach((file) => {
+      if (file.size > 5 * 1024 * 1024) {
+        addToast({
+          title: 'File Skipped',
+          message: `${file.name} exceeds 5MB size limit.`,
+          type: 'warning',
+        });
+        loadedCount++;
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        newImages.push(loadEvent.target.result);
+        loadedCount++;
+
+        if (loadedCount === validImageFiles.length) {
+          setAssetForm((prev) => {
+            const updated = [...(prev.images || []), ...newImages];
+            return {
+              ...prev,
+              images: updated,
+              image: updated[0] || '',
+            };
+          });
+          addToast({
+            title: 'Images Uploaded',
+            message: `Added ${newImages.length} photo${newImages.length > 1 ? 's' : ''} to asset gallery.`,
+            type: 'success',
+          });
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    e.target.value = '';
+  };
+
+  const handleDropFiles = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files || []);
+    if (!files.length) return;
+    const fakeEvent = { target: { files, value: '' } };
+    handleMultipleFilesUpload(fakeEvent);
+  };
+
+  const handleAddUrlImage = () => {
+    const trimmed = urlInput.trim();
+    if (!trimmed) return;
+    if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('data:image')) {
+      addToast({
+        title: 'Invalid URL',
+        message: 'Please enter a valid image URL starting with http:// or https://',
+        type: 'warning',
+      });
+      return;
+    }
+
+    setAssetForm((prev) => {
+      const updated = [...(prev.images || []), trimmed];
+      return {
+        ...prev,
+        images: updated,
+        image: updated[0] || '',
+      };
+    });
+    setUrlInput('');
+    addToast({
+      title: 'Photo Added',
+      message: 'Image URL appended to asset gallery.',
+      type: 'success',
+    });
+  };
+
+  const handleRemovePhoto = (indexToRemove) => {
+    setAssetForm((prev) => {
+      const updated = (prev.images || []).filter((_, idx) => idx !== indexToRemove);
+      return {
+        ...prev,
+        images: updated,
+        image: updated[0] || '',
+      };
+    });
+  };
+
+  const handleSetCoverPhoto = (targetIndex) => {
+    if (targetIndex === 0) return;
+    setAssetForm((prev) => {
+      const currentList = [...(prev.images || [])];
+      const selected = currentList[targetIndex];
+      const remainder = currentList.filter((_, idx) => idx !== targetIndex);
+      const updated = [selected, ...remainder];
+      return {
+        ...prev,
+        images: updated,
+        image: updated[0] || '',
+      };
+    });
+    addToast({
+      title: 'Cover Photo Set',
+      message: 'Selected photo is now the primary cover.',
+      type: 'info',
+    });
+  };
+
   // --- ASSET ACTIONS ---
   const handleOpenAddAsset = () => {
     setAssetForm({
@@ -175,13 +310,19 @@ export const Assets = () => {
       status: 'Active',
       condition: 'Brand New',
       image: '',
+      images: [],
       serial: '',
       purchaseDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     });
+    setUrlInput('');
     setShowAddModal(true);
   };
 
   const handleOpenEditAsset = (asset) => {
+    const assetImages = Array.isArray(asset.images) && asset.images.length > 0
+      ? asset.images
+      : asset.image ? [asset.image] : [];
+
     setEditingAsset(asset);
     setAssetForm({
       name: asset.name,
@@ -191,10 +332,12 @@ export const Assets = () => {
       assignedTo: asset.assignedTo,
       status: asset.status,
       condition: asset.condition || 'Good',
-      image: asset.image || '',
+      image: assetImages[0] || '',
+      images: assetImages,
       serial: asset.serial || '',
       purchaseDate: asset.purchaseDate || '12 Jan, 2024',
     });
+    setUrlInput('');
   };
 
   const handleSaveAsset = (e) => {
@@ -204,8 +347,14 @@ export const Assets = () => {
       return;
     }
 
+    const payload = {
+      ...assetForm,
+      images: assetForm.images || [],
+      image: (assetForm.images && assetForm.images.length > 0) ? assetForm.images[0] : (assetForm.image || null),
+    };
+
     if (editingAsset) {
-      assetService.updateAsset(editingAsset.id, assetForm);
+      assetService.updateAsset(editingAsset.id, payload);
       addToast({
         title: 'Asset Updated',
         message: `${assetForm.name} (${assetForm.tag}) details saved.`,
@@ -213,10 +362,10 @@ export const Assets = () => {
       });
       setEditingAsset(null);
     } else {
-      assetService.addAsset(assetForm);
+      assetService.addAsset(payload);
       addToast({
         title: 'Asset Registered',
-        message: `${assetForm.name} added to inventory.`,
+        message: `${assetForm.name} added to inventory with ${payload.images.length} photo${payload.images.length === 1 ? '' : 's'}.`,
         type: 'success',
       });
       setShowAddModal(false);
@@ -536,35 +685,55 @@ export const Assets = () => {
     {
       header: 'HARDWARE & MODEL',
       accessor: 'name',
-      render: (row) => (
-        <div className="flex items-center gap-2.5">
-          {row.image ? (
-            <img
-              src={row.image}
-              alt={row.name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs flex-shrink-0">
-              <Laptop className="w-4 h-4 text-slate-400" />
+      render: (row) => {
+        const rowImages = Array.isArray(row.images) && row.images.length > 0
+          ? row.images
+          : row.image ? [row.image] : [];
+        const displayImg = rowImages[0] || row.image;
+
+        return (
+          <div className="flex items-center gap-2.5">
+            <div className="relative flex-shrink-0">
+              {displayImg ? (
+                <img
+                  src={displayImg}
+                  alt={row.name}
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2]"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs">
+                  <Laptop className="w-4 h-4 text-slate-400" />
+                </div>
+              )}
+              {rowImages.length > 1 && (
+                <span
+                  title={`${rowImages.length} photos attached`}
+                  className="absolute -bottom-1 -right-1 bg-[#2563EB] text-white text-[8px] font-extrabold px-1 rounded-full border border-white shadow-2xs leading-tight"
+                >
+                  +{rowImages.length - 1}
+                </span>
+              )}
             </div>
-          )}
-          <div className="min-w-0">
-            <div
-              className="font-bold text-[#172033] text-xs hover:text-[#2563EB] cursor-pointer truncate"
-              onClick={() => setSelectedAsset(row)}
-              title={`View ${row.code} details`}
-            >
-              {row.code} - {row.name}
-            </div>
-            <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5">
-              <span>Tag: <strong className="text-slate-700">{row.tag}</strong></span>
-              <span>•</span>
-              <span>Serial: {row.serial}</span>
+            <div className="min-w-0">
+              <div
+                className="font-bold text-[#172033] text-xs hover:text-[#2563EB] cursor-pointer truncate"
+                onClick={() => {
+                  setActivePhotoIndex(0);
+                  setSelectedAsset(row);
+                }}
+                title={`View ${row.code} details`}
+              >
+                {row.code} - {row.name}
+              </div>
+              <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5">
+                <span>Tag: <strong className="text-slate-700">{row.tag}</strong></span>
+                <span>•</span>
+                <span>Serial: {row.serial}</span>
+              </div>
             </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
       header: 'SPECIFICATIONS',
@@ -940,7 +1109,10 @@ export const Assets = () => {
               {/* Eye View Button */}
               <button
                 type="button"
-                onClick={() => setSelectedAsset(row)}
+                onClick={() => {
+                  setActivePhotoIndex(0);
+                  setSelectedAsset(row);
+                }}
                 title={`View ${row.name} dossier`}
                 className="w-7 h-7 rounded-full bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
               >
@@ -1080,121 +1252,218 @@ export const Assets = () => {
       {/* ========================================================================= */}
 
       {/* Modal 1: Complete Asset Dossier Modal (View Asset) */}
-      {selectedAsset && (
-        <Modal
-          isOpen={!!selectedAsset}
-          onClose={() => setSelectedAsset(null)}
-          title={`Asset Dossier: ${selectedAsset.code}`}
-          subtitle={`Hardware inventory record for ${selectedAsset.name} (Tag: ${selectedAsset.tag})`}
-          maxWidth="max-w-2xl"
-        >
-          <div className="space-y-4 text-xs">
-            {/* Top Identity Card */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/70 via-indigo-50/30 to-slate-50 border border-blue-100 flex items-center gap-4">
-              {selectedAsset.image ? (
-                <img
-                  src={selectedAsset.image}
-                  alt={selectedAsset.name}
-                  className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white shadow-md flex-shrink-0"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-2xl bg-white text-blue-600 border border-blue-100 flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-xs">
-                  <Laptop className="w-8 h-8 text-[#2563EB]" />
+      {selectedAsset && (() => {
+        const dossierImages = Array.isArray(selectedAsset.images) && selectedAsset.images.length > 0
+          ? selectedAsset.images
+          : selectedAsset.image ? [selectedAsset.image] : [];
+        const currentPhoto = dossierImages[activePhotoIndex] || dossierImages[0] || null;
+
+        return (
+          <Modal
+            isOpen={!!selectedAsset}
+            onClose={() => setSelectedAsset(null)}
+            title={`Asset Dossier: ${selectedAsset.code}`}
+            subtitle={`Hardware inventory record for ${selectedAsset.name} (Tag: ${selectedAsset.tag})`}
+            maxWidth="max-w-2xl"
+          >
+            <div className="space-y-4 text-xs">
+              {/* Top Identity Card */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/70 via-indigo-50/30 to-slate-50 border border-blue-100 flex items-center gap-4">
+                {currentPhoto ? (
+                  <img
+                    src={currentPhoto}
+                    alt={selectedAsset.name}
+                    className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white shadow-md flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-2xl bg-white text-blue-600 border border-blue-100 flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-xs">
+                    <Laptop className="w-8 h-8 text-[#2563EB]" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-base font-extrabold text-[#172033]">{selectedAsset.name}</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#1D4ED8]">
+                      {selectedAsset.type}
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {selectedAsset.status}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#8292AD] mt-1 font-medium">
+                    Tag Code: <strong className="text-slate-800">{selectedAsset.tag}</strong> • Serial Number: <strong className="text-slate-800">{selectedAsset.serial}</strong>
+                  </p>
+                  <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
+                    Assigned To: <strong className="text-indigo-700">{selectedAsset.assignedTo}</strong>
+                  </p>
+                </div>
+              </div>
+
+              {/* Photo Gallery Viewer if photos exist */}
+              {dossierImages.length > 0 && (
+                <div className="rounded-2xl border border-slate-200 bg-slate-900 overflow-hidden shadow-sm">
+                  {/* Hero Image Container */}
+                  <div className="relative w-full h-56 sm:h-64 bg-slate-950 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={currentPhoto}
+                      alt={`${selectedAsset.name} view ${activePhotoIndex + 1}`}
+                      className="w-full h-full object-contain"
+                    />
+
+                    {/* Carousel Prev/Next Buttons */}
+                    {dossierImages.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActivePhotoIndex((prev) =>
+                              prev === 0 ? dossierImages.length - 1 : prev - 1
+                            )
+                          }
+                          className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer backdrop-blur-xs"
+                          title="Previous photo"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActivePhotoIndex((prev) =>
+                              prev === dossierImages.length - 1 ? 0 : prev + 1
+                            )
+                          }
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer backdrop-blur-xs"
+                          title="Next photo"
+                        >
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
+                      </>
+                    )}
+
+                    {/* Photo counter and cover indicator */}
+                    <div className="absolute bottom-2.5 left-3 flex items-center gap-2">
+                      <span className="bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20">
+                        {activePhotoIndex + 1} / {dossierImages.length} Photos
+                      </span>
+                      {activePhotoIndex === 0 && (
+                        <span className="bg-blue-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-md">
+                          Cover Photo
+                        </span>
+                      )}
+                    </div>
+
+                    <a
+                      href={currentPhoto}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute top-2.5 right-2.5 p-1.5 rounded-lg bg-black/60 hover:bg-black/85 text-white shadow-md transition-colors backdrop-blur-xs"
+                      title="Open full resolution in new tab"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+
+                  {/* Thumbnail Navigation Strip */}
+                  {dossierImages.length > 1 && (
+                    <div className="p-2.5 bg-slate-900 border-t border-slate-800 flex items-center gap-2 overflow-x-auto">
+                      {dossierImages.map((imgUrl, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setActivePhotoIndex(idx)}
+                          className={`relative flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                            activePhotoIndex === idx
+                              ? 'border-blue-500 ring-2 ring-blue-500/50 scale-105'
+                              : 'border-slate-700 opacity-60 hover:opacity-100 hover:border-slate-500'
+                          }`}
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Thumbnail ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h3 className="text-base font-extrabold text-[#172033]">{selectedAsset.name}</h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#1D4ED8]">
-                    {selectedAsset.type}
-                  </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    {selectedAsset.status}
-                  </span>
+
+              {/* Hardware Specs Grid */}
+              <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-white border border-[#E5EAF2]">
+                <div>
+                  <p className="text-[10px] font-bold text-[#8292AD] uppercase">Hardware Category</p>
+                  <p className="font-bold text-xs text-[#172033] mt-0.5">{selectedAsset.type}</p>
                 </div>
-                <p className="text-[11px] text-[#8292AD] mt-1 font-medium">
-                  Tag Code: <strong className="text-slate-800">{selectedAsset.tag}</strong> • Serial Number: <strong className="text-slate-800">{selectedAsset.serial}</strong>
-                </p>
-                <p className="text-[11px] text-slate-600 mt-0.5 font-medium">
-                  Assigned To: <strong className="text-indigo-700">{selectedAsset.assignedTo}</strong>
-                </p>
-              </div>
-            </div>
-
-            {/* Hardware Specs Grid */}
-            <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-white border border-[#E5EAF2]">
-              <div>
-                <p className="text-[10px] font-bold text-[#8292AD] uppercase">Hardware Category</p>
-                <p className="font-bold text-xs text-[#172033] mt-0.5">{selectedAsset.type}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-[#8292AD] uppercase">Current Condition</p>
-                <p className="font-bold text-xs text-emerald-700 mt-0.5">{selectedAsset.condition || 'Excellent'}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-[#8292AD] uppercase">Purchase Date</p>
-                <p className="font-bold text-xs text-[#172033] mt-0.5">{selectedAsset.purchaseDate || '12 Jan, 2024'}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-[#8292AD] uppercase">Warranty Status</p>
-                <p className="font-bold text-xs text-[#172033] mt-0.5">Active (Expires Jan 2027)</p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#E5EAF2]">
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const id = selectedAsset.id;
-                    setSelectedAsset(null);
-                    handleOpenNewTicket(id);
-                  }}
-                  className="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 flex items-center gap-1.5 transition-colors cursor-pointer"
-                  title="Raise a technical ticket for this hardware"
-                >
-                  <Ticket className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Report Ticket</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const id = selectedAsset.id;
-                    setSelectedAsset(null);
-                    handleOpenNewRequest(id);
-                  }}
-                  className="px-3 py-1.5 text-xs font-bold rounded-xl border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 flex items-center gap-1.5 transition-colors cursor-pointer"
-                  title="Request take-home gate pass for this hardware"
-                >
-                  <Briefcase className="w-3.5 h-3.5 text-purple-600" />
-                  <span>Request Gate Pass</span>
-                </button>
+                <div>
+                  <p className="text-[10px] font-bold text-[#8292AD] uppercase">Current Condition</p>
+                  <p className="font-bold text-xs text-emerald-700 mt-0.5">{selectedAsset.condition || 'Excellent'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-[#8292AD] uppercase">Purchase Date</p>
+                  <p className="font-bold text-xs text-[#172033] mt-0.5">{selectedAsset.purchaseDate || '12 Jan, 2024'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-[#8292AD] uppercase">Warranty Status</p>
+                  <p className="font-bold text-xs text-[#172033] mt-0.5">Active (Expires Jan 2027)</p>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedAsset(null)}
-                  className="px-3.5 py-1.5 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-slate-600 hover:bg-slate-50 cursor-pointer"
-                >
-                  Close Dossier
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const asset = selectedAsset;
-                    setSelectedAsset(null);
-                    handleOpenEditAsset(asset);
-                  }}
-                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm cursor-pointer"
-                >
-                  Edit Asset Details
-                </button>
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-[#E5EAF2]">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const id = selectedAsset.id;
+                      setSelectedAsset(null);
+                      handleOpenNewTicket(id);
+                    }}
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title="Raise a technical ticket for this hardware"
+                  >
+                    <Ticket className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Report Ticket</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const id = selectedAsset.id;
+                      setSelectedAsset(null);
+                      handleOpenNewRequest(id);
+                    }}
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl border border-purple-200 bg-purple-50 text-purple-800 hover:bg-purple-100 flex items-center gap-1.5 transition-colors cursor-pointer"
+                    title="Request take-home gate pass for this hardware"
+                  >
+                    <Briefcase className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Request Gate Pass</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAsset(null)}
+                    className="px-3.5 py-1.5 text-xs font-semibold rounded-xl border border-[#E5EAF2] text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  >
+                    Close Dossier
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const asset = selectedAsset;
+                      setSelectedAsset(null);
+                      handleOpenEditAsset(asset);
+                    }}
+                    className="px-4 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm cursor-pointer"
+                  >
+                    Edit Asset Details
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        );
+      })()}
 
       {/* Modal 2: Add / Edit Asset Modal */}
       {(showAddModal || editingAsset) && (
@@ -1205,8 +1474,8 @@ export const Assets = () => {
             setEditingAsset(null);
           }}
           title={editingAsset ? `Edit Asset: ${editingAsset.code}` : 'Register New Asset'}
-          subtitle="Configure hardware specifications, tag ID and employee assignment"
-          maxWidth="max-w-xl"
+          subtitle="Configure hardware specifications, tag ID, employee assignment and photos"
+          maxWidth="max-w-2xl"
         >
           <form onSubmit={handleSaveAsset} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1298,14 +1567,161 @@ export const Assets = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#172033] mb-1">Image URL (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="https://images.unsplash..."
-                  value={assetForm.image || ''}
-                  onChange={(e) => setAssetForm({ ...assetForm, image: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB]"
-                />
+                <label className="block text-xs font-bold text-[#172033] mb-1">Condition</label>
+                <select
+                  value={assetForm.condition || 'Brand New'}
+                  onChange={(e) => setAssetForm({ ...assetForm, condition: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                >
+                  <option value="Brand New">Brand New</option>
+                  <option value="Excellent">Excellent</option>
+                  <option value="Good">Good</option>
+                  <option value="Fair">Fair</option>
+                  <option value="Maintenance Needed">Maintenance Needed</option>
+                </select>
+              </div>
+
+              {/* Multi-Image Upload & Management */}
+              <div className="sm:col-span-2 space-y-2.5 pt-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#172033] flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-[#2563EB]" />
+                    <span>Hardware Photographs & Gallery</span>
+                  </label>
+                  <span className="text-[11px] font-semibold text-[#8292AD]">
+                    {assetForm.images?.length || 0} photo{assetForm.images?.length === 1 ? '' : 's'} added
+                  </span>
+                </div>
+
+                {/* Drag and Drop Zone */}
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDropFiles}
+                  onClick={() => document.getElementById('asset-file-input')?.click()}
+                  className={`relative border-2 border-dashed rounded-2xl p-4 text-center transition-all cursor-pointer ${
+                    isDragging
+                      ? 'border-[#2563EB] bg-blue-50/70 scale-[0.99]'
+                      : 'border-[#CBD5E1] bg-slate-50/60 hover:bg-blue-50/30 hover:border-blue-400'
+                  }`}
+                >
+                  <input
+                    id="asset-file-input"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleMultipleFilesUpload}
+                  />
+                  <div className="flex flex-col items-center justify-center gap-1.5 pointer-events-none">
+                    <div className="w-10 h-10 rounded-full bg-blue-100/80 text-[#2563EB] flex items-center justify-center shadow-xs">
+                      <UploadCloud className="w-5 h-5 text-[#2563EB]" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-[#172033]">
+                        Click to upload multiple images <span className="font-normal text-slate-500">or drag & drop</span>
+                      </p>
+                      <p className="text-[10px] text-[#8292AD] mt-0.5 font-medium">
+                        Select multiple PNG, JPG, WEBP, GIF files (device photos, serial tag, ports, accessories)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Alternative: Or Add via Image URL */}
+                <div className="flex items-center gap-2 pt-0.5">
+                  <div className="relative flex-1">
+                    <input
+                      type="url"
+                      placeholder="Or paste web image URL (https://images.unsplash.com/...)"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddUrlImage();
+                        }
+                      }}
+                      className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB]"
+                    />
+                    <ImagePlus className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddUrlImage}
+                    disabled={!urlInput.trim()}
+                    className="px-3.5 py-2 text-xs font-bold rounded-xl bg-slate-100 text-[#172033] hover:bg-blue-50 hover:text-[#2563EB] border border-[#E5EAF2] transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex-shrink-0"
+                  >
+                    Add URL
+                  </button>
+                </div>
+
+                {/* Thumbnails preview list with Cover indicator and Remove */}
+                {assetForm.images && assetForm.images.length > 0 && (
+                  <div className="mt-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/90">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-slate-700">
+                        Gallery Preview ({assetForm.images.length})
+                      </span>
+                      <span className="text-[10px] text-slate-500">
+                        First photo is the default Cover Photo
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
+                      {assetForm.images.map((imgUrl, idx) => {
+                        const isCover = idx === 0;
+                        return (
+                          <div
+                            key={idx}
+                            className={`group relative rounded-xl overflow-hidden aspect-square border-2 bg-white transition-all shadow-xs ${
+                              isCover ? 'border-[#2563EB] ring-2 ring-blue-500/20' : 'border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <img
+                              src={imgUrl}
+                              alt={`Asset photo ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+
+                            {/* Cover Badge */}
+                            {isCover ? (
+                              <span className="absolute top-1 left-1 bg-[#2563EB] text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded-md shadow-sm">
+                                Cover
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleSetCoverPhoto(idx)}
+                                title="Set as primary cover photo"
+                                className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 bg-white/95 text-slate-700 hover:text-[#2563EB] text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-xs transition-opacity cursor-pointer border border-slate-200"
+                              >
+                                Set Cover
+                              </button>
+                            )}
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePhoto(idx)}
+                              title="Remove image"
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 bg-rose-600 hover:bg-rose-700 text-white p-1 rounded-md shadow-xs transition-opacity cursor-pointer"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+
+                            {/* Index pill */}
+                            <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[8px] font-bold px-1 rounded">
+                              #{idx + 1}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

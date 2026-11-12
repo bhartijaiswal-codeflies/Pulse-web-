@@ -13,7 +13,12 @@ export const initialCodefliesAssets = [
     assignedTo: 'Codeflies',
     status: 'Active',
     condition: 'Excellent',
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=150&q=80',
+    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=800&q=80',
+    ],
     serial: 'C02FX409MD6T',
     purchaseDate: '12 Jan, 2024',
   },
@@ -27,7 +32,10 @@ export const initialCodefliesAssets = [
     assignedTo: 'Codeflies',
     status: 'Maintenance',
     condition: 'Good',
-    image: null,
+    image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80',
+    ],
     serial: 'C02GZ119K8LL',
     purchaseDate: '15 Mar, 2024',
   },
@@ -41,7 +49,11 @@ export const initialCodefliesAssets = [
     assignedTo: 'Neeraj Kumar',
     status: 'Active',
     condition: 'Brand New',
-    image: null,
+    image: 'https://images.unsplash.com/photo-1537498425277-c283d32ef9db?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1537498425277-c283d32ef9db?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
+    ],
     serial: 'C02DK991PL12',
     purchaseDate: '02 Feb, 2024',
   },
@@ -541,7 +553,19 @@ export const assetService = {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Normalize images array for all items
+          return parsed.map((item) => {
+            const imgs = Array.isArray(item.images) && item.images.length > 0
+              ? item.images
+              : item.image ? [item.image] : [];
+            return {
+              ...item,
+              images: imgs,
+              image: imgs[0] || item.image || null,
+            };
+          });
+        }
       } catch (e) {
         console.error(e);
       }
@@ -553,6 +577,10 @@ export const assetService = {
   addAsset: (asset) => {
     const current = assetService.getAssets();
     const count = current.length + 1;
+    const imagesList = Array.isArray(asset.images) && asset.images.length > 0
+      ? asset.images
+      : asset.image ? [asset.image] : [];
+
     const newAsset = {
       ...asset,
       id: `AST-${Date.now()}`,
@@ -564,7 +592,8 @@ export const assetService = {
       assignedTo: asset.assignedTo || 'Codeflies',
       status: asset.status || 'Active',
       condition: asset.condition || 'Brand New',
-      image: asset.image || null,
+      image: imagesList[0] || null,
+      images: imagesList,
       serial: asset.serial || `SER-${Math.floor(100000 + Math.random() * 900000)}`,
       purchaseDate: asset.purchaseDate || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
     };
@@ -575,7 +604,25 @@ export const assetService = {
 
   updateAsset: (id, updates) => {
     const current = assetService.getAssets();
-    const updated = current.map((a) => (a.id === id ? { ...a, ...updates } : a));
+    const target = current.find((a) => a.id === id);
+    if (!target) return null;
+
+    let imagesList = updates.images;
+    if (imagesList === undefined) {
+      if (updates.image !== undefined) {
+        imagesList = updates.image ? [updates.image] : [];
+      } else {
+        imagesList = target.images || (target.image ? [target.image] : []);
+      }
+    }
+
+    const normalizedUpdates = {
+      ...updates,
+      images: imagesList,
+      image: imagesList[0] || null,
+    };
+
+    const updated = current.map((a) => (a.id === id ? { ...a, ...normalizedUpdates } : a));
     localStorage.setItem(ASSETS_KEY, JSON.stringify(updated));
     return updated.find((a) => a.id === id);
   },
