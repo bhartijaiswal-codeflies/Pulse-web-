@@ -42,12 +42,14 @@ const initialJan2026Payroll = [
     department: 'Engineering',
     designation: 'Software Developer',
     salary: 10000,
+    grossSalary: 10000,
+    baseSalary: 5000,
     leaveTaken: 2,
     bucketAvailable: 3,
     unpaidLeave: 0,
     newBucket: 1,
-    pf: 2400,
-    esi: 400,
+    pf: 1200, // 24% of Base Salary (₹5,000)
+    esi: 200, // 4% of Base Salary (₹5,000)
     tds: 0,
     otherDeduction: 200,
     deductionNotes: 'Professional Tax (₹200)',
@@ -63,12 +65,14 @@ const initialJan2026Payroll = [
     department: 'Web Design',
     designation: 'UI/UX Designer',
     salary: 35000,
+    grossSalary: 35000,
+    baseSalary: 17500,
     leaveTaken: 1,
     bucketAvailable: 2,
     unpaidLeave: 0,
     newBucket: 1,
-    pf: 8400,
-    esi: 1400,
+    pf: 4200, // 24% of Base Salary (₹17,500)
+    esi: 700, // 4% of Base Salary (₹17,500)
     tds: 1000,
     otherDeduction: 200,
     deductionNotes: 'PF + Professional Tax (₹200)',
@@ -84,12 +88,14 @@ const initialJan2026Payroll = [
     department: 'Frontend Tech',
     designation: 'Senior Frontend Engineer',
     salary: 45000,
+    grossSalary: 45000,
+    baseSalary: 22500,
     leaveTaken: 4,
     bucketAvailable: 2,
     unpaidLeave: 2,
     newBucket: 0,
-    pf: 10800,
-    esi: 1800,
+    pf: 5400, // 24% of Base Salary (₹22,500)
+    esi: 900, // 4% of Base Salary (₹22,500)
     tds: 1500,
     otherDeduction: 200,
     deductionNotes: 'PT (₹200)',
@@ -234,17 +240,24 @@ const initialJan2026Payroll = [
 
 // Helper to calculate exact row numbers
 export const calculatePayrollRow = (row, daysInMonth = 30) => {
-  const salary = Number(row.salary) || 0;
+  const grossSalary = Number(row.grossSalary !== undefined && row.grossSalary !== null ? row.grossSalary : row.salary) || 0;
+  const baseSalary = Number(row.baseSalary !== undefined && row.baseSalary !== null ? row.baseSalary : Math.round(grossSalary * 0.5)) || 0;
   const leaveTaken = Number(row.leaveTaken) || 0;
   const bucketAvailable = Number(row.bucketAvailable) || 0;
   const otherDeduction = Number(row.otherDeduction) || 0;
 
-  // 3 Statutory & Tax Columns:
-  // 1. PF (24% of salary)
-  // 2. ESI (4% of salary)
+  // 3 Statutory & Tax Columns (PF & ESI based on Base Salary as 50% of Gross):
+  // 1. PF (24% of Base Salary)
+  // 2. ESI (4% of Base Salary)
   // 3. TDS (Manual entry)
-  const pf = row.pf !== undefined && row.pf !== null ? Number(row.pf) : Math.round(salary * 0.24);
-  const esi = row.esi !== undefined && row.esi !== null ? Number(row.esi) : Math.round(salary * 0.04);
+  const oldGrossPf = Math.round(grossSalary * 0.24);
+  const oldGrossEsi = Math.round(grossSalary * 0.04);
+  const pf = (row.pf !== undefined && row.pf !== null && row.pf !== oldGrossPf)
+    ? Number(row.pf)
+    : Math.round(baseSalary * 0.24);
+  const esi = (row.esi !== undefined && row.esi !== null && row.esi !== oldGrossEsi)
+    ? Number(row.esi)
+    : Math.round(baseSalary * 0.04);
   const tds = Number(row.tds) || 0;
 
   let unpaidLeave = 0;
@@ -258,19 +271,21 @@ export const calculatePayrollRow = (row, daysInMonth = 30) => {
     newBucket = bucketAvailable - leaveTaken;
   }
 
-  // Calculate unpaid leave deduction
-  const perDaySalary = daysInMonth > 0 ? salary / daysInMonth : 0;
+  // Calculate unpaid leave deduction (Loss of Pay based on Gross Salary)
+  const perDaySalary = daysInMonth > 0 ? grossSalary / daysInMonth : 0;
   const unpaidDeductionAmount = Math.round(unpaidLeave * perDaySalary);
 
-  // Total deductions: Unpaid Leave LOP + PF (24%) + ESI (4%) + TDS (Manual) + Other Deductions
+  // Total deductions: Unpaid Leave LOP + PF (24% of Base) + ESI (4% of Base) + TDS (Manual) + Other Deductions
   const totalDeductions = unpaidDeductionAmount + pf + esi + tds + otherDeduction;
 
   // Net payable
-  const payable = Math.max(0, Math.round(salary - totalDeductions));
+  const payable = Math.max(0, Math.round(grossSalary - totalDeductions));
 
   return {
     ...row,
-    salary,
+    salary: grossSalary,
+    grossSalary,
+    baseSalary,
     leaveTaken,
     bucketAvailable,
     unpaidLeave,
