@@ -17,7 +17,7 @@ import { useTheme } from '../../context/ThemeContext';
 export const navigationItems = [
   { name: 'Dashboard', path: '/', icon: LayoutDashboard },
   { name: 'Attendance', path: '/attendance', icon: Clock, badge: '92%' },
-  { name: 'HRMS', path: '/candidates', icon: Briefcase, badge: '5' },
+  { name: 'HRMS', path: '/hrms', icon: Briefcase, badge: '5' },
   { name: 'Finances', path: '/finances', icon: CreditCard },
   { name: 'Users', path: '/users', icon: Users, badge: '248' },
   { name: 'Assets', path: '/assets', icon: Laptop, badge: '8' },

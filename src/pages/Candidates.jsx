@@ -41,6 +41,9 @@ import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { candidateService } from '../services/candidateService';
 import { employeeService } from '../services/employeeService';
+import { hrmsService } from '../services/hrmsService';
+import { HiringPositionsView } from '../components/hrms/HiringPositionsView';
+import { CandidateSourcingView } from '../components/hrms/CandidateSourcingView';
 import { useToast } from '../context/NotificationContext';
 
 const formatSalary = (val, fallback = '120,000') => {
@@ -155,6 +158,12 @@ export const Candidates = () => {
   const [roleFilter, setRoleFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+
+  // HRMS Tabs & Sourcing state
+  const [activeHrmsTab, setActiveHrmsTab] = useState('candidates');
+  const [sourcingPrefillRole, setSourcingPrefillRole] = useState(null);
+  const [openPositionsCount, setOpenPositionsCount] = useState(() => hrmsService.getOpenPositions().length);
+  const [sourcedCount, setSourcedCount] = useState(() => hrmsService.getSourcedCandidates().length);
 
   const fileInputRef = useRef(null);
   const stageDropdownRef = useRef(null);
@@ -1373,59 +1382,129 @@ export const Candidates = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      {/* Page Header with Import, Export and Add Candidate Buttons - exact equal size as Attendance */}
+      {/* 1. Page Header (HRMS) */}
       <PageHeader
-        title="HRMS – Hiring (open positions)"
-        badgeText="Recruitment Pipeline"
-        subtitle="Manage job applicants, interview schedules, salaries and hiring offers."
+        title="HRMS"
+        badgeText="Recruitment & Talent Hub"
+        subtitle="Manage job descriptions & open positions, talent sourcing intake, interview rounds, and candidate offers."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'HRMS' }]}
         actions={
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Hidden file input for CSV Import */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleImportFile}
-              accept=".csv, .xlsx, .xls"
-              className="hidden"
-            />
+          activeHrmsTab === 'candidates' ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Hidden file input for CSV Import */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImportFile}
+                accept=".csv, .xlsx, .xls"
+                className="hidden"
+              />
 
-            {/* Import Button - exact same size and shape as Attendance Export CSV */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
-              title="Import candidates from CSV"
-            >
-              <Upload className="w-3.5 h-3.5 text-[#8292AD]" />
-              <span>Import</span>
-            </button>
+              {/* Import Button */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+                title="Import candidates from CSV"
+              >
+                <Upload className="w-3.5 h-3.5 text-[#8292AD]" />
+                <span>Import</span>
+              </button>
 
-            {/* Export CSV Button - exact same size and shape as Attendance Export CSV */}
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
-              title="Export candidate pipeline to CSV"
-            >
-              <Download className="w-3.5 h-3.5 text-[#8292AD]" />
-              <span>Export CSV</span>
-            </button>
+              {/* Export CSV Button */}
+              <button
+                type="button"
+                onClick={handleExportCSV}
+                className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+                title="Export candidate pipeline to CSV"
+              >
+                <Download className="w-3.5 h-3.5 text-[#8292AD]" />
+                <span>Export CSV</span>
+              </button>
 
-            {/* Add Candidate Button - exact same size and shape as Attendance Create button */}
-            <button
-              type="button"
-              onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
-            >
-              <UserPlus className="w-4 h-4 stroke-[2.5]" />
-              <span>Add Candidate</span>
-            </button>
-          </div>
+              {/* Add Candidate Button */}
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+              >
+                <UserPlus className="w-4 h-4 stroke-[2.5]" />
+                <span>Add Candidate</span>
+              </button>
+            </div>
+          ) : activeHrmsTab === 'hiring' ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSourcingPrefillRole(null);
+                  setActiveHrmsTab('sourcing');
+                  setSourcedCount(hrmsService.getSourcedCandidates().length);
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-teal-50 text-[#008080] border border-teal-200 hover:bg-teal-100 transition-colors cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Go to Candidate Sourcing →</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveHrmsTab('candidates');
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>Go to Active Candidates →</span>
+              </button>
+            </div>
+          )
         }
       />
 
-      {/* Stats Cards */}
+      {/* 2. HRMS 3-Tab Switcher Bar (Candidates, Hiring/Open Positions, Candidate Sourcing) */}
+      <div className="flex items-center gap-2 border-b border-[#E5EAF2] pb-1 overflow-x-auto no-scrollbar">
+        {[
+          { id: 'candidates', label: 'Candidates', count: candidates.length, icon: Users },
+          { id: 'hiring', label: 'Hiring (Open Positions)', count: openPositionsCount, icon: Briefcase },
+          { id: 'sourcing', label: 'Candidate Sourcing', count: sourcedCount, icon: UserPlus },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeHrmsTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveHrmsTab(tab.id);
+                setOpenPositionsCount(hrmsService.getOpenPositions().length);
+                setSourcedCount(hrmsService.getSourcedCandidates().length);
+              }}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap ${
+                isActive
+                  ? 'bg-[#2563EB] text-white shadow-sm shadow-blue-500/20'
+                  : 'bg-white text-[#8292AD] hover:text-[#172033] hover:bg-slate-50 border border-[#E5EAF2]'
+              }`}
+            >
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-[#8292AD]'}`} />
+              <span>{tab.label}</span>
+              <span
+                className={`text-[9.5px] font-extrabold px-1.5 py-0.2 rounded-full leading-tight ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                }`}
+              >
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 3. TAB 1: CANDIDATES PIPELINE TABLE */}
+      {activeHrmsTab === 'candidates' && (
+        <>
+          {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           title="Total Pipeline"
@@ -1557,6 +1636,35 @@ export const Candidates = () => {
           </div>
         )}
       />
+        </>
+      )}
+
+      {/* 4. TAB 2: HIRING (OPEN POSITIONS & JDs) */}
+      {activeHrmsTab === 'hiring' && (
+        <HiringPositionsView
+          onNavigateToSourcing={(role) => {
+            setSourcingPrefillRole(role);
+            setActiveHrmsTab('sourcing');
+            setSourcedCount(hrmsService.getSourcedCandidates().length);
+          }}
+        />
+      )}
+
+      {/* 5. TAB 3: CANDIDATE SOURCING INTAKE */}
+      {activeHrmsTab === 'sourcing' && (
+        <CandidateSourcingView
+          prefillRole={sourcingPrefillRole}
+          onCandidateApproved={(newCand) => {
+            setCandidates(candidateService.getCandidates());
+            setOpenPositionsCount(hrmsService.getOpenPositions().length);
+            setSourcedCount(hrmsService.getSourcedCandidates().length);
+            setActiveHrmsTab('candidates');
+            if (newCand) {
+              setSelectedCandidate(newCand);
+            }
+          }}
+        />
+      )}
 
       {/* Add Candidate Modal */}
       {showAddModal && (

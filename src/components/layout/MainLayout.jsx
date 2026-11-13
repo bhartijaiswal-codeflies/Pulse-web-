@@ -115,7 +115,7 @@ export const MainLayout = () => {
                           key={cand.id}
                           onClick={() => {
                             setGlobalSearch('');
-                            navigate('/candidates');
+                            navigate('/hrms');
                           }}
                           className="flex items-center justify-between p-2 rounded-xl hover:bg-[#F7F9FC] cursor-pointer border border-transparent hover:border-[#E5EAF2] transition-colors"
                         >

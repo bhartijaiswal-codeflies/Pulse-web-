@@ -23,7 +23,8 @@ export default function App() {
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="attendance" element={<Attendance />} />
-              <Route path="candidates" element={<Candidates />} />
+              <Route path="hrms" element={<Candidates />} />
+              <Route path="candidates" element={<Navigate to="/hrms" replace />} />
               <Route path="finances" element={<MyFinances />} />
               <Route path="users" element={<Users />} />
               <Route path="assets" element={<Assets />} />
