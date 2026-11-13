@@ -152,6 +152,7 @@ export const Candidates = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
+  const [roleFilter, setRoleFilter] = useState('All');
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
@@ -796,6 +797,7 @@ export const Candidates = () => {
     setFromDate('');
     setToDate('');
     setDeptFilter('All');
+    setRoleFilter('All');
     addToast({
       title: 'Filters Reset',
       message: 'All candidate filters have been cleared.',
@@ -1028,7 +1030,7 @@ export const Candidates = () => {
       }
     }
 
-    return matchesSearch && matchesStage && matchesDept && matchesDate;
+    return matchesSearch && matchesStage && matchesDept && matchesDate && (roleFilter === 'All' || c.role.toLowerCase().includes(roleFilter.toLowerCase()));
   });
 
   const stageStatusConfig = {
@@ -1373,10 +1375,10 @@ export const Candidates = () => {
     <div className="space-y-6 animate-fade-in pb-12">
       {/* Page Header with Import, Export and Add Candidate Buttons - exact equal size as Attendance */}
       <PageHeader
-        title="Candidate Management"
+        title="HRMS – Hiring (open positions)"
         badgeText="Recruitment Pipeline"
         subtitle="Manage job applicants, interview schedules, salaries and hiring offers."
-        breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Candidates' }]}
+        breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'HRMS' }]}
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             {/* Hidden file input for CSV Import */}
@@ -1464,6 +1466,45 @@ export const Candidates = () => {
       </div>
 
       {/* Table with Dedicated Fixed Filter Bar matching Attendance */}
+      {/* Role Filter Chips (Hiring open positions) */}
+      {(() => {
+        const roleTags = [
+          { label: 'All Roles', value: 'All' },
+          { label: 'SEO Manager', value: 'SEO Manager' },
+          { label: 'SME, BPO', value: 'BPO' },
+          { label: 'Web Design', value: 'Web Design' },
+          { label: 'App Developer', value: 'App Developer' },
+          { label: '350 Executive', value: '350 Executive' },
+        ];
+        return (
+          <div className="flex flex-wrap items-center gap-2 px-1">
+            {roleTags.map(({ label, value }) => {
+              const count = value === 'All'
+                ? candidates.length
+                : candidates.filter((c) => c.role.toLowerCase().includes(value.toLowerCase())).length;
+              const isActive = roleFilter === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setRoleFilter(value)}
+                  className={`inline-flex items-center gap-1.5 px-3 h-8 rounded-full text-xs font-semibold border transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                    isActive
+                      ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-sm'
+                      : 'bg-white text-[#475569] border-[#E5EAF2] hover:bg-[#EFF6FF] hover:text-[#2563EB] hover:border-[#BFDBFE]'
+                  }`}
+                >
+                  <span>{label}</span>
+                  <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full text-[10px] font-bold px-1 ${
+                    isActive ? 'bg-white/25 text-white' : 'bg-[#EFF6FF] text-[#2563EB]'
+                  }`}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       <DataTable
         columns={columns}
         data={filteredCandidates}
