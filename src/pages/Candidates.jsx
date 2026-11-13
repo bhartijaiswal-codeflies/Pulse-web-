@@ -22,6 +22,7 @@ import {
   Upload,
   Download,
   UserCheck,
+  Users,
   Building,
   RotateCcw,
   RotateCw,
