@@ -32,6 +32,9 @@ import {
   Paperclip,
   Plus,
   Video,
+  Camera,
+  Image as ImageIcon,
+  ImagePlus,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -147,6 +150,15 @@ const formatDateTimeParts = (dateStr, timeStr) => {
   return `${dateFormatted} ${timeFormatted}`;
 };
 
+const PRESET_CANDIDATE_AVATARS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80',
+];
+
 export const Candidates = () => {
   const [candidates, setCandidates] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -183,6 +195,7 @@ export const Candidates = () => {
   ];
 
   // New candidate form (no $ in salary)
+  const [newAvatar, setNewAvatar] = useState('');
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
@@ -244,6 +257,7 @@ export const Candidates = () => {
   // Edit candidate modal state (all fields from screenshot)
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingCandidate, setEditingCandidate] = useState(null);
+  const [editAvatar, setEditAvatar] = useState('');
   const [editName, setEditName] = useState('');
   const [editRole, setEditRole] = useState('');
   const [editDept, setEditDept] = useState('Engineering');
@@ -475,6 +489,7 @@ export const Candidates = () => {
   // Open Edit modal with all fields populated
   const handleOpenEditModal = (cand) => {
     setEditingCandidate(cand);
+    setEditAvatar(cand.avatar || '');
     setEditName(cand.name || '');
     setEditRole(cand.role || '');
     setEditDept(cand.department || 'Engineering');
@@ -571,6 +586,7 @@ export const Candidates = () => {
     const updatedData = {
       name: editName.trim(),
       role: editRole.trim(),
+      avatar: editAvatar.trim() || editingCandidate.avatar || undefined,
       department: editDept,
       email: editEmail.trim(),
       phone: editPhone.trim(),
@@ -932,6 +948,54 @@ export const Candidates = () => {
     reader.readAsText(file);
   };
 
+  const handleNewAvatarUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      addToast({
+        title: 'Invalid File',
+        message: 'Please choose an image file (PNG, JPG, JPEG, WEBP).',
+        type: 'warning',
+      });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setNewAvatar(event.target.result);
+      addToast({
+        title: 'Photo Uploaded',
+        message: 'Candidate photo ready.',
+        type: 'success',
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleEditAvatarUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      addToast({
+        title: 'Invalid File',
+        message: 'Please choose an image file (PNG, JPG, JPEG, WEBP).',
+        type: 'warning',
+      });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setEditAvatar(event.target.result);
+      addToast({
+        title: 'Photo Uploaded',
+        message: 'Candidate photo ready.',
+        type: 'success',
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   const handleCreateCandidate = (e) => {
     e.preventDefault();
     if (!newName.trim() || !newEmail.trim()) {
@@ -948,6 +1012,7 @@ export const Candidates = () => {
     const created = candidateService.addCandidate({
       name: newName.trim(),
       email: newEmail.trim(),
+      avatar: newAvatar.trim() || undefined,
       phone: newPhone.trim() || '+1 (555) 000-0000',
       role: newRole,
       department: newDept,
@@ -1670,6 +1735,112 @@ export const Candidates = () => {
           maxWidth="max-w-3xl"
         >
           <form onSubmit={handleCreateCandidate} className="space-y-4">
+            {/* Candidate Photo Upload Section */}
+            <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E5EAF2]">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>Candidate Photo (Optional)</span>
+                </div>
+                {newAvatar && (
+                  <button
+                    type="button"
+                    onClick={() => setNewAvatar('')}
+                    className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Remove Photo</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                {/* Live Avatar Preview */}
+                <div className="relative group/avatar flex-shrink-0">
+                  {newAvatar ? (
+                    <img
+                      src={newAvatar}
+                      alt="Avatar preview"
+                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white shadow-sm border border-[#E5EAF2]"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200/60 text-[#2563EB] flex flex-col items-center justify-center font-bold text-xs shadow-2xs">
+                      <Camera className="w-5 h-5 text-[#2563EB]/70 mb-0.5" />
+                      <span className="text-[9px] text-slate-500 font-medium">No Photo</span>
+                    </div>
+                  )}
+
+                  <label
+                    htmlFor="candidate-new-avatar-upload"
+                    className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover/avatar:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[9px] font-bold cursor-pointer backdrop-blur-2xs"
+                    title="Upload photo from device"
+                  >
+                    <Upload className="w-3.5 h-3.5 mb-0.5" />
+                    <span>Upload</span>
+                  </label>
+                  <input
+                    id="candidate-new-avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleNewAvatarUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-1 min-w-0 w-full space-y-2">
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="candidate-new-avatar-upload"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-[#2563EB] border border-[#2563EB]/30 hover:bg-blue-50/70 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#2563EB]" />
+                      <span>Upload Device Photo</span>
+                    </label>
+                    <span className="text-[11px] text-slate-400">or paste image link</span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={newAvatar}
+                      onChange={(e) => setNewAvatar(e.target.value)}
+                      placeholder="Paste image URL (https://images.unsplash.com/...)"
+                      className="w-full pl-3 pr-8 py-1.5 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white placeholder:text-slate-400"
+                    />
+                    {newAvatar && (
+                      <button
+                        type="button"
+                        onClick={() => setNewAvatar('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title="Clear photo link"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Preset Avatar Chips */}
+                  <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto no-scrollbar">
+                    <span className="text-[10px] text-slate-500 font-semibold flex-shrink-0">Presets:</span>
+                    {PRESET_CANDIDATE_AVATARS.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setNewAvatar(preset)}
+                        className={`w-6 h-6 rounded-full overflow-hidden border transition-transform flex-shrink-0 cursor-pointer ${
+                          newAvatar === preset ? 'ring-2 ring-[#2563EB] scale-110 border-white' : 'border-slate-300 opacity-70 hover:opacity-100 hover:scale-105'
+                        }`}
+                        title={`Select preset avatar #${idx + 1}`}
+                      >
+                        <img src={preset} alt={`preset ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1.5">
@@ -2069,6 +2240,112 @@ export const Candidates = () => {
           maxWidth="max-w-3xl"
         >
           <form onSubmit={handleSaveEdit} className="space-y-4">
+            {/* Candidate Photo Upload Section */}
+            <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E5EAF2]">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>Candidate Photo</span>
+                </div>
+                {editAvatar && (
+                  <button
+                    type="button"
+                    onClick={() => setEditAvatar('')}
+                    className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Remove Photo</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                {/* Live Avatar Preview */}
+                <div className="relative group/avatar flex-shrink-0">
+                  {editAvatar ? (
+                    <img
+                      src={editAvatar}
+                      alt="Avatar preview"
+                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white shadow-sm border border-[#E5EAF2]"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200/60 text-[#2563EB] flex flex-col items-center justify-center font-bold text-xs shadow-2xs">
+                      <Camera className="w-5 h-5 text-[#2563EB]/70 mb-0.5" />
+                      <span className="text-[9px] text-slate-500 font-medium">No Photo</span>
+                    </div>
+                  )}
+
+                  <label
+                    htmlFor="candidate-edit-avatar-upload"
+                    className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover/avatar:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[9px] font-bold cursor-pointer backdrop-blur-2xs"
+                    title="Upload photo from device"
+                  >
+                    <Upload className="w-3.5 h-3.5 mb-0.5" />
+                    <span>Change</span>
+                  </label>
+                  <input
+                    id="candidate-edit-avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditAvatarUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-1 min-w-0 w-full space-y-2">
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="candidate-edit-avatar-upload"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-[#2563EB] border border-[#2563EB]/30 hover:bg-blue-50/70 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#2563EB]" />
+                      <span>Upload Device Photo</span>
+                    </label>
+                    <span className="text-[11px] text-slate-400">or paste image link</span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={editAvatar}
+                      onChange={(e) => setEditAvatar(e.target.value)}
+                      placeholder="Paste image URL (https://images.unsplash.com/...)"
+                      className="w-full pl-3 pr-8 py-1.5 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white placeholder:text-slate-400"
+                    />
+                    {editAvatar && (
+                      <button
+                        type="button"
+                        onClick={() => setEditAvatar('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title="Clear photo link"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Preset Avatar Chips */}
+                  <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto no-scrollbar">
+                    <span className="text-[10px] text-slate-500 font-semibold flex-shrink-0">Presets:</span>
+                    {PRESET_CANDIDATE_AVATARS.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setEditAvatar(preset)}
+                        className={`w-6 h-6 rounded-full overflow-hidden border transition-transform flex-shrink-0 cursor-pointer ${
+                          editAvatar === preset ? 'ring-2 ring-[#2563EB] scale-110 border-white' : 'border-slate-300 opacity-70 hover:opacity-100 hover:scale-105'
+                        }`}
+                        title={`Select preset avatar #${idx + 1}`}
+                      >
+                        <img src={preset} alt={`preset ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* 1. Name & Role */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -2796,16 +3073,25 @@ export const Candidates = () => {
           <div className="space-y-6">
             {/* Top Bar: Name + Role, Status Dropdown, Resume Button */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5EAF2]">
-              <div>
-                <h3 className="text-base font-bold text-[#172033]">
-                  {selectedCandidate.name}{' '}
-                  <span className="font-normal text-[#8292AD]">
-                    ({selectedCandidate.role})
-                  </span>
-                </h3>
-                <p className="text-xs text-[#8292AD] mt-0.5">
-                  Department: <span className="font-semibold text-[#172033]">{selectedCandidate.department}</span>
-                </p>
+              <div className="flex items-center gap-3">
+                {selectedCandidate.avatar && (
+                  <img
+                    src={selectedCandidate.avatar}
+                    alt={selectedCandidate.name}
+                    className="w-12 h-12 rounded-2xl object-cover ring-2 ring-[#E5EAF2] shadow-2xs flex-shrink-0"
+                  />
+                )}
+                <div>
+                  <h3 className="text-base font-bold text-[#172033]">
+                    {selectedCandidate.name}{' '}
+                    <span className="font-normal text-[#8292AD]">
+                      ({selectedCandidate.role})
+                    </span>
+                  </h3>
+                  <p className="text-xs text-[#8292AD] mt-0.5">
+                    Department: <span className="font-semibold text-[#172033]">{selectedCandidate.department}</span>
+                  </p>
+                </div>
               </div>
 
               {/* Status Selector + Resume Download Button */}

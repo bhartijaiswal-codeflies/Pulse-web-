@@ -21,6 +21,10 @@ import {
   ArrowRight,
   Eye,
   UserCheck,
+  Camera,
+  Upload,
+  Image as ImageIcon,
+  ImagePlus,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { SearchBar } from '../common/SearchBar';
@@ -48,6 +52,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
     name: '',
     email: '',
     phone: '',
+    avatar: '',
     role: prefillRole || 'SEO Manager',
     department: 'Marketing',
     experience: '3 Years',
@@ -95,6 +100,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
       name: '',
       email: '',
       phone: '',
+      avatar: '',
       role: prefillRole || 'SEO Manager',
       department: 'Marketing',
       experience: '3 Years',
@@ -117,6 +123,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
       name: cand.name,
       email: cand.email,
       phone: cand.phone,
+      avatar: cand.avatar || '',
       role: cand.role,
       department: cand.department || 'Marketing',
       experience: cand.experience,
@@ -129,6 +136,30 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
       sourceChannel: cand.sourceChannel || 'LinkedIn Sourcing',
     });
     setShowAddModal(true);
+  };
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      addToast({
+        title: 'Invalid File',
+        message: 'Please choose an image file (PNG, JPG, JPEG, WEBP).',
+        type: 'warning',
+      });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setForm((prev) => ({ ...prev, avatar: event.target.result }));
+      addToast({
+        title: 'Photo Uploaded',
+        message: 'Candidate photo ready.',
+        type: 'success',
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   // Submit Candidate Form
@@ -519,6 +550,94 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
           maxWidth="max-w-2xl"
         >
           <form onSubmit={handleSubmitCandidate} className="space-y-4 text-xs">
+            {/* Candidate Photo Upload Section */}
+            <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E5EAF2]">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>Candidate Photo (Optional)</span>
+                </div>
+                {form.avatar && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, avatar: '' })}
+                    className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Remove Photo</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                {/* Live Avatar Preview */}
+                <div className="relative group/avatar flex-shrink-0">
+                  {form.avatar ? (
+                    <img
+                      src={form.avatar}
+                      alt="Avatar preview"
+                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white shadow-sm border border-[#E5EAF2]"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-100 border border-teal-200/60 text-[#008080] flex flex-col items-center justify-center font-bold text-xs shadow-2xs">
+                      <Camera className="w-5 h-5 text-[#008080]/70 mb-0.5" />
+                      <span className="text-[9px] text-slate-500 font-medium">No Photo</span>
+                    </div>
+                  )}
+
+                  <label
+                    htmlFor="sourcing-avatar-upload"
+                    className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover/avatar:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[9px] font-bold cursor-pointer backdrop-blur-2xs"
+                    title="Upload photo from device"
+                  >
+                    <Upload className="w-3.5 h-3.5 mb-0.5" />
+                    <span>Upload</span>
+                  </label>
+                  <input
+                    id="sourcing-avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-1 min-w-0 w-full space-y-2">
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="sourcing-avatar-upload"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-[#008080] border border-[#008080]/30 hover:bg-teal-50/70 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#008080]" />
+                      <span>Upload Device Photo</span>
+                    </label>
+                    <span className="text-[11px] text-slate-400">or paste image link</span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={form.avatar || ''}
+                      onChange={(e) => setForm({ ...form, avatar: e.target.value })}
+                      placeholder="Paste image URL (https://images.unsplash.com/...)"
+                      className="w-full pl-3 pr-8 py-1.5 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#008080]/20 bg-white placeholder:text-slate-400"
+                    />
+                    {form.avatar && (
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, avatar: '' })}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title="Clear photo link"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Candidate Full Name *</label>
@@ -667,10 +786,21 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
         >
           <div className="space-y-4 text-xs">
             <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
-              <h4 className="font-extrabold text-[#172033] text-sm">{approvingCandidate.name}</h4>
-              <p className="text-[11px] text-emerald-800 font-semibold mt-0.5">
-                Role: {approvingCandidate.role} • {approvingCandidate.experience}
-              </p>
+              <div className="flex items-center gap-3">
+                {approvingCandidate.avatar && (
+                  <img
+                    src={approvingCandidate.avatar}
+                    alt={approvingCandidate.name}
+                    className="w-11 h-11 rounded-2xl object-cover ring-2 ring-white shadow-2xs flex-shrink-0"
+                  />
+                )}
+                <div>
+                  <h4 className="font-extrabold text-[#172033] text-sm">{approvingCandidate.name}</h4>
+                  <p className="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                    Role: {approvingCandidate.role} • {approvingCandidate.experience}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <p className="text-slate-600 leading-relaxed">
@@ -711,12 +841,21 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
         >
           <div className="space-y-4 text-xs">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-extrabold text-[#172033]">{viewingCandidate.name}</h3>
-                <p className="text-[11px] text-slate-600 font-medium mt-0.5">
-                  {viewingCandidate.currentCompany ? `${viewingCandidate.currentCompany} • ` : ''}
-                  {viewingCandidate.location}
-                </p>
+              <div className="flex items-center gap-3">
+                {viewingCandidate.avatar && (
+                  <img
+                    src={viewingCandidate.avatar}
+                    alt={viewingCandidate.name}
+                    className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white shadow-2xs flex-shrink-0"
+                  />
+                )}
+                <div>
+                  <h3 className="text-base font-extrabold text-[#172033]">{viewingCandidate.name}</h3>
+                  <p className="text-[11px] text-slate-600 font-medium mt-0.5">
+                    {viewingCandidate.currentCompany ? `${viewingCandidate.currentCompany} • ` : ''}
+                    {viewingCandidate.location}
+                  </p>
+                </div>
               </div>
 
               <span

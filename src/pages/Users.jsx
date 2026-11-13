@@ -45,6 +45,9 @@ import {
   TrendingUp,
   History,
   ArrowUpRight,
+  Camera,
+  Image as ImageIcon,
+  ImagePlus,
 } from 'lucide-react';
 import { PageHeader } from '../components/common/PageHeader';
 import { StatsCard } from '../components/dashboard/StatsCard';
@@ -54,6 +57,15 @@ import { SearchBar } from '../components/common/SearchBar';
 import { Modal } from '../components/common/Modal';
 import { employeeService } from '../services/employeeService';
 import { useToast } from '../context/NotificationContext';
+
+const PRESET_AVATARS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80',
+];
 
 export const Users = () => {
   const [employees, setEmployees] = useState([]);
@@ -90,6 +102,7 @@ export const Users = () => {
   const { addToast } = useToast();
 
   // Add / Edit Form State
+  const [avatar, setAvatar] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -160,6 +173,7 @@ export const Users = () => {
   };
 
   const resetForm = () => {
+    setAvatar('');
     setName('');
     setEmail('');
     setPhone('');
@@ -180,6 +194,41 @@ export const Users = () => {
     setEditingEmployee(null);
   };
 
+  const handleAvatarFileUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      addToast({
+        title: 'Invalid File',
+        message: 'Please choose an image file (PNG, JPG, JPEG, WEBP, GIF).',
+        type: 'warning',
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      addToast({
+        title: 'File Too Large',
+        message: 'Image size should be less than 5MB.',
+        type: 'warning',
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setAvatar(event.target.result);
+      addToast({
+        title: 'Photo Uploaded',
+        message: 'Profile image preview loaded.',
+        type: 'success',
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   const handleOpenAddModal = () => {
     resetForm();
     setShowAddModal(true);
@@ -187,6 +236,7 @@ export const Users = () => {
 
   const handleOpenEditModal = (emp) => {
     setEditingEmployee(emp);
+    setAvatar(emp.avatar || '');
     setName(emp.name || '');
     setEmail(emp.email || '');
     setPhone(emp.phone || '');
@@ -221,6 +271,7 @@ export const Users = () => {
     const payload = {
       name: name.trim(),
       email: email.trim(),
+      avatar: avatar.trim() || (editingEmployee?.avatar ? editingEmployee.avatar : undefined),
       phone: phone.trim() || '+1 (555) 000-0000',
       designation: designation.trim() || 'Software Engineer',
       role,
@@ -1041,6 +1092,112 @@ export const Users = () => {
           maxWidth="max-w-2xl"
         >
           <form onSubmit={handleSaveEmployee} className="space-y-4">
+            {/* Section 0: Profile Photo Upload */}
+            <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E5EAF2]">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-[#2563EB]" />
+                  <span>Profile Photo</span>
+                </div>
+                {avatar && (
+                  <button
+                    type="button"
+                    onClick={() => setAvatar('')}
+                    className="text-[11px] font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Remove Photo</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                {/* Live Avatar Preview */}
+                <div className="relative group/avatar flex-shrink-0">
+                  {avatar ? (
+                    <img
+                      src={avatar}
+                      alt="Avatar preview"
+                      className="w-16 h-16 rounded-2xl object-cover ring-2 ring-white shadow-sm border border-[#E5EAF2]"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200/60 text-[#2563EB] flex flex-col items-center justify-center font-bold text-xs shadow-2xs">
+                      <Camera className="w-5 h-5 text-[#2563EB]/70 mb-0.5" />
+                      <span className="text-[9px] text-slate-500 font-medium">No Photo</span>
+                    </div>
+                  )}
+
+                  <label
+                    htmlFor="employee-avatar-upload"
+                    className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover/avatar:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[9px] font-bold cursor-pointer backdrop-blur-2xs"
+                    title="Upload photo from device"
+                  >
+                    <Upload className="w-3.5 h-3.5 mb-0.5" />
+                    <span>Change</span>
+                  </label>
+                  <input
+                    id="employee-avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarFileUpload}
+                    className="hidden"
+                  />
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-1 min-w-0 w-full space-y-2">
+                  <div className="flex items-center gap-2">
+                    <label
+                      htmlFor="employee-avatar-upload"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl bg-white text-[#2563EB] border border-[#2563EB]/30 hover:bg-blue-50/70 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#2563EB]" />
+                      <span>Upload Device Photo</span>
+                    </label>
+                    <span className="text-[11px] text-slate-400">or paste image link</span>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="url"
+                      value={avatar}
+                      onChange={(e) => setAvatar(e.target.value)}
+                      placeholder="Paste image URL (https://images.unsplash.com/...)"
+                      className="w-full pl-3 pr-8 py-1.5 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 bg-white placeholder:text-slate-400"
+                    />
+                    {avatar && (
+                      <button
+                        type="button"
+                        onClick={() => setAvatar('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title="Clear photo link"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Preset Avatar Chips */}
+                  <div className="flex items-center gap-1.5 pt-0.5 overflow-x-auto no-scrollbar">
+                    <span className="text-[10px] text-slate-500 font-semibold flex-shrink-0">Presets:</span>
+                    {PRESET_AVATARS.map((preset, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setAvatar(preset)}
+                        className={`w-6 h-6 rounded-full overflow-hidden border transition-transform flex-shrink-0 cursor-pointer ${
+                          avatar === preset ? 'ring-2 ring-[#2563EB] scale-110 border-white' : 'border-slate-300 opacity-70 hover:opacity-100 hover:scale-105'
+                        }`}
+                        title={`Select preset avatar #${idx + 1}`}
+                      >
+                        <img src={preset} alt={`preset ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Section 1: Basic Identity */}
             <div className="bg-[#F8FAFC] p-3.5 rounded-xl border border-[#E5EAF2] space-y-3">
               <div className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider">
