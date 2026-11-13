@@ -349,21 +349,14 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                   >
                     {/* 1. Candidate Profile */}
                     <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-2.5">
-                        <img
-                          src={cand.avatar}
-                          alt={cand.name}
-                          className="w-9 h-9 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <div className="font-bold text-[#172033] hover:text-[#2563EB] transition-colors truncate">
-                            {cand.name}
-                          </div>
-                          <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5">
-                            <span className="font-mono text-slate-600">{cand.id}</span>
-                            <span>•</span>
-                            <span>{cand.sourceChannel}</span>
-                          </div>
+                      <div className="min-w-0">
+                        <div className="font-bold text-[#172033] hover:text-[#2563EB] transition-colors truncate">
+                          {cand.name}
+                        </div>
+                        <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5">
+                          <span className="font-mono text-slate-600">{cand.id}</span>
+                          <span>•</span>
+                          <span>{cand.sourceChannel}</span>
                         </div>
                       </div>
                     </td>
@@ -673,18 +666,11 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
           maxWidth="max-w-md"
         >
           <div className="space-y-4 text-xs">
-            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-3">
-              <img
-                src={approvingCandidate.avatar}
-                alt={approvingCandidate.name}
-                className="w-11 h-11 rounded-full object-cover ring-2 ring-white shadow-2xs"
-              />
-              <div>
-                <h4 className="font-extrabold text-[#172033] text-sm">{approvingCandidate.name}</h4>
-                <p className="text-[11px] text-emerald-800 font-semibold">
-                  Role: {approvingCandidate.role} • {approvingCandidate.experience}
-                </p>
-              </div>
+            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+              <h4 className="font-extrabold text-[#172033] text-sm">{approvingCandidate.name}</h4>
+              <p className="text-[11px] text-emerald-800 font-semibold mt-0.5">
+                Role: {approvingCandidate.role} • {approvingCandidate.experience}
+              </p>
             </div>
 
             <p className="text-slate-600 leading-relaxed">
@@ -725,19 +711,12 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
         >
           <div className="space-y-4 text-xs">
             <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <img
-                  src={viewingCandidate.avatar}
-                  alt={viewingCandidate.name}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-2xs"
-                />
-                <div>
-                  <h3 className="text-base font-extrabold text-[#172033]">{viewingCandidate.name}</h3>
-                  <p className="text-[11px] text-slate-600 font-medium">
-                    {viewingCandidate.currentCompany ? `${viewingCandidate.currentCompany} • ` : ''}
-                    {viewingCandidate.location}
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-base font-extrabold text-[#172033]">{viewingCandidate.name}</h3>
+                <p className="text-[11px] text-slate-600 font-medium mt-0.5">
+                  {viewingCandidate.currentCompany ? `${viewingCandidate.currentCompany} • ` : ''}
+                  {viewingCandidate.location}
+                </p>
               </div>
 
               <span

@@ -1270,20 +1270,14 @@ export const Candidates = () => {
       header: 'CANDIDATE',
       accessor: 'name',
       render: (row) => (
-        <div className="flex items-start gap-3 py-1">
-          <img
-            src={row.avatar}
-            alt={row.name}
-            className="w-9 h-9 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0 mt-0.5"
-          />
-          <div className="min-w-0">
-            <div
-              className="font-bold text-[#111827] text-xs hover:text-[#2563EB] cursor-pointer transition-colors"
-              onClick={() => setSelectedCandidate(row)}
-              title="Click to view full profile"
-            >
-              {row.name}
-            </div>
+        <div className="py-1 min-w-0">
+          <div
+            className="font-bold text-[#111827] text-xs hover:text-[#2563EB] cursor-pointer transition-colors"
+            onClick={() => setSelectedCandidate(row)}
+            title="Click to view full profile"
+          >
+            {row.name}
+          </div>
 
             {/* Email with copy action - clear & visible */}
             <button
@@ -1307,7 +1301,6 @@ export const Candidates = () => {
               <Phone className="w-3.5 h-3.5 text-[#6B7280] group-hover/phone:text-emerald-600 flex-shrink-0" />
               <span>{row.phone}</span>
             </a>
-          </div>
         </div>
       ),
     },
@@ -2803,23 +2796,16 @@ export const Candidates = () => {
           <div className="space-y-6">
             {/* Top Bar: Name + Role, Status Dropdown, Resume Button */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5EAF2]">
-              <div className="flex items-center gap-3">
-                <img
-                  src={selectedCandidate.avatar}
-                  alt={selectedCandidate.name}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-[#E5EAF2] shadow-2xs"
-                />
-                <div>
-                  <h3 className="text-base font-bold text-[#172033]">
-                    {selectedCandidate.name}{' '}
-                    <span className="font-normal text-[#8292AD]">
-                      ({selectedCandidate.role})
-                    </span>
-                  </h3>
-                  <p className="text-xs text-[#8292AD] mt-0.5">
-                    Department: <span className="font-semibold text-[#172033]">{selectedCandidate.department}</span>
-                  </p>
-                </div>
+              <div>
+                <h3 className="text-base font-bold text-[#172033]">
+                  {selectedCandidate.name}{' '}
+                  <span className="font-normal text-[#8292AD]">
+                    ({selectedCandidate.role})
+                  </span>
+                </h3>
+                <p className="text-xs text-[#8292AD] mt-0.5">
+                  Department: <span className="font-semibold text-[#172033]">{selectedCandidate.department}</span>
+                </p>
               </div>
 
               {/* Status Selector + Resume Download Button */}
