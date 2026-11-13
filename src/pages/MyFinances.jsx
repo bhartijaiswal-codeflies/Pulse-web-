@@ -45,6 +45,7 @@ import {
   payrollMonthsList,
   getDaysInMonth,
   calculatePayrollRow,
+  calculateStatutoryDeductions,
 } from '../services/financeService';
 import { useToast } from '../context/NotificationContext';
 
@@ -212,14 +213,15 @@ export const MyFinances = () => {
     setEditingPayrollRow(row);
     const gross = Number(row.grossSalary !== undefined ? row.grossSalary : row.salary) || 0;
     const base = Number(row.baseSalary !== undefined ? row.baseSalary : Math.round(gross * 0.5)) || 0;
+    const statutory = calculateStatutoryDeductions(base);
     setEditForm({
       salary: gross,
       grossSalary: gross,
       baseSalary: base,
       leaveTaken: row.leaveTaken,
       bucketAvailable: row.bucketAvailable,
-      pf: row.pf !== undefined ? row.pf : Math.round(base * 0.24),
-      esi: row.esi !== undefined ? row.esi : Math.round(base * 0.04),
+      pf: row.pf !== undefined ? row.pf : statutory.pf,
+      esi: row.esi !== undefined ? row.esi : statutory.esi,
       tds: row.tds || 0,
       otherDeduction: row.otherDeduction,
       deductionNotes: row.deductionNotes || '',
@@ -474,36 +476,63 @@ export const MyFinances = () => {
       ),
     },
     {
-      header: 'PF (24%)',
+      header: 'PF (24% / 6k CAP)',
       accessor: 'pf',
-      className: 'min-w-[110px]',
-      render: (row) => (
-        <div className="flex flex-col">
-          <span className="font-bold text-rose-700 text-xs">
-            -{formatCurrency(row.pf)}
-          </span>
-          <span className="text-[9.5px] text-[#8292AD] font-semibold flex items-center gap-1 mt-0.5" title="Calculated on Base Salary (50% of Gross)">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-            <span>24% of Base</span>
-          </span>
-        </div>
-      ),
+      className: 'min-w-[125px]',
+      render: (row) => {
+        const isCapped = Number(row.baseSalary) > 25000;
+        return (
+          <div className="flex flex-col">
+            <span className="font-bold text-rose-700 text-xs">
+              -{formatCurrency(row.pf)}
+            </span>
+            <span
+              className="text-[9.5px] font-semibold flex items-center gap-1 mt-0.5"
+              title={isCapped ? 'Capped at fixed ₹6,000 because Base Salary > ₹25,000' : 'Calculated at 24% of Base Salary (50% of Gross)'}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isCapped ? 'bg-purple-600' : 'bg-blue-500'}`} />
+              <span className={isCapped ? 'text-purple-700 font-bold' : 'text-[#8292AD]'}>
+                {isCapped ? 'Fixed 6k (Base > 25k)' : '24% of Base'}
+              </span>
+            </span>
+          </div>
+        );
+      },
     },
     {
-      header: 'ESI (4%)',
+      header: 'ESI (4% / EXEMPT)',
       accessor: 'esi',
-      className: 'min-w-[100px]',
-      render: (row) => (
-        <div className="flex flex-col">
-          <span className="font-bold text-rose-700 text-xs">
-            -{formatCurrency(row.esi)}
-          </span>
-          <span className="text-[9.5px] text-[#8292AD] font-semibold flex items-center gap-1 mt-0.5" title="Calculated on Base Salary (50% of Gross)">
-            <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
-            <span>4% of Base</span>
-          </span>
-        </div>
-      ),
+      className: 'min-w-[120px]',
+      render: (row) => {
+        const isExempt = Number(row.baseSalary) > 25000;
+        return (
+          <div className="flex flex-col">
+            {isExempt ? (
+              <div className="flex items-center gap-1">
+                <span className="font-extrabold text-slate-400 text-xs line-through">
+                  ₹0
+                </span>
+                <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">
+                  Exempt
+                </span>
+              </div>
+            ) : (
+              <span className="font-bold text-rose-700 text-xs">
+                -{formatCurrency(row.esi)}
+              </span>
+            )}
+            <span
+              className="text-[9.5px] font-semibold flex items-center gap-1 mt-0.5"
+              title={isExempt ? 'ESI removed because Base Salary exceeds ₹25,000' : 'Calculated at 4% of Base Salary (50% of Gross)'}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isExempt ? 'bg-emerald-500' : 'bg-teal-500'}`} />
+              <span className={isExempt ? 'text-emerald-700 font-bold' : 'text-[#8292AD]'}>
+                {isExempt ? 'Exempt (Base > 25k)' : '4% of Base'}
+              </span>
+            </span>
+          </div>
+        );
+      },
     },
     {
       header: 'TDS (MANUAL)',
@@ -974,12 +1003,18 @@ export const MyFinances = () => {
                       <strong className="text-rose-700 font-bold">{preview.unpaidLeave} Days</strong>
                     </div>
                     <div>
-                      <span className="text-[#8292AD] block">PF (24% Base):</span>
+                      <span className="text-[#8292AD] block">
+                        PF {preview.baseSalary > 25000 ? '(Fixed 6k):' : '(24% Base):'}
+                      </span>
                       <strong className="text-rose-700 font-bold">-{formatCurrency(preview.pf)}</strong>
                     </div>
                     <div>
-                      <span className="text-[#8292AD] block">ESI (4% Base):</span>
-                      <strong className="text-rose-700 font-bold">-{formatCurrency(preview.esi)}</strong>
+                      <span className="text-[#8292AD] block">
+                        ESI {preview.baseSalary > 25000 ? '(Exempt):' : '(4% Base):'}
+                      </span>
+                      <strong className={preview.baseSalary > 25000 ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'}>
+                        {preview.baseSalary > 25000 ? '₹0 (Exempt)' : `-${formatCurrency(preview.esi)}`}
+                      </strong>
                     </div>
                     <div>
                       <span className="text-[#8292AD] block">Net Payable:</span>
@@ -1004,13 +1039,14 @@ export const MyFinances = () => {
                     const gross = e.target.value;
                     const grossNum = Number(gross) || 0;
                     const baseNum = Math.round(grossNum * 0.5); // Base salary is 50% of gross salary
+                    const stat = calculateStatutoryDeductions(baseNum);
                     setEditForm({
                       ...editForm,
                       salary: gross,
                       grossSalary: gross,
                       baseSalary: baseNum,
-                      pf: Math.round(baseNum * 0.24), // PF is 24% of Base Salary
-                      esi: Math.round(baseNum * 0.04), // ESI is 4% of Base Salary
+                      pf: stat.pf,
+                      esi: stat.esi,
                     });
                   }}
                   className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB] font-bold text-[#172033]"
@@ -1028,11 +1064,12 @@ export const MyFinances = () => {
                     onClick={() => {
                       const grossNum = Number(editForm.grossSalary ?? editForm.salary) || 0;
                       const baseNum = Math.round(grossNum * 0.5);
+                      const stat = calculateStatutoryDeductions(baseNum);
                       setEditForm({
                         ...editForm,
                         baseSalary: baseNum,
-                        pf: Math.round(baseNum * 0.24),
-                        esi: Math.round(baseNum * 0.04),
+                        pf: stat.pf,
+                        esi: stat.esi,
                       });
                     }}
                     className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
@@ -1048,16 +1085,26 @@ export const MyFinances = () => {
                   onChange={(e) => {
                     const base = e.target.value;
                     const baseNum = Number(base) || 0;
+                    const stat = calculateStatutoryDeductions(baseNum);
                     setEditForm({
                       ...editForm,
                       baseSalary: base,
-                      pf: Math.round(baseNum * 0.24), // PF based on Base Salary
-                      esi: Math.round(baseNum * 0.04), // ESI based on Base Salary
+                      pf: stat.pf,
+                      esi: stat.esi,
                     });
                   }}
                   className="w-full px-3 py-2 text-xs border border-blue-200 bg-blue-50/30 rounded-xl focus:outline-none focus:border-[#2563EB] font-bold text-blue-900"
                 />
               </div>
+
+              {Number(editForm.baseSalary) > 25000 && (
+                <div className="sm:col-span-2 p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-[11px] flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
+                  <span>
+                    <strong>Statutory Rule Active (Base &gt; ₹25,000):</strong> ESI is removed (<strong className="text-emerald-700">₹0 / Exempt</strong>) and PF is capped at <strong className="text-purple-800">fixed ₹6,000</strong>.
+                  </span>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Payment Status</label>
@@ -1098,20 +1145,23 @@ export const MyFinances = () => {
                 />
               </div>
 
-              {/* PF (24% of Base Salary) */}
+              {/* PF Input */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-[#172033]">PF (24% of Base) (₹)</label>
+                  <label className="text-xs font-bold text-[#172033]">
+                    PF {Number(editForm.baseSalary) > 25000 ? '(Fixed ₹6k Cap)' : '(24% of Base)'} (₹)
+                  </label>
                   <button
                     type="button"
                     onClick={() => {
                       const baseNum = Number(editForm.baseSalary) || Math.round((Number(editForm.grossSalary ?? editForm.salary) || 0) * 0.5);
-                      setEditForm({ ...editForm, pf: Math.round(baseNum * 0.24) });
+                      const stat = calculateStatutoryDeductions(baseNum);
+                      setEditForm({ ...editForm, pf: stat.pf });
                     }}
                     className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
-                    title="Calculate 24% of Base Salary"
+                    title={Number(editForm.baseSalary) > 25000 ? 'Reset to Fixed ₹6,000 (Base > 25k)' : 'Calculate 24% of Base Salary'}
                   >
-                    Reset 24%
+                    {Number(editForm.baseSalary) > 25000 ? 'Reset Fixed 6k' : 'Reset 24%'}
                   </button>
                 </div>
                 <input
@@ -1123,20 +1173,23 @@ export const MyFinances = () => {
                 />
               </div>
 
-              {/* ESI (4% of Base Salary) */}
+              {/* ESI Input */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-[#172033]">ESI (4% of Base) (₹)</label>
+                  <label className="text-xs font-bold text-[#172033]">
+                    ESI {Number(editForm.baseSalary) > 25000 ? '(Exempt - ₹0)' : '(4% of Base)'} (₹)
+                  </label>
                   <button
                     type="button"
                     onClick={() => {
                       const baseNum = Number(editForm.baseSalary) || Math.round((Number(editForm.grossSalary ?? editForm.salary) || 0) * 0.5);
-                      setEditForm({ ...editForm, esi: Math.round(baseNum * 0.04) });
+                      const stat = calculateStatutoryDeductions(baseNum);
+                      setEditForm({ ...editForm, esi: stat.esi });
                     }}
                     className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
-                    title="Calculate 4% of Base Salary"
+                    title={Number(editForm.baseSalary) > 25000 ? 'Reset to Exempt ₹0 (Base > 25k)' : 'Calculate 4% of Base Salary'}
                   >
-                    Reset 4%
+                    {Number(editForm.baseSalary) > 25000 ? 'Reset Exempt (0)' : 'Reset 4%'}
                   </button>
                 </div>
                 <input
@@ -1269,17 +1322,28 @@ export const MyFinances = () => {
                     -{formatCurrency(selectedPayslipRow.unpaidDeductionAmount)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Provident Fund (PF 24% of Base)</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    Provident Fund (PF {Number(selectedPayslipRow.baseSalary) > 25000 ? '• Fixed ₹6,000 Cap' : '• 24% of Base'})
+                  </span>
                   <span className="font-bold text-rose-700">
                     -{formatCurrency(selectedPayslipRow.pf)}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-600">Employee State Insurance (ESI 4% of Base)</span>
-                  <span className="font-bold text-rose-700">
-                    -{formatCurrency(selectedPayslipRow.esi)}
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">
+                    Employee State Insurance (ESI {Number(selectedPayslipRow.baseSalary) > 25000 ? '• Exempt (Base > 25k)' : '• 4% of Base'})
                   </span>
+                  {Number(selectedPayslipRow.baseSalary) > 25000 ? (
+                    <span className="font-bold text-emerald-700 flex items-center gap-1">
+                      <span className="line-through text-slate-400">₹0</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9.5px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">Exempt</span>
+                    </span>
+                  ) : (
+                    <span className="font-bold text-rose-700">
+                      -{formatCurrency(selectedPayslipRow.esi)}
+                    </span>
+                  )}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Tax Deducted at Source (TDS)</span>
@@ -1388,13 +1452,14 @@ export const MyFinances = () => {
                     const gross = e.target.value;
                     const grossNum = Number(gross) || 0;
                     const baseNum = Math.round(grossNum * 0.5);
+                    const stat = calculateStatutoryDeductions(baseNum);
                     setAddForm({
                       ...addForm,
                       salary: gross,
                       grossSalary: gross,
                       baseSalary: baseNum,
-                      pf: Math.round(baseNum * 0.24),
-                      esi: Math.round(baseNum * 0.04),
+                      pf: stat.pf,
+                      esi: stat.esi,
                     });
                   }}
                   className="w-full px-3 py-2 text-xs border border-[#E5EAF2] rounded-xl focus:outline-none focus:border-[#2563EB] font-bold text-[#172033]"
@@ -1409,11 +1474,12 @@ export const MyFinances = () => {
                     onClick={() => {
                       const grossNum = Number(addForm.grossSalary ?? addForm.salary) || 0;
                       const baseNum = Math.round(grossNum * 0.5);
+                      const stat = calculateStatutoryDeductions(baseNum);
                       setAddForm({
                         ...addForm,
                         baseSalary: baseNum,
-                        pf: Math.round(baseNum * 0.24),
-                        esi: Math.round(baseNum * 0.04),
+                        pf: stat.pf,
+                        esi: stat.esi,
                       });
                     }}
                     className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
@@ -1428,16 +1494,26 @@ export const MyFinances = () => {
                   onChange={(e) => {
                     const base = e.target.value;
                     const baseNum = Number(base) || 0;
+                    const stat = calculateStatutoryDeductions(baseNum);
                     setAddForm({
                       ...addForm,
                       baseSalary: base,
-                      pf: Math.round(baseNum * 0.24),
-                      esi: Math.round(baseNum * 0.04),
+                      pf: stat.pf,
+                      esi: stat.esi,
                     });
                   }}
                   className="w-full px-3 py-2 text-xs border border-blue-200 bg-blue-50/30 rounded-xl focus:outline-none focus:border-[#2563EB] font-bold text-blue-900"
                 />
               </div>
+
+              {Number(addForm.baseSalary) > 25000 && (
+                <div className="sm:col-span-2 p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-[11px] flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
+                  <span>
+                    <strong>Statutory Rule Active (Base &gt; ₹25,000):</strong> ESI is removed (<strong className="text-emerald-700">₹0 / Exempt</strong>) and PF is capped at <strong className="text-purple-800">fixed ₹6,000</strong>.
+                  </span>
+                </div>
+              )}
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Leaves Taken</label>
@@ -1461,19 +1537,22 @@ export const MyFinances = () => {
                 />
               </div>
 
-              {/* PF (24% of Base) */}
+              {/* PF (24% of Base or Fixed 6k) */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-[#172033]">PF (24% of Base) (₹)</label>
+                  <label className="text-xs font-bold text-[#172033]">
+                    PF {Number(addForm.baseSalary) > 25000 ? '(Fixed ₹6k Cap)' : '(24% of Base)'} (₹)
+                  </label>
                   <button
                     type="button"
                     onClick={() => {
                       const baseNum = Number(addForm.baseSalary) || Math.round((Number(addForm.grossSalary ?? addForm.salary) || 0) * 0.5);
-                      setAddForm({ ...addForm, pf: Math.round(baseNum * 0.24) });
+                      const stat = calculateStatutoryDeductions(baseNum);
+                      setAddForm({ ...addForm, pf: stat.pf });
                     }}
                     className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
                   >
-                    Reset 24%
+                    {Number(addForm.baseSalary) > 25000 ? 'Reset Fixed 6k' : 'Reset 24%'}
                   </button>
                 </div>
                 <input
@@ -1485,19 +1564,22 @@ export const MyFinances = () => {
                 />
               </div>
 
-              {/* ESI (4% of Base) */}
+              {/* ESI (4% of Base or Exempt) */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold text-[#172033]">ESI (4% of Base) (₹)</label>
+                  <label className="text-xs font-bold text-[#172033]">
+                    ESI {Number(addForm.baseSalary) > 25000 ? '(Exempt - ₹0)' : '(4% of Base)'} (₹)
+                  </label>
                   <button
                     type="button"
                     onClick={() => {
                       const baseNum = Number(addForm.baseSalary) || Math.round((Number(addForm.grossSalary ?? addForm.salary) || 0) * 0.5);
-                      setAddForm({ ...addForm, esi: Math.round(baseNum * 0.04) });
+                      const stat = calculateStatutoryDeductions(baseNum);
+                      setAddForm({ ...addForm, esi: stat.esi });
                     }}
                     className="text-[10px] text-[#2563EB] font-bold hover:underline cursor-pointer"
                   >
-                    Reset 4%
+                    {Number(addForm.baseSalary) > 25000 ? 'Reset Exempt (0)' : 'Reset 4%'}
                   </button>
                 </div>
                 <input

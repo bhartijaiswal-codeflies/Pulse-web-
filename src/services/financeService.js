@@ -1,7 +1,7 @@
 import { financesData } from '../data/mockData';
 
 const FINANCES_KEY = 'pulse_finances';
-const PAYROLL_KEY = 'pulse_monthly_payroll_directory_v3';
+const PAYROLL_KEY = 'pulse_monthly_payroll_directory_v4';
 
 // Month helper: days in month
 export const getDaysInMonth = (monthKey) => {
@@ -111,13 +111,17 @@ const initialJan2026Payroll = [
     department: 'People Operations',
     designation: 'Senior HR Manager',
     salary: 40000,
+    grossSalary: 40000,
+    baseSalary: 20000,
     leaveTaken: 1,
     bucketAvailable: 2,
     unpaidLeave: 0,
     newBucket: 1,
-    otherDeduction: 2800,
-    deductionNotes: 'Standard PF + Health Benefit Copay',
-    payable: 37200,
+    pf: 4800, // 24% of Base Salary (₹20,000)
+    esi: 800, // 4% of Base Salary (₹20,000)
+    tds: 0,
+    otherDeduction: 200,
+    deductionNotes: 'PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: 'Paid via ICICI Direct',
@@ -130,16 +134,20 @@ const initialJan2026Payroll = [
     department: 'Engineering',
     designation: 'Lead Backend Architect',
     salary: 85000,
+    grossSalary: 85000,
+    baseSalary: 42500, // > 25k -> PF fixed 6k, ESI exempt (0)
     leaveTaken: 3,
     bucketAvailable: 5,
     unpaidLeave: 0,
     newBucket: 2,
-    otherDeduction: 5600,
-    deductionNotes: 'TDS (₹3,500) + PF (₹2,100)',
-    payable: 79400,
+    pf: 6000, // Fixed ₹6,000 Cap (Base > 25k)
+    esi: 0,    // Exempt (Base > 25k)
+    tds: 3500,
+    otherDeduction: 200,
+    deductionNotes: 'TDS (₹3,500) + PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
-    remarks: 'Paid on time',
+    remarks: 'Disbursed via HDFC Corporate',
   },
   {
     id: 'PLS-1021',
@@ -149,13 +157,17 @@ const initialJan2026Payroll = [
     department: 'Product Design',
     designation: 'Staff UX Researcher',
     salary: 52000,
+    grossSalary: 52000,
+    baseSalary: 26000, // > 25k -> PF fixed 6k, ESI exempt (0)
     leaveTaken: 3,
     bucketAvailable: 1,
     unpaidLeave: 2,
     newBucket: 0,
-    otherDeduction: 3800,
-    deductionNotes: 'TDS (₹2,000) + PF (₹1,800)',
-    payable: 44845,
+    pf: 6000, // Fixed ₹6,000 Cap (Base > 25k)
+    esi: 0,    // Exempt (Base > 25k)
+    tds: 2000,
+    otherDeduction: 200,
+    deductionNotes: 'TDS (₹2,000) + PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: '2 Unpaid Sick leaves deducted',
@@ -168,13 +180,17 @@ const initialJan2026Payroll = [
     department: 'Marketing',
     designation: 'VP Brand & Communications',
     salary: 60000,
+    grossSalary: 60000,
+    baseSalary: 30000, // > 25k -> PF fixed 6k, ESI exempt (0)
     leaveTaken: 2,
     bucketAvailable: 3,
     unpaidLeave: 0,
     newBucket: 1,
-    otherDeduction: 4200,
-    deductionNotes: 'Statutory PF & PT',
-    payable: 55800,
+    pf: 6000, // Fixed ₹6,000 Cap (Base > 25k)
+    esi: 0,    // Exempt (Base > 25k)
+    tds: 1800,
+    otherDeduction: 200,
+    deductionNotes: 'TDS (₹1,800) + PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: 'Processed',
@@ -187,13 +203,17 @@ const initialJan2026Payroll = [
     department: 'Data & Analytics',
     designation: 'Principal Data Scientist',
     salary: 70000,
+    grossSalary: 70000,
+    baseSalary: 35000, // > 25k -> PF fixed 6k, ESI exempt (0)
     leaveTaken: 0,
     bucketAvailable: 4,
     unpaidLeave: 0,
     newBucket: 4,
-    otherDeduction: 4900,
-    deductionNotes: 'TDS (₹2,800) + PF (₹2,100)',
-    payable: 65100,
+    pf: 6000, // Fixed ₹6,000 Cap (Base > 25k)
+    esi: 0,    // Exempt (Base > 25k)
+    tds: 2800,
+    otherDeduction: 200,
+    deductionNotes: 'TDS (₹2,800) + PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: '100% Attendance Bonus Qualified',
@@ -206,13 +226,17 @@ const initialJan2026Payroll = [
     department: 'People Operations',
     designation: 'Director of HR & Culture',
     salary: 65000,
+    grossSalary: 65000,
+    baseSalary: 32500, // > 25k -> PF fixed 6k, ESI exempt (0)
     leaveTaken: 1,
     bucketAvailable: 2,
     unpaidLeave: 0,
     newBucket: 1,
-    otherDeduction: 4500,
-    deductionNotes: 'Standard Deductions',
-    payable: 60500,
+    pf: 6000, // Fixed ₹6,000 Cap (Base > 25k)
+    esi: 0,    // Exempt (Base > 25k)
+    tds: 2500,
+    otherDeduction: 200,
+    deductionNotes: 'TDS (₹2,500) + PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: 'Processed',
@@ -225,18 +249,49 @@ const initialJan2026Payroll = [
     department: 'Security & QA',
     designation: 'Lead QA Engineer',
     salary: 48000,
+    grossSalary: 48000,
+    baseSalary: 24000, // <= 25k -> PF 24% = 5,760, ESI 4% = 960
     leaveTaken: 2,
     bucketAvailable: 2,
     unpaidLeave: 0,
     newBucket: 0,
-    otherDeduction: 3300,
-    deductionNotes: 'PF (₹3,100) + PT (₹200)',
-    payable: 44700,
+    pf: 5760, // 24% of Base Salary (₹24,000)
+    esi: 960,  // 4% of Base Salary (₹24,000)
+    tds: 1200,
+    otherDeduction: 200,
+    deductionNotes: 'PT (₹200)',
     status: 'Paid',
     paymentDate: '31 Jan, 2026',
     remarks: 'Full Paid Bucket consumed',
   },
 ];
+
+// Statutory Deductions Helper:
+// Base Salary is 50% of Gross Salary.
+// Statutory Rule:
+// 1. When Base Salary <= 25,000:
+//    - PF is 24% of Base Salary (Math.round(base * 0.24))
+//    - ESI is 4% of Base Salary (Math.round(base * 0.04))
+// 2. When Base Salary > 25,000:
+//    - ESI is removed / exempt (0)
+//    - PF is capped at a fixed amount of ₹6,000
+export const calculateStatutoryDeductions = (baseSalary) => {
+  const base = Number(baseSalary) || 0;
+  if (base > 25000) {
+    return {
+      pf: 6000,
+      esi: 0,
+      isEsiExempt: true,
+      isPfCapped: true,
+    };
+  }
+  return {
+    pf: Math.round(base * 0.24),
+    esi: Math.round(base * 0.04),
+    isEsiExempt: false,
+    isPfCapped: false,
+  };
+};
 
 // Helper to calculate exact row numbers
 export const calculatePayrollRow = (row, daysInMonth = 30) => {
@@ -247,17 +302,27 @@ export const calculatePayrollRow = (row, daysInMonth = 30) => {
   const otherDeduction = Number(row.otherDeduction) || 0;
 
   // 3 Statutory & Tax Columns (PF & ESI based on Base Salary as 50% of Gross):
-  // 1. PF (24% of Base Salary)
-  // 2. ESI (4% of Base Salary)
-  // 3. TDS (Manual entry)
-  const oldGrossPf = Math.round(grossSalary * 0.24);
-  const oldGrossEsi = Math.round(grossSalary * 0.04);
-  const pf = (row.pf !== undefined && row.pf !== null && row.pf !== oldGrossPf)
-    ? Number(row.pf)
-    : Math.round(baseSalary * 0.24);
-  const esi = (row.esi !== undefined && row.esi !== null && row.esi !== oldGrossEsi)
-    ? Number(row.esi)
-    : Math.round(baseSalary * 0.04);
+  // Rule: Above Base Salary 25k, ESI is removed (0) and PF is fixed at 6,000.
+  const statutory = calculateStatutoryDeductions(baseSalary);
+
+  let pf = statutory.pf;
+  if (row.isCustomPf && row.pf !== undefined && row.pf !== null) {
+    pf = Number(row.pf);
+  } else if (baseSalary > 25000) {
+    pf = 6000;
+  } else if (row.pf !== undefined && row.pf !== null) {
+    pf = Number(row.pf);
+  }
+
+  let esi = statutory.esi;
+  if (row.isCustomEsi && row.esi !== undefined && row.esi !== null) {
+    esi = Number(row.esi);
+  } else if (baseSalary > 25000) {
+    esi = 0;
+  } else if (row.esi !== undefined && row.esi !== null) {
+    esi = Number(row.esi);
+  }
+
   const tds = Number(row.tds) || 0;
 
   let unpaidLeave = 0;
@@ -275,7 +340,7 @@ export const calculatePayrollRow = (row, daysInMonth = 30) => {
   const perDaySalary = daysInMonth > 0 ? grossSalary / daysInMonth : 0;
   const unpaidDeductionAmount = Math.round(unpaidLeave * perDaySalary);
 
-  // Total deductions: Unpaid Leave LOP + PF (24% of Base) + ESI (4% of Base) + TDS (Manual) + Other Deductions
+  // Total deductions: Unpaid Leave LOP + PF + ESI + TDS (Manual) + Other Deductions
   const totalDeductions = unpaidDeductionAmount + pf + esi + tds + otherDeduction;
 
   // Net payable
@@ -297,6 +362,8 @@ export const calculatePayrollRow = (row, daysInMonth = 30) => {
     unpaidDeductionAmount,
     totalDeductions,
     payable,
+    isEsiExempt: baseSalary > 25000,
+    isPfCapped: baseSalary > 25000,
   };
 };
 
