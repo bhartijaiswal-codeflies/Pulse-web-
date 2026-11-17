@@ -582,15 +582,17 @@ export const Attendance = () => {
       {/* Left: All Filters in 1 Row */}
       <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
         {/* 1. All Punches in 1 Styled Colored Dropdown (same rounded-xl shape) */}
-        <div className="relative flex-shrink-0" ref={punchDropdownRef}>
+        <div className="relative w-full sm:w-auto flex-shrink-0" ref={punchDropdownRef}>
           <button
             type="button"
             onClick={() => setShowPunchDropdown((prev) => !prev)}
-            className={`inline-flex items-center gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentPunchConfig.pillClass}`}
+            className={`w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 whitespace-nowrap ${currentPunchConfig.pillClass}`}
           >
-            <span className="flex-shrink-0">{currentPunchConfig.icon}</span>
-            <span>
-              {currentPunchConfig.label} ({currentPunchConfig.count})
+            <span className="flex items-center gap-2">
+              <span className="flex-shrink-0">{currentPunchConfig.icon}</span>
+              <span>
+                {currentPunchConfig.label} ({currentPunchConfig.count})
+              </span>
             </span>
             <ChevronDown
               className={`w-3.5 h-3.5 transition-transform duration-200 ${
@@ -601,7 +603,7 @@ export const Attendance = () => {
 
           {/* Punch Options Popover */}
           {showPunchDropdown && (
-            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[220px] animate-fade-in text-left">
+            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[220px] max-w-[90vw] animate-fade-in text-left">
               <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider border-b border-[#F1F5F9] mb-1">
                 Filter by Punch Status
               </div>
@@ -645,7 +647,7 @@ export const Attendance = () => {
         </div>
 
         {/* 2. Search Employee / ID (fixed text cutting issue) */}
-        <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
+        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -654,8 +656,8 @@ export const Attendance = () => {
           />
         </div>
 
-        {/* 3. Quick Period Dropdown (calendar removed from option All Dates) */}
-        <div className="relative min-w-[150px] flex-shrink-0">
+        {/* 3. Quick Period Dropdown */}
+        <div className="relative w-full sm:w-auto min-w-[150px] flex-1 sm:flex-initial">
           <select
             value={periodFilter}
             onChange={(e) => {
@@ -679,9 +681,9 @@ export const Attendance = () => {
           <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
-        {/* 4. Custom Date Range Inputs (when 'custom' selected, same rounded-xl shape) */}
+        {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
         {periodFilter === 'custom' && (
-          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] flex-shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 animate-fade-in bg-[#F8FAFC] p-2 sm:px-2.5 sm:h-9 rounded-xl border border-[#E5EAF2] w-full sm:w-auto">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
               <span className="text-[11px] text-[#8292AD]">From:</span>
               <input
@@ -703,8 +705,8 @@ export const Attendance = () => {
           </div>
         )}
 
-        {/* 5. Department Filter (same rounded-xl shape) */}
-        <div className="relative min-w-[145px] flex-shrink-0">
+        {/* 5. Department Filter */}
+        <div className="relative w-full sm:w-auto min-w-[145px] flex-1 sm:flex-initial">
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
@@ -722,8 +724,8 @@ export const Attendance = () => {
       </div>
 
       {/* Right: Clear with cross + Live Filter Counter + Refresh */}
-      <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
-        {/* Clear Button with Cross - Very Small */}
+      <div className="flex items-center justify-between sm:justify-end gap-2 flex-wrap sm:flex-nowrap w-full xl:w-auto pt-2 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
+        {/* Clear Button with Cross */}
         <button
           type="button"
           onClick={handleResetFilters}
@@ -763,23 +765,26 @@ export const Attendance = () => {
         subtitle="Track employee punches, shift hours, and leave compliance in real-time."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Attendance' }]}
         actions={
-          <div className="flex items-center gap-2">
-            <div className="inline-flex items-center h-9 rounded-xl p-1 bg-white border border-[#E5EAF2]">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+            {/* View Mode Segmented Control: full width on mobile, inline on sm+ */}
+            <div className="inline-flex items-center h-10 sm:h-9 rounded-xl p-1 bg-white border border-[#E5EAF2] w-full sm:w-auto shadow-2xs">
               <button
+                type="button"
                 onClick={() => setViewMode('table')}
-                className={`h-7 px-3 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center ${
+                className={`h-8 sm:h-7 px-3.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center flex-1 sm:flex-initial whitespace-nowrap ${
                   viewMode === 'table'
-                    ? 'bg-[#2563EB] text-white shadow-xs'
+                    ? 'bg-[#2563EB] text-white shadow-xs font-bold'
                     : 'text-[#8292AD] hover:text-[#172033]'
                 }`}
               >
                 Table View
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode('calendar')}
-                className={`h-7 px-3 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center ${
+                className={`h-8 sm:h-7 px-3.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer flex items-center justify-center flex-1 sm:flex-initial whitespace-nowrap ${
                   viewMode === 'calendar'
-                    ? 'bg-[#2563EB] text-white shadow-xs'
+                    ? 'bg-[#2563EB] text-white shadow-xs font-bold'
                     : 'text-[#8292AD] hover:text-[#172033]'
                 }`}
               >
@@ -787,22 +792,27 @@ export const Attendance = () => {
               </button>
             </div>
 
-            <button
-              onClick={handleExportCSV}
-              className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5 text-[#8292AD]" />
-              <span>Export CSV</span>
-            </button>
+            {/* Export & Create Action Buttons: 50% each on mobile, auto on sm+ */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={handleExportCSV}
+                className="inline-flex items-center justify-center gap-2 px-3.5 h-10 sm:h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer flex-1 sm:flex-initial whitespace-nowrap active:scale-95"
+              >
+                <Download className="w-3.5 h-3.5 text-[#8292AD] flex-shrink-0" />
+                <span>Export CSV</span>
+              </button>
 
-            {/* Create Button at the top */}
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Create</span>
-            </button>
+              {/* Create Button at the top */}
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                className="inline-flex items-center justify-center gap-1.5 px-4 h-10 sm:h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer flex-1 sm:flex-initial whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5] flex-shrink-0" />
+                <span>Create</span>
+              </button>
+            </div>
           </div>
         }
       />
@@ -847,56 +857,60 @@ export const Attendance = () => {
         />
       ) : (
         /* Monthly Attendance Calendar View */
-        <div className="bg-white border border-[#E5EAF2] rounded-2xl p-6 shadow-card">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#E5EAF2]">
+        <div className="bg-white border border-[#E5EAF2] rounded-2xl p-4 sm:p-6 shadow-card overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[#E5EAF2]">
             <div>
               <h3 className="text-base font-bold text-[#172033]">November 2026 Attendance Grid</h3>
               <p className="text-xs text-[#8292AD]">Overview of business days and attendance ratios</p>
             </div>
-            <div className="flex items-center gap-3 text-xs">
-              <span className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
+              <span className="flex items-center gap-1.5 whitespace-nowrap">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Present (92%)
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 whitespace-nowrap">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Absent (5%)
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 whitespace-nowrap">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Half Day (3%)
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-2 text-center text-xs">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
-              <div key={day} className="py-2 font-bold text-[#8292AD] uppercase tracking-wider text-[11px]">
-                {day}
-              </div>
-            ))}
-            {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => {
-              const isWeekend = day % 7 === 0 || day % 7 === 6;
-              const isToday = day === 9;
-              return (
-                <div
-                  key={day}
-                  className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${
-                    isToday
-                      ? 'bg-blue-50/50 border-blue-400 font-bold'
-                      : isWeekend
-                      ? 'bg-[#F7F9FC] border-transparent text-[#8292AD]'
-                      : 'bg-white border-[#E5EAF2] hover:border-blue-200'
-                  }`}
-                >
-                  <span className={`text-xs ${isToday ? 'text-[#2563EB]' : 'text-[#172033]'}`}>
+          <div className="overflow-x-auto pb-2">
+            <div className="min-w-[560px]">
+              <div className="grid grid-cols-7 gap-2 text-center text-xs">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                  <div key={day} className="py-2 font-bold text-[#8292AD] uppercase tracking-wider text-[11px]">
                     {day}
-                  </span>
-                  {!isWeekend && (
-                    <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
-                      98%
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+                  </div>
+                ))}
+                {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => {
+                  const isWeekend = day % 7 === 0 || day % 7 === 6;
+                  const isToday = day === 9;
+                  return (
+                    <div
+                      key={day}
+                      className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${
+                        isToday
+                          ? 'bg-blue-50/50 border-blue-400 font-bold'
+                          : isWeekend
+                          ? 'bg-[#F7F9FC] border-transparent text-[#8292AD]'
+                          : 'bg-white border-[#E5EAF2] hover:border-blue-200'
+                      }`}
+                    >
+                      <span className={`text-xs ${isToday ? 'text-[#2563EB]' : 'text-[#172033]'}`}>
+                        {day}
+                      </span>
+                      {!isWeekend && (
+                        <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                          98%
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -905,15 +919,15 @@ export const Attendance = () => {
       {showCreateModal &&
         createPortal(
           <div
-            className="fixed top-16 left-0 md:left-[76px] right-0 bottom-0 z-30 overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-4 sm:p-6 animate-fade-in"
+            className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 animate-fade-in"
             onClick={() => setShowCreateModal(false)}
           >
             <div
-              className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in my-auto"
+              className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in my-auto max-h-[92vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#F1F5F9]">
+              <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-3 border-b border-[#F1F5F9]">
                 <h3 className="text-base font-bold text-[#172033]">
                   Create Attendance
                 </h3>
@@ -927,8 +941,8 @@ export const Attendance = () => {
               </div>
 
               {/* Modal Body Form */}
-              <form onSubmit={handleCreateAttendance}>
-                <div className="px-6 py-4 space-y-4">
+              <form onSubmit={handleCreateAttendance} className="flex flex-col overflow-hidden flex-1">
+                <div className="px-4 sm:px-6 py-4 space-y-4 overflow-y-auto flex-1">
                   {/* 1. Employee / User * */}
                   <div>
                     <label className="block text-xs font-bold text-[#374151] mb-1.5">
@@ -1071,7 +1085,7 @@ export const Attendance = () => {
                 </div>
 
                 {/* Modal Footer matching exact image with light gray bg and teal Submit button */}
-                <div className="bg-[#ECEEF2] px-6 py-3.5 border-t border-[#E5EAF2] flex items-center justify-between">
+                <div className="bg-[#ECEEF2] px-4 sm:px-6 py-3.5 border-t border-[#E5EAF2] flex items-center justify-between">
                   <button
                     type="submit"
                     className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-md bg-[#00A896] hover:bg-[#008f80] text-white shadow-xs transition-all active:scale-95 cursor-pointer"
