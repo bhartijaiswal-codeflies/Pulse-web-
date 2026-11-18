@@ -138,8 +138,8 @@ export const MainLayout = () => {
         )}
 
         {/* Scrollable Page Body */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8">
-          <div className="w-full max-w-[1720px] mx-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-6 lg:p-8">
+          <div className="w-full max-w-[1720px] mx-auto min-w-0">
             <Outlet />
           </div>
         </main>

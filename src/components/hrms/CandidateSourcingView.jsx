@@ -229,11 +229,11 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-shrink-0">
+        <div className="flex items-center gap-2.5 flex-shrink-0 w-full sm:w-auto">
           <button
             type="button"
             onClick={handleOpenAdd}
-            className="inline-flex items-center gap-2 px-4 h-10 text-xs font-bold rounded-xl bg-teal-600 hover:bg-teal-500 text-white shadow-md active:scale-95 transition-all cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 h-10 text-xs font-bold rounded-xl bg-teal-600 hover:bg-teal-500 text-white shadow-md active:scale-95 transition-all cursor-pointer whitespace-nowrap"
           >
             <UserPlus className="w-4 h-4 stroke-[2.5]" />
             <span>+ Source Candidate</span>
@@ -242,52 +242,52 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
       </div>
 
       {/* 2. Top Summary Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
-          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider">Total Sourced Profiles</span>
-          <div className="text-2xl font-black text-[#172033] mt-1">{sourcedList.length} Candidates</div>
-          <div className="text-[11px] text-teal-600 font-semibold mt-0.5 flex items-center gap-1">
-            <UserPlus className="w-3 h-3" />
-            <span>Top-of-funnel intake</span>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
+          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider truncate block">Total Sourced Profiles</span>
+          <div className="text-xl sm:text-2xl font-black text-[#172033] mt-1 truncate">{sourcedList.length} Candidates</div>
+          <div className="text-[10.5px] sm:text-[11px] text-teal-600 font-semibold mt-0.5 flex items-center gap-1 truncate">
+            <UserPlus className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">Top-of-funnel intake</span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
-          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider">Under Screening</span>
-          <div className="text-2xl font-black text-amber-600 mt-1">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
+          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider truncate block">Under Screening</span>
+          <div className="text-xl sm:text-2xl font-black text-amber-600 mt-1 truncate">
             {sourcedList.filter((c) => c.status === 'Sourced').length} Pending
           </div>
-          <div className="text-[11px] text-amber-600 font-semibold mt-0.5 flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            <span>Awaiting approval</span>
+          <div className="text-[10.5px] sm:text-[11px] text-amber-600 font-semibold mt-0.5 flex items-center gap-1 truncate">
+            <Clock className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">Awaiting approval</span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
-          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider">Approved & Moved</span>
-          <div className="text-2xl font-black text-emerald-700 mt-1">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
+          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider truncate block">Approved & Moved</span>
+          <div className="text-xl sm:text-2xl font-black text-emerald-700 mt-1 truncate">
             {sourcedList.filter((c) => c.status === 'Approved').length} Candidates
           </div>
-          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" />
-            <span>In Candidate Tab</span>
+          <div className="text-[10.5px] sm:text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1 truncate">
+            <CheckCircle2 className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">In Candidate Tab</span>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
-          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider">Fast Sourcing</span>
-          <div className="text-xs font-bold text-slate-700 mt-2">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs">
+          <span className="text-[11px] font-bold text-[#8292AD] uppercase tracking-wider truncate block">Fast Sourcing</span>
+          <div className="text-xs font-bold text-slate-700 mt-2 truncate">
             Target Roles: SEO, SME, BDE, Web Design, App Dev
           </div>
-          <div className="text-[10px] text-[#8292AD] mt-0.5">Automated screening promotion</div>
+          <div className="text-[10px] text-[#8292AD] mt-0.5 truncate">Automated screening promotion</div>
         </div>
       </div>
 
       {/* 3. Filter Bar */}
-      <div className="p-3.5 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto flex-1">
+      <div className="p-3.5 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 w-full min-w-0">
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto flex-1 min-w-0">
           {/* Search */}
-          <div className="w-full sm:w-64 min-w-[220px]">
+          <div className="w-full sm:w-64 min-w-0 sm:min-w-[220px] flex-1 sm:flex-initial">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
@@ -297,7 +297,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
           </div>
 
           {/* Role Filter */}
-          <div className="relative min-w-[155px]">
+          <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[155px] flex-1 sm:flex-initial">
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
@@ -316,7 +316,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
           </div>
 
           {/* Status Filter */}
-          <div className="relative min-w-[130px]">
+          <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[130px] flex-1 sm:flex-initial">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -340,7 +340,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                 setRoleFilter('All');
                 setStatusFilter('All');
               }}
-              className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-semibold rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3 h-9 text-xs font-semibold rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer w-full sm:w-auto"
             >
               <X className="w-3.5 h-3.5" />
               <span>Clear</span>
@@ -348,18 +348,27 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
           )}
         </div>
 
-        <div className="text-xs text-[#8292AD] font-medium flex-shrink-0">
+        <div className="text-xs text-[#8292AD] font-medium flex-shrink-0 text-left sm:text-right">
           Showing <strong>{filteredList.length}</strong> of {sourcedList.length} sourced records
         </div>
       </div>
 
       {/* 4. Sourced Candidates Table */}
-      <div className="bg-white rounded-2xl border border-[#E5EAF2] shadow-2xs overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-[#E5EAF2] shadow-2xs overflow-hidden w-full min-w-0 max-w-full">
+        {/* Mobile Swipe Notice Banner */}
+        <div className="md:hidden flex items-center justify-between px-3.5 py-2 bg-gradient-to-r from-teal-50/90 to-slate-50 border-b border-[#E5EAF2] text-[11px] text-teal-800 font-bold">
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-teal-600 animate-pulse" />
+            Swipe table horizontally to view all fields
+          </span>
+          <span className="text-[10px] text-[#8292AD] font-semibold">1st col pinned</span>
+        </div>
+
+        <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-[#F8FAFC] border-b border-[#E5EAF2] text-[#8292AD] font-bold uppercase text-[10.5px] tracking-wider">
-                <th className="py-3 px-4 min-w-[180px]">Candidate Profile</th>
+                <th className="py-3 px-4 min-w-[170px] sm:min-w-[190px] sticky left-0 bg-[#F8FAFC] z-20 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">Candidate Profile</th>
                 <th className="py-3 px-4 min-w-[190px]">Contact Info</th>
                 <th className="py-3 px-4 min-w-[140px]">Target Role</th>
                 <th className="py-3 px-4 min-w-[100px]">Experience</th>
@@ -379,7 +388,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                     onClick={() => setViewingCandidate(cand)}
                   >
                     {/* 1. Candidate Profile */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 sticky left-0 bg-white group-hover:bg-[#F8FAFC] z-10 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
                       <div className="min-w-0">
                         <div className="font-bold text-[#172033] hover:text-[#2563EB] transition-colors truncate">
                           {cand.name}

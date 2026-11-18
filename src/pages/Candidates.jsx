@@ -1157,20 +1157,22 @@ export const Candidates = () => {
 
   // Single-Row Filter Bar matching Attendance design (media_1794304412388_6a1f2742.png)
   const candidateFilterBar = (
-    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full min-w-0">
       {/* Left: All Filters in 1 Row */}
-      <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+      <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 w-full">
         {/* 1. All Pipeline in 1 Styled Colored Dropdown */}
-        <div className="relative flex-shrink-0" ref={stageDropdownRef}>
+        <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial flex-shrink-0" ref={stageDropdownRef}>
           <button
             type="button"
             onClick={() => setShowStageDropdown((prev) => !prev)}
-            className={`inline-flex items-center gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentStageConfig.pillClass}`}
+            className={`w-full inline-flex items-center justify-between gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentStageConfig.pillClass}`}
           >
-            <span className="flex-shrink-0">{currentStageConfig.icon}</span>
-            <span>
-              {currentStageConfig.label} ({currentStageConfig.count})
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="flex-shrink-0">{currentStageConfig.icon}</span>
+              <span>
+                {currentStageConfig.label} ({currentStageConfig.count})
+              </span>
+            </div>
             <ChevronDown
               className={`w-3.5 h-3.5 transition-transform duration-200 ${showStageDropdown ? 'rotate-180' : ''
                 }`}
@@ -1222,7 +1224,7 @@ export const Candidates = () => {
         </div>
 
         {/* 2. Search Candidate, Role, Recruiter */}
-        <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
+        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -1232,7 +1234,7 @@ export const Candidates = () => {
         </div>
 
         {/* 3. Quick Period Dropdown */}
-        <div className="relative min-w-[150px] flex-shrink-0">
+        <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial">
           <select
             value={periodFilter}
             onChange={(e) => {
@@ -1257,7 +1259,7 @@ export const Candidates = () => {
 
         {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
         {periodFilter === 'custom' && (
-          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] flex-shrink-0">
+          <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] w-full sm:w-auto flex-wrap sm:flex-nowrap">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
               <span className="text-[11px] text-[#8292AD]">From:</span>
               <input
@@ -1280,7 +1282,7 @@ export const Candidates = () => {
         )}
 
         {/* 5. Department Filter */}
-        <div className="relative min-w-[145px] flex-shrink-0">
+        <div className="relative w-full sm:w-auto min-w-[135px] flex-1 sm:flex-initial">
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
@@ -1298,7 +1300,7 @@ export const Candidates = () => {
       </div>
 
       {/* Right: Clear with cross + Live Filter Counter + Refresh */}
-      <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
+      <div className="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9] flex-wrap sm:flex-nowrap">
         {/* Clear Button with Cross - Very Small */}
         <button
           type="button"
@@ -1334,6 +1336,7 @@ export const Candidates = () => {
     {
       header: 'CANDIDATE',
       accessor: 'name',
+      className: 'min-w-[170px] sm:min-w-[200px]',
       render: (row) => (
         <div className="py-1 min-w-0">
           <div
@@ -1372,6 +1375,7 @@ export const Candidates = () => {
     {
       header: 'ROLE & EXP',
       accessor: 'role',
+      className: 'min-w-[140px]',
       render: (row) => (
         <div className="space-y-1">
           <div className="text-xs font-bold text-[#111827]">{row.role}</div>
@@ -1388,6 +1392,7 @@ export const Candidates = () => {
     {
       header: 'SALARY',
       accessor: 'ctc',
+      className: 'min-w-[120px]',
       render: (row) => (
         <div className="space-y-0.5 text-left whitespace-nowrap">
           <div className="text-[11px] font-medium text-[#1F2937]">
@@ -1404,6 +1409,7 @@ export const Candidates = () => {
     {
       header: 'INTERVIEW SCHEDULE',
       accessor: 'interviewDate',
+      className: 'min-w-[140px]',
       render: (row) => (
         <div className="text-[11px] text-[#4E5D78] flex items-center gap-1.5 font-medium whitespace-nowrap">
           <Calendar className="w-3.5 h-3.5 text-[#2563EB] flex-shrink-0" />
@@ -1414,6 +1420,7 @@ export const Candidates = () => {
     {
       header: 'RECRUITER',
       accessor: 'recruiter',
+      className: 'min-w-[130px]',
       render: (row) => {
         const recruiterName = row.recruiter || row.interviewer || 'Saurabh H.';
         return (
@@ -1428,6 +1435,7 @@ export const Candidates = () => {
       header: 'STATUS',
       accessor: 'stage',
       align: 'center',
+      className: 'min-w-[120px]',
       render: (row) => (
         <StatusBadge
           status={row.stage}
@@ -1474,7 +1482,7 @@ export const Candidates = () => {
               <button
                 type="button"
                 onClick={handleExportCSV}
-                className="inline-flex items-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 h-9 text-xs font-semibold rounded-xl bg-white border border-[#E5EAF2] hover:bg-[#F7F9FC] text-[#172033] shadow-xs transition-colors cursor-pointer whitespace-nowrap"
                 title="Export candidate pipeline to CSV"
               >
                 <Download className="w-3.5 h-3.5 text-[#8292AD]" />
@@ -1485,14 +1493,14 @@ export const Candidates = () => {
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer whitespace-nowrap"
               >
                 <UserPlus className="w-4 h-4 stroke-[2.5]" />
                 <span>Add Candidate</span>
               </button>
             </div>
           ) : activeHrmsTab === 'hiring' ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => {
@@ -1500,20 +1508,20 @@ export const Candidates = () => {
                   setActiveHrmsTab('sourcing');
                   setSourcedCount(hrmsService.getSourcedCandidates().length);
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-teal-50 text-[#008080] border border-teal-200 hover:bg-teal-100 transition-colors cursor-pointer"
+                className="w-full sm:w-auto flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-teal-50 text-[#008080] border border-teal-200 hover:bg-teal-100 transition-colors cursor-pointer whitespace-nowrap"
               >
                 <UserPlus className="w-3.5 h-3.5" />
                 <span>Go to Candidate Sourcing →</span>
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => {
                   setActiveHrmsTab('candidates');
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
+                className="w-full sm:w-auto flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer whitespace-nowrap"
               >
                 <Users className="w-3.5 h-3.5" />
                 <span>Go to Active Candidates →</span>

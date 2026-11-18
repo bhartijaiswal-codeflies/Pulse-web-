@@ -39,7 +39,7 @@ export const DataTable = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full min-w-0 max-w-full">
       {/* Filter Tabs Card (Red Box 1 from Reference Image) */}
       {tabs && tabs.length > 0 && (
         <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 shadow-card flex flex-col lg:flex-row lg:items-center justify-between gap-3 transition-all">
@@ -100,15 +100,24 @@ export const DataTable = ({
 
       {/* Dedicated Fixed Filter Card */}
       {filterBar && (
-        <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 shadow-card transition-all">
+        <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 shadow-card transition-all w-full min-w-0 max-w-full">
           {filterBar}
         </div>
       )}
 
       {/* Main Table Card */}
-      <div className="bg-white border border-[#E5EAF2] rounded-2xl shadow-card">
+      <div className="bg-white border border-[#E5EAF2] rounded-2xl shadow-card overflow-hidden w-full min-w-0 max-w-full">
+        {/* Mobile horizontal scroll hint */}
+        <div className="md:hidden flex items-center justify-between px-3.5 py-2 bg-[#F8FAFC] border-b border-[#E5EAF2] text-[11px] text-[#8292AD]">
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse" />
+            <span>Scroll table horizontally</span>
+          </span>
+          <span className="text-[10px] font-bold text-[#2563EB]">← Swipe columns →</span>
+        </div>
+
         {/* Table Container */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full min-w-0 max-w-full">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#E5EAF2] bg-white">
@@ -116,6 +125,10 @@ export const DataTable = ({
                   <th
                     key={idx}
                     className={`py-3 px-4 text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider ${
+                      idx === 0
+                        ? 'sticky left-0 bg-white z-20 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]'
+                        : ''
+                    } ${
                       col.align === 'right'
                         ? 'text-right'
                         : col.align === 'center'
@@ -144,6 +157,10 @@ export const DataTable = ({
                       <td
                         key={colIdx}
                         className={`py-3 px-4 align-middle ${
+                          colIdx === 0
+                            ? 'sticky left-0 bg-white group-hover:bg-[#F8FAFC] z-10 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)] transition-colors'
+                            : ''
+                        } ${
                           col.align === 'right'
                             ? 'text-right'
                             : col.align === 'center'
@@ -183,7 +200,7 @@ export const DataTable = ({
 
         {/* Pagination Footer (Red Box 2 from Reference Image) */}
         {data.length > 0 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-3.5 border-t border-[#E5EAF2] bg-white gap-3 text-xs text-[#8292AD]">
+          <div className="flex flex-col sm:flex-row items-center justify-between px-4 sm:px-6 py-3.5 border-t border-[#E5EAF2] bg-white gap-3 text-xs text-[#8292AD] w-full">
             {/* Left: Showing counter */}
             <div>
               Showing{' '}
@@ -197,12 +214,12 @@ export const DataTable = ({
             </div>
 
             {/* Right: Individual Pill & Circular Pagination Controls matching reference */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center sm:justify-end">
               <button
                 type="button"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-4 py-1.5 rounded-full border border-[#E5EAF2] bg-white text-xs font-semibold text-[#8292AD] hover:bg-[#F8FAFC] hover:text-[#172033] hover:border-[#CBD5E1] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+                className="px-3 sm:px-4 py-1.5 rounded-full border border-[#E5EAF2] bg-white text-xs font-semibold text-[#8292AD] hover:bg-[#F8FAFC] hover:text-[#172033] hover:border-[#CBD5E1] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs whitespace-nowrap"
               >
                 Prev
               </button>
@@ -225,7 +242,7 @@ export const DataTable = ({
                       <button
                         type="button"
                         onClick={() => handlePageChange(page)}
-                        className={`w-9 h-9 rounded-full text-xs transition-all flex items-center justify-center cursor-pointer ${
+                        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs transition-all flex items-center justify-center cursor-pointer ${
                           currentPage === page
                             ? 'bg-[#2563EB] text-white font-bold shadow-xs border border-[#2563EB]'
                             : 'bg-white border border-[#E5EAF2] text-[#1E293B] font-semibold hover:bg-[#F8FAFC] hover:border-[#CBD5E1] shadow-2xs'
@@ -241,7 +258,7 @@ export const DataTable = ({
                 type="button"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-4 py-1.5 rounded-full border border-[#E5EAF2] bg-white text-xs font-semibold text-[#1E293B] hover:bg-[#F8FAFC] hover:border-[#CBD5E1] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+                className="px-3 sm:px-4 py-1.5 rounded-full border border-[#E5EAF2] bg-white text-xs font-semibold text-[#1E293B] hover:bg-[#F8FAFC] hover:border-[#CBD5E1] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs whitespace-nowrap"
               >
                 Next
               </button>

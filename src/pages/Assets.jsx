@@ -499,11 +499,11 @@ export const Assets = () => {
 
   // --- FILTER BAR (MATCHING USER MANAGEMENT SCREENSHOT & FIXED DROPDOWN ICONS) ---
   const assetFilterBar = (
-    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full min-w-0">
       {/* Left side: View Dropdown + Search + Type & Status Dropdowns */}
-      <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+      <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 w-full">
         {/* 1. Blue View Pill Dropdown with Fixed Icons */}
-        <div className="relative flex-shrink-0">
+        <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial flex-shrink-0">
           <select
             value={activeView}
             onChange={(e) => {
@@ -531,7 +531,7 @@ export const Assets = () => {
         </div>
 
         {/* 2. Standard Search Input */}
-        <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
+        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -548,7 +548,7 @@ export const Assets = () => {
 
         {/* 3. Dropdown 1: All Types (only in Assets view) with Fixed Tag & Chevron Icons */}
         {activeView === 'assets' && (
-          <div className="relative min-w-[145px] flex-shrink-0">
+          <div className="relative w-full sm:w-auto min-w-[130px] flex-1 sm:flex-initial">
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
@@ -568,7 +568,7 @@ export const Assets = () => {
         )}
 
         {/* 4. Dropdown 2: All Statuses with Fixed Shield & Chevron Icons */}
-        <div className="relative min-w-[145px] flex-shrink-0">
+        <div className="relative w-full sm:w-auto min-w-[135px] flex-1 sm:flex-initial">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -603,7 +603,7 @@ export const Assets = () => {
       </div>
 
       {/* Right side: Clear Button + Filter Counter + Refresh */}
-      <div className="flex items-center gap-2 flex-shrink-0 ml-auto pt-1 xl:pt-0">
+      <div className="flex items-center justify-between sm:justify-end gap-2 w-full xl:w-auto pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9] flex-wrap sm:flex-nowrap">
         {(searchQuery || typeFilter !== 'All' || statusFilter !== 'All') && (
           <button
             type="button"
@@ -648,6 +648,7 @@ export const Assets = () => {
     {
       header: 'TYPE / TAG',
       accessor: 'type',
+      className: 'min-w-[130px] sm:min-w-[150px]',
       render: (row) => {
         const isStarred = starredItems.includes(row.id);
         const typeBadgeColor =
@@ -825,6 +826,7 @@ export const Assets = () => {
     {
       header: 'TICKET #',
       accessor: 'ticketNo',
+      className: 'min-w-[120px] sm:min-w-[140px]',
       render: (row) => (
         <div className="flex items-center gap-2">
           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -901,6 +903,7 @@ export const Assets = () => {
     {
       header: 'REQUEST #',
       accessor: 'requestNo',
+      className: 'min-w-[120px] sm:min-w-[140px]',
       render: (row) => (
         <div className="flex items-center gap-2">
           <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -976,10 +979,10 @@ export const Assets = () => {
         subtitle="Manage company hardware inventory, employee allocations, support tickets, and take-home gate passes."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Assets' }]}
         actions={
-          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl border border-[#E5EAF2] bg-white text-[#64748B] hover:text-[#172033] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl border border-[#E5EAF2] bg-white text-[#64748B] hover:text-[#172033] hover:bg-slate-50 transition-all shadow-2xs cursor-pointer whitespace-nowrap"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export CSV</span>
@@ -988,7 +991,7 @@ export const Assets = () => {
             {/* Quick Button: Report Support Ticket */}
             <button
               onClick={() => handleOpenNewTicket()}
-              className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl border border-amber-200 bg-amber-50/70 text-amber-800 hover:bg-amber-100 transition-all shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl border border-amber-200 bg-amber-50/70 text-amber-800 hover:bg-amber-100 transition-all shadow-2xs cursor-pointer whitespace-nowrap"
               title="Report hardware malfunction, damage or missing equipment"
             >
               <Ticket className="w-3.5 h-3.5 text-amber-600" />
@@ -998,7 +1001,7 @@ export const Assets = () => {
             {/* Quick Button: Request Take-Home Gate Pass */}
             <button
               onClick={() => handleOpenNewRequest()}
-              className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl border border-purple-200 bg-purple-50/70 text-purple-800 hover:bg-purple-100 transition-all shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl border border-purple-200 bg-purple-50/70 text-purple-800 hover:bg-purple-100 transition-all shadow-2xs cursor-pointer whitespace-nowrap"
               title="Request authorization to take hardware off premises"
             >
               <Briefcase className="w-3.5 h-3.5 text-purple-600" />
@@ -1009,7 +1012,7 @@ export const Assets = () => {
             {activeView === 'assets' && (
               <button
                 onClick={handleOpenAddAsset}
-                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>Add Asset</span>
@@ -1019,7 +1022,7 @@ export const Assets = () => {
             {activeView === 'tickets' && (
               <button
                 onClick={() => handleOpenNewTicket()}
-                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>New Ticket</span>
@@ -1029,7 +1032,7 @@ export const Assets = () => {
             {activeView === 'requests' && (
               <button
                 onClick={() => handleOpenNewRequest()}
-                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>New Request</span>

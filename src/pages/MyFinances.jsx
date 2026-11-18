@@ -381,6 +381,7 @@ export const MyFinances = () => {
     {
       header: 'EMPLOYEE LIST',
       accessor: 'name',
+      className: 'min-w-[160px] sm:min-w-[185px]',
       render: (row) => (
         <div className="flex items-center gap-2.5">
           <img
@@ -406,6 +407,7 @@ export const MyFinances = () => {
     {
       header: 'SALARY (GROSS / BASE)',
       accessor: 'salary',
+      className: 'min-w-[140px]',
       render: (row) => {
         const gross = Number(row.grossSalary || row.salary) || 0;
         const base = Number(row.baseSalary || Math.round(gross * 0.5)) || 0;
@@ -424,6 +426,7 @@ export const MyFinances = () => {
     {
       header: 'LEAVE TAKEN',
       accessor: 'leaveTaken',
+      className: 'min-w-[110px]',
       render: (row) => (
         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
           <Calendar className="w-3 h-3 text-slate-500" />
@@ -434,6 +437,7 @@ export const MyFinances = () => {
     {
       header: 'BUCKET AVAILABLE',
       accessor: 'bucketAvailable',
+      className: 'min-w-[125px]',
       render: (row) => (
         <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1D4ED8] border border-blue-200">
           <Wallet className="w-3 h-3 text-[#2563EB]" />
@@ -444,6 +448,7 @@ export const MyFinances = () => {
     {
       header: 'UNPAID LEAVE',
       accessor: 'unpaidLeave',
+      className: 'min-w-[115px]',
       render: (row) => {
         if (row.unpaidLeave > 0) {
           return (
@@ -599,11 +604,11 @@ export const MyFinances = () => {
         subtitle="Manage monthly workforce salary calculations, leave buckets, loss of pay deductions, and payslips."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Finances' }]}
         actions={
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             {/* Export CSV Button (Matching Handwritten Sheet) */}
             <button
               onClick={handleExportCSV}
-              className="inline-flex items-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-white border border-[#E5EAF2] text-[#172033] hover:bg-slate-50 shadow-2xs transition-all cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 h-9 text-xs font-bold rounded-xl bg-white border border-[#E5EAF2] text-[#172033] hover:bg-slate-50 shadow-2xs transition-all cursor-pointer whitespace-nowrap"
               title="Download full monthly payroll calculations CSV"
             >
               <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -614,7 +619,7 @@ export const MyFinances = () => {
             {activeTab === 'payroll' ? (
               <button
                 onClick={() => setShowAddPayrollModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>Add Record</span>
@@ -622,7 +627,7 @@ export const MyFinances = () => {
             ) : (
               <button
                 onClick={() => setShowExpenseModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer whitespace-nowrap"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>New Expense Claim</span>
@@ -633,64 +638,64 @@ export const MyFinances = () => {
       />
 
       {/* 2. Top Summary Metrics Cards for Selected Month */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Total Net Payable */}
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Net Payable</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Net Payable</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-emerald-950 mt-2">
+          <div className="text-xl sm:text-2xl font-black text-emerald-950 mt-2 truncate">
             {formatCurrency(summaryMetrics.totalPayable)}
           </div>
-          <div className="text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1">
+          <div className="text-[10.5px] sm:text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1">
             <span>Cycle: {selectedMonth}</span>
           </div>
         </div>
 
         {/* Card 2: Total Gross Base Salary */}
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Gross & Base Payroll</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Gross & Base Payroll</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold">
               <CreditCard className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-[#172033] mt-2">
+          <div className="text-xl sm:text-2xl font-black text-[#172033] mt-2 truncate">
             {formatCurrency(summaryMetrics.totalGross)}
           </div>
-          <div className="text-[11px] text-blue-700 font-semibold mt-0.5">
-            Base (50%): {formatCurrency(summaryMetrics.totalBase)} • {summaryMetrics.headcount} Staff
+          <div className="text-[10.5px] sm:text-[11px] text-blue-700 font-semibold mt-0.5 truncate" title={`Base (50%): ${formatCurrency(summaryMetrics.totalBase)} • ${summaryMetrics.headcount} Staff`}>
+            Base: {formatCurrency(summaryMetrics.totalBase)} • {summaryMetrics.headcount} Staff
           </div>
         </div>
 
         {/* Card 3: Total Unpaid LOP Leaves */}
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Unpaid LOP Leaves</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Unpaid LOP Leaves</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-rose-700 mt-2">
+          <div className="text-xl sm:text-2xl font-black text-rose-700 mt-2 truncate">
             {summaryMetrics.totalUnpaidLeaves} Days
           </div>
-          <div className="text-[11px] text-rose-600 font-semibold mt-0.5">
+          <div className="text-[10.5px] sm:text-[11px] text-rose-600 font-semibold mt-0.5 truncate">
             -{formatCurrency(summaryMetrics.totalUnpaidDeduction)} deducted
           </div>
         </div>
 
         {/* Card 4: Total Statutory & Other Deductions */}
-        <div className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Deductions</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Deductions</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
               <Receipt className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-rose-700 mt-2">
+          <div className="text-xl sm:text-2xl font-black text-rose-700 mt-2 truncate">
             -{formatCurrency(summaryMetrics.totalDeductions)}
           </div>
           <div className="text-[10px] text-[#8292AD] font-semibold mt-0.5 truncate" title={`PF 24%: ${formatCurrency(summaryMetrics.totalPf)} | ESI 4%: ${formatCurrency(summaryMetrics.totalEsi)} | TDS: ${formatCurrency(summaryMetrics.totalTds)}`}>
@@ -744,11 +749,11 @@ export const MyFinances = () => {
           emptyMessage="No payroll records found"
           emptySubtext="Try selecting another month from the filter dropdown or adjusting your search."
           filterBar={
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full min-w-0">
               {/* Left Side: Month Dropdown + Prev/Next Buttons + Search + Dept Filter */}
-              <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 w-full">
                 {/* 1. Month Selector Dropdown (with Prev / Next buttons) */}
-                <div className="flex items-center gap-1 border border-[#BFDBFE] rounded-xl p-0.5 bg-[#EFF6FF] shadow-2xs">
+                <div className="flex items-center gap-1 border border-[#BFDBFE] rounded-xl p-0.5 bg-[#EFF6FF] shadow-2xs w-full sm:w-auto justify-between sm:justify-start">
                   <button
                     type="button"
                     onClick={handlePrevMonth}
@@ -785,7 +790,7 @@ export const MyFinances = () => {
                 </div>
 
                 {/* 2. Search Input */}
-                <div className="w-56 sm:w-64 min-w-[210px] flex-shrink-0">
+                <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
                   <SearchBar
                     value={searchQuery}
                     onChange={setSearchQuery}
@@ -795,7 +800,7 @@ export const MyFinances = () => {
                 </div>
 
                 {/* 3. Status Filter */}
-                <div className="relative min-w-[130px] flex-shrink-0">
+                <div className="relative w-full sm:w-auto min-w-[130px] flex-1 sm:flex-initial">
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -817,7 +822,7 @@ export const MyFinances = () => {
                       setSearchQuery('');
                       setStatusFilter('All');
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-semibold rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors shadow-2xs cursor-pointer flex-shrink-0"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 h-9 text-xs font-semibold rounded-xl border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors shadow-2xs cursor-pointer flex-shrink-0"
                   >
                     <X className="w-3.5 h-3.5" />
                     <span>Clear</span>
@@ -826,7 +831,7 @@ export const MyFinances = () => {
               </div>
 
               {/* Right Side: Refresh & Count Indicator */}
-              <div className="flex items-center gap-2 text-xs text-[#8292AD] font-medium flex-shrink-0 select-none">
+              <div className="flex items-center justify-between sm:justify-end gap-2 text-xs text-[#8292AD] font-medium w-full xl:w-auto select-none pt-1 xl:pt-0 border-t xl:border-t-0 border-[#F1F5F9]">
                 <span>
                   Showing {filteredPayroll.length} of {payrollData.length} records
                 </span>

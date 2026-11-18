@@ -163,6 +163,7 @@ export const Calendar = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEventId, setEditingEventId] = useState(null);
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState('2026-11-12');
 
   // Add/Edit Event form
   const [eventForm, setEventForm] = useState({
@@ -188,6 +189,7 @@ export const Calendar = () => {
   const handleJumpToday = () => {
     // Jump to November 12, 2026 (the active portal date)
     setCurrentDate(new Date(2026, 10, 12));
+    setSelectedCalendarDate('2026-11-12');
   };
 
   // Month metadata
@@ -209,6 +211,25 @@ export const Calendar = () => {
       return matchesCategory && matchesSearch;
     });
   }, [events, selectedCategory, searchQuery]);
+
+  // Selected Day's Events for Mobile Agenda Drawer
+  const selectedDayEvents = useMemo(() => {
+    return filteredEvents.filter((e) => e.date === selectedCalendarDate);
+  }, [filteredEvents, selectedCalendarDate]);
+
+  const formatSelectedDateLabel = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    } catch {
+      // fallback
+    }
+    return dateStr;
+  };
 
   // Calendar Matrix Generator for current month
   const calendarDays = useMemo(() => {
@@ -465,9 +486,9 @@ export const Calendar = () => {
         subtitle="Coordinate company all-hands, national holidays, birthdays, anniversaries, and approved time-offs."
         breadcrumbs={[{ label: 'Home', link: '/' }, { label: 'Calendar' }]}
         actions={
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             {/* View Mode Toggle Pill Bar */}
-            <div className="inline-flex items-center h-9 rounded-xl p-1 bg-white border border-[#E5EAF2] shadow-2xs">
+            <div className="inline-flex items-center h-9 rounded-xl p-1 bg-white border border-[#E5EAF2] shadow-2xs w-full sm:w-auto justify-between sm:justify-start">
               {[
                 { id: 'month', label: 'Month', icon: Grid },
                 { id: 'week', label: 'Week', icon: CalendarDays },
@@ -480,7 +501,7 @@ export const Calendar = () => {
                   <button
                     key={m.id}
                     onClick={() => setViewMode(m.id)}
-                    className={`h-7 px-3 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                    className={`h-7 px-2.5 sm:px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer flex-1 sm:flex-initial whitespace-nowrap ${
                       isSelected
                         ? 'bg-[#2563EB] text-white shadow-xs'
                         : 'text-[#8292AD] hover:text-[#172033] hover:bg-slate-50'
@@ -493,43 +514,46 @@ export const Calendar = () => {
               })}
             </div>
 
-            {/* Export ICS Button */}
-            <button
-              onClick={handleExportICS}
-              className="inline-flex items-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl bg-white border border-[#E5EAF2] text-[#172033] hover:bg-slate-50 shadow-2xs transition-all cursor-pointer"
-              title="Export calendar to Google / Outlook / Apple Calendar"
-            >
-              <Download className="w-3.5 h-3.5 text-slate-500" />
-              <span className="hidden sm:inline">Sync .ICS</span>
-            </button>
+            {/* Action buttons on mobile: flex-1 */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              {/* Export ICS Button */}
+              <button
+                onClick={handleExportICS}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 h-9 text-xs font-bold rounded-xl bg-white border border-[#E5EAF2] text-[#172033] hover:bg-slate-50 shadow-2xs transition-all cursor-pointer whitespace-nowrap"
+                title="Export calendar to Google / Outlook / Apple Calendar"
+              >
+                <Download className="w-3.5 h-3.5 text-slate-500" />
+                <span>Sync .ICS</span>
+              </button>
 
-            {/* Schedule Event Button */}
-            <button
-              onClick={() => handleOpenAddEvent()}
-              className="inline-flex items-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Schedule Event</span>
-            </button>
+              {/* Schedule Event Button */}
+              <button
+                onClick={() => handleOpenAddEvent()}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 h-9 text-xs font-bold rounded-xl bg-[#2563EB] hover:bg-blue-700 text-white shadow-sm transition-all active:scale-95 shadow-blue-500/20 cursor-pointer whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <span>Schedule Event</span>
+              </button>
+            </div>
           </div>
         }
       />
 
       {/* 2. Top Executive Pulse Cards (4 Top Highlights) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Company Meetings */}
         <div
           onClick={() => setSelectedCategory('company')}
-          className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-blue-400 transition-all cursor-pointer group"
+          className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-blue-400 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Company Events</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Company Events</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center group-hover:scale-110 transition-transform">
               <Building className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-[#172033] mt-2">{metrics.company}</div>
-          <div className="text-[11px] text-blue-600 font-semibold mt-0.5 flex items-center gap-1">
+          <div className="text-xl sm:text-2xl font-black text-[#172033] mt-2 truncate">{metrics.company}</div>
+          <div className="text-[10.5px] sm:text-[11px] text-blue-600 font-semibold mt-0.5 flex items-center gap-1">
             <span>All-Hands & Demos</span>
             <ArrowRight className="w-3 h-3 opacity-60" />
           </div>
@@ -538,16 +562,16 @@ export const Calendar = () => {
         {/* Card 2: Public Holidays */}
         <div
           onClick={() => setSelectedCategory('holiday')}
-          className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-emerald-400 transition-all cursor-pointer group"
+          className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-emerald-400 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Public Holidays</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Public Holidays</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Palmtree className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-emerald-950 mt-2">{metrics.holidays}</div>
-          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
+          <div className="text-xl sm:text-2xl font-black text-emerald-950 mt-2 truncate">{metrics.holidays}</div>
+          <div className="text-[10.5px] sm:text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
             <span>Thanksgiving & Recess</span>
             <ArrowRight className="w-3 h-3 opacity-60" />
           </div>
@@ -556,18 +580,18 @@ export const Calendar = () => {
         {/* Card 3: Team Celebrations */}
         <div
           onClick={() => setSelectedCategory('birthday')}
-          className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-pink-400 transition-all cursor-pointer group"
+          className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-pink-400 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Birthdays & Anniversaries</span>
-            <div className="w-8 h-8 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Celebrations</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Cake className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-[#172033] mt-2">
+          <div className="text-xl sm:text-2xl font-black text-[#172033] mt-2 truncate">
             {metrics.birthdays + metrics.anniversaries}
           </div>
-          <div className="text-[11px] text-pink-600 font-semibold mt-0.5 flex items-center gap-1">
+          <div className="text-[10.5px] sm:text-[11px] text-pink-600 font-semibold mt-0.5 flex items-center gap-1">
             <span>Team Milestones</span>
             <ArrowRight className="w-3 h-3 opacity-60" />
           </div>
@@ -576,16 +600,16 @@ export const Calendar = () => {
         {/* Card 4: Employee Leaves */}
         <div
           onClick={() => setSelectedCategory('leave')}
-          className="p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-purple-400 transition-all cursor-pointer group"
+          className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:border-purple-400 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#8292AD] uppercase tracking-wider">Planned Leaves</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Planned Leaves</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-[#172033] mt-2">{metrics.leaves}</div>
-          <div className="text-[11px] text-purple-600 font-semibold mt-0.5 flex items-center gap-1">
+          <div className="text-xl sm:text-2xl font-black text-[#172033] mt-2 truncate">{metrics.leaves}</div>
+          <div className="text-[10.5px] sm:text-[11px] text-purple-600 font-semibold mt-0.5 flex items-center gap-1">
             <span>Approved Time Off</span>
             <ArrowRight className="w-3 h-3 opacity-60" />
           </div>
@@ -593,9 +617,9 @@ export const Calendar = () => {
       </div>
 
       {/* 3. Interactive Toolbar: Month Controls, Search & Category Filters */}
-      <div className="bg-white p-4 rounded-2xl border border-[#E5EAF2] shadow-card flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#E5EAF2] shadow-card flex flex-col xl:flex-row xl:items-center justify-between gap-3 sm:gap-4 w-full min-w-0">
         {/* Left: Month Navigator & Quick Jump */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap justify-between sm:justify-start w-full sm:w-auto">
           <div className="flex items-center gap-1 border border-[#E5EAF2] rounded-xl p-0.5 bg-slate-50/50">
             <button
               onClick={handlePrevMonth}
@@ -630,7 +654,7 @@ export const Calendar = () => {
         </div>
 
         {/* Center: Search Filter */}
-        <div className="relative w-full xl:w-64 min-w-[200px]">
+        <div className="relative w-full xl:w-64 min-w-0 sm:min-w-[200px]">
           <input
             type="text"
             placeholder="Search events, room, attendees..."
@@ -650,7 +674,7 @@ export const Calendar = () => {
         </div>
 
         {/* Right: Category Chips */}
-        <div className="flex items-center gap-1.5 flex-wrap overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full xl:w-auto pb-1 xl:pb-0">
           {[
             { id: 'all', label: 'All Items' },
             { id: 'company', label: 'Company Events', color: 'bg-[#2563EB]' },
@@ -681,49 +705,54 @@ export const Calendar = () => {
       </div>
 
       {/* 4. Main Calendar Content Area */}
-      <div className="bg-white border border-[#E5EAF2] rounded-2xl shadow-card overflow-hidden">
+      <div className="bg-white border border-[#E5EAF2] rounded-2xl shadow-card overflow-hidden w-full min-w-0">
         {/* VIEW 1: MONTH VIEW */}
         {viewMode === 'month' && (
-          <div className="p-4 sm:p-5">
+          <div className="p-3 sm:p-5 w-full min-w-0">
             {/* Weekday Column Headers (Mon to Sun) */}
-            <div className="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-extrabold text-[#8292AD] uppercase tracking-wider">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[10px] sm:text-xs font-extrabold text-[#8292AD] uppercase tracking-wider">
               {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => (
                 <div
                   key={day}
-                  className={`py-2 border-b border-[#E5EAF2] ${
+                  className={`py-1.5 sm:py-2 border-b border-[#E5EAF2] ${
                     idx >= 5 ? 'text-amber-700/80 bg-amber-50/20 rounded-t-lg' : ''
                   }`}
                 >
-                  {day}
+                  <span className="sm:hidden">{day.slice(0, 1)}</span>
+                  <span className="hidden sm:inline">{day}</span>
                 </div>
               ))}
             </div>
 
             {/* Calendar Days Matrix */}
-            <div className="grid grid-cols-7 gap-2 text-xs">
+            <div className="grid grid-cols-7 gap-1 sm:gap-2 text-xs">
               {calendarDays.map((cell, idx) => {
                 const daysEvents = filteredEvents.filter((e) => e.date === cell.dateKey);
                 const isWeekend = idx % 7 === 5 || idx % 7 === 6;
+                const isSelected = selectedCalendarDate === cell.dateKey;
 
                 return (
                   <div
                     key={cell.dateKey + idx}
-                    className={`min-h-[118px] sm:min-h-[128px] p-2 rounded-xl border flex flex-col justify-between transition-all group ${
-                      !cell.isCurrentMonth
+                    onClick={() => setSelectedCalendarDate(cell.dateKey)}
+                    className={`h-[52px] sm:h-auto sm:min-h-[128px] p-1 sm:p-2 rounded-xl border flex flex-col justify-between transition-all group cursor-pointer ${
+                      isSelected
+                        ? 'border-[#2563EB] ring-2 ring-[#2563EB]/40 bg-blue-50/30'
+                        : !cell.isCurrentMonth
                         ? 'bg-[#FBFDFE] border-[#F1F5F9] text-[#CBD5E1] opacity-60'
                         : cell.isToday
-                        ? 'border-[#2563EB] bg-blue-50/25 ring-2 ring-blue-500/20 shadow-xs'
+                        ? 'border-blue-400 bg-blue-50/20'
                         : isWeekend
                         ? 'bg-amber-50/10 border-[#E5EAF2] hover:border-blue-300 hover:bg-[#FCFDFE]'
                         : 'border-[#E5EAF2] hover:border-blue-300 hover:bg-[#FCFDFE]'
                     }`}
                   >
                     {/* Day Cell Top Header */}
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center justify-between mb-0.5 sm:mb-1.5">
                       <span
-                        className={`text-xs font-bold ${
+                        className={`text-[11px] sm:text-xs font-bold ${
                           cell.isToday
-                            ? 'w-6 h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center shadow-xs'
+                            ? 'w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center shadow-xs text-[10px] sm:text-xs font-black'
                             : cell.isCurrentMonth
                             ? isWeekend
                               ? 'text-amber-800/80'
@@ -734,11 +763,14 @@ export const Calendar = () => {
                         {cell.dayNumber}
                       </span>
 
-                      <div className="flex items-center gap-1">
-                        {/* Quick Add Button on Hover */}
+                      <div className="hidden sm:flex items-center gap-1">
+                        {/* Quick Add Button on Hover (Desktop) */}
                         <button
                           type="button"
-                          onClick={() => handleOpenAddEvent(cell.dateKey)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenAddEvent(cell.dateKey);
+                          }}
                           title={`Schedule event on ${cell.dateKey}`}
                           className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-slate-400 hover:text-[#2563EB] hover:bg-blue-50 transition-all cursor-pointer"
                         >
@@ -751,14 +783,33 @@ export const Calendar = () => {
                       </div>
                     </div>
 
-                    {/* Events List in Day Cell */}
-                    <div className="space-y-1.5 flex-1 overflow-hidden">
+                    {/* Mobile Indicator Dots (sm:hidden) */}
+                    <div className="flex items-center justify-center gap-0.5 mt-auto pt-1 sm:hidden">
+                      {daysEvents.slice(0, 3).map((evt) => {
+                        const style = getEventStyles(evt.type);
+                        return (
+                          <span
+                            key={evt.id}
+                            className={`w-1.5 h-1.5 rounded-full ${style.dot}`}
+                          />
+                        );
+                      })}
+                      {daysEvents.length > 3 && (
+                        <span className="w-1 h-1 rounded-full bg-slate-400" />
+                      )}
+                    </div>
+
+                    {/* Desktop Events List in Day Cell (hidden sm:block) */}
+                    <div className="hidden sm:block space-y-1.5 flex-1 overflow-hidden">
                       {daysEvents.slice(0, 3).map((evt) => {
                         const style = getEventStyles(evt.type);
                         return (
                           <div
                             key={evt.id}
-                            onClick={() => setSelectedEvent(evt)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedEvent(evt);
+                            }}
                             title={`${evt.title} (${evt.startTime})`}
                             className={`px-1.5 py-1 rounded-lg text-[10.5px] font-bold truncate cursor-pointer transition-all hover:scale-[1.02] shadow-2xs flex items-center gap-1.5 ${style.pill}`}
                           >
@@ -772,7 +823,8 @@ export const Calendar = () => {
                       {daysEvents.length > 3 && (
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setCurrentDate(new Date(cell.dateKey));
                             setViewMode('day');
                           }}
@@ -785,6 +837,85 @@ export const Calendar = () => {
                   </div>
                 );
               })}
+            </div>
+
+            {/* Mobile: Selected Day Schedule Card Below Grid (sm:hidden) */}
+            <div className="mt-4 pt-4 border-t border-[#E5EAF2] sm:hidden">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <span className="text-[10px] font-bold text-[#8292AD] uppercase tracking-wider block">
+                    Day Schedule
+                  </span>
+                  <h4 className="text-sm font-black text-[#172033] flex items-center gap-1.5">
+                    <span>{formatSelectedDateLabel(selectedCalendarDate)}</span>
+                    {selectedCalendarDate === '2026-11-12' && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-[#2563EB] text-white">
+                        Today
+                      </span>
+                    )}
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleOpenAddEvent(selectedCalendarDate)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-xl bg-[#2563EB] text-white shadow-xs cursor-pointer active:scale-95 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <span>Add Event</span>
+                </button>
+              </div>
+
+              {/* List of events on this selected day */}
+              {selectedDayEvents.length > 0 ? (
+                <div className="space-y-2">
+                  {selectedDayEvents.map((evt) => {
+                    const style = getEventStyles(evt.type);
+                    return (
+                      <div
+                        key={evt.id}
+                        onClick={() => setSelectedEvent(evt)}
+                        className={`p-3 rounded-xl border transition-all cursor-pointer shadow-2xs ${style.pill}`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`w-2 h-2 rounded-full ${style.dot} flex-shrink-0`} />
+                            <h5 className="font-extrabold text-xs text-[#172033] leading-snug truncate">
+                              {evt.title}
+                            </h5>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-white/80 text-slate-700 border border-slate-200/60 uppercase flex-shrink-0">
+                            {style.label}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-2 text-[11px] text-slate-600 pl-4 flex-wrap">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-[#2563EB]" />
+                            <span>{evt.startTime} – {evt.endTime}</span>
+                          </span>
+                          {evt.location && (
+                            <span className="flex items-center gap-1 truncate">
+                              <MapPin className="w-3 h-3 text-slate-400" />
+                              <span className="truncate">{evt.location}</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center">
+                  <p className="text-xs text-[#8292AD] font-medium">No events scheduled for this date</p>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenAddEvent(selectedCalendarDate)}
+                    className="mt-2 text-xs font-bold text-[#2563EB] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>Schedule an event</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

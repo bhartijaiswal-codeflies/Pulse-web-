@@ -269,10 +269,10 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
       </div>
 
       {/* 3. Filter Bar */}
-      <div className="p-3.5 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto flex-1">
+      <div className="p-3.5 rounded-2xl bg-white border border-[#E5EAF2] shadow-2xs flex flex-col md:flex-row items-center justify-between gap-3 w-full min-w-0">
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto flex-1 min-w-0">
           {/* Search */}
-          <div className="w-full sm:w-64 min-w-[220px]">
+          <div className="w-full sm:w-64 min-w-0 sm:min-w-[220px] flex-1 sm:flex-initial">
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
@@ -282,7 +282,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
           </div>
 
           {/* Priority Filter */}
-          <div className="relative min-w-[155px]">
+          <div className="relative w-full sm:w-auto min-w-[150px] flex-1 sm:flex-initial">
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
@@ -298,7 +298,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
           </div>
 
           {/* Department Filter */}
-          <div className="relative min-w-[145px]">
+          <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial">
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
@@ -316,7 +316,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
           </div>
 
           {/* Status Filter */}
-          <div className="relative min-w-[125px]">
+          <div className="relative w-full sm:w-auto min-w-[125px] flex-1 sm:flex-initial">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -349,7 +349,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
           )}
         </div>
 
-        <div className="text-xs text-[#8292AD] font-medium flex-shrink-0">
+        <div className="text-xs text-[#8292AD] font-medium flex items-center justify-between md:justify-end w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-[#F1F5F9]">
           Showing <strong>{filteredPositions.length}</strong> of {positions.length} positions
         </div>
       </div>

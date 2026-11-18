@@ -444,6 +444,7 @@ export const Attendance = () => {
     {
       header: 'EMPLOYEE',
       accessor: 'name',
+      className: 'min-w-[160px] sm:min-w-[190px]',
       render: (row) => (
         <div
           onClick={() => setSelectedRecord(row)}
@@ -467,6 +468,7 @@ export const Attendance = () => {
     {
       header: 'DEPARTMENT',
       accessor: 'department',
+      className: 'min-w-[130px]',
       render: (row) => (
         <span className="text-xs text-[#4E5D78] font-medium">{row.department}</span>
       ),
@@ -474,11 +476,13 @@ export const Attendance = () => {
     {
       header: 'DATE',
       accessor: 'date',
+      className: 'min-w-[110px]',
       render: (row) => <span className="text-xs text-[#8292AD] font-medium">{row.date}</span>,
     },
     {
       header: 'CHECK IN',
       accessor: 'checkIn',
+      className: 'min-w-[95px]',
       render: (row) => (
         <span className="text-xs font-bold text-[#172033]">{row.checkIn}</span>
       ),
@@ -486,6 +490,7 @@ export const Attendance = () => {
     {
       header: 'CHECK OUT',
       accessor: 'checkOut',
+      className: 'min-w-[95px]',
       render: (row) => (
         <span className="text-xs font-medium text-[#4E5D78]">{row.checkOut}</span>
       ),
@@ -493,6 +498,7 @@ export const Attendance = () => {
     {
       header: 'HOURS',
       accessor: 'workHours',
+      className: 'min-w-[90px]',
       render: (row) => (
         <span className="text-xs font-semibold text-[#172033] bg-[#F7F9FC] px-2 py-0.5 rounded-full border border-[#E5EAF2]">
           {row.workHours}
@@ -502,6 +508,7 @@ export const Attendance = () => {
     {
       header: 'LOCATION',
       accessor: 'location',
+      className: 'min-w-[100px]',
       render: (row) => (
         <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#4E5D78] bg-[#F7F9FC] px-2 py-0.5 rounded-full border border-[#E5EAF2]">
           {row.location}
@@ -512,6 +519,7 @@ export const Attendance = () => {
       header: 'STATUS',
       accessor: 'status',
       align: 'center',
+      className: 'min-w-[125px]',
       render: (row) => (
         <StatusBadge
           status={row.status}
