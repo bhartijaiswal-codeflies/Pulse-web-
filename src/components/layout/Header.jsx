@@ -79,6 +79,27 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
     });
   };
 
+  const handleNotificationClick = (notif) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notif.id ? { ...n, unread: false } : n))
+    );
+    if (notif.type === 'leave') {
+      navigate('/attendance');
+      setShowNotifications(false);
+    } else if (notif.type === 'candidate') {
+      navigate('/hrms');
+      setShowNotifications(false);
+    } else if (notif.type === 'asset') {
+      navigate('/assets');
+      setShowNotifications(false);
+    }
+  };
+
+  const handleDismissNotification = (e, notifId) => {
+    e.stopPropagation();
+    setNotifications((prev) => prev.filter((n) => n.id !== notifId));
+  };
+
   const handleLogout = () => {
     setShowProfileMenu(false);
     addToast({
@@ -164,7 +185,7 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
         <div className="relative" ref={notifRef}>
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 text-[#8292AD] hover:text-[#172033] hover:bg-[#F7F9FC] rounded-xl transition-colors"
+            className="relative p-2 text-[#8292AD] hover:text-[#172033] hover:bg-[#F7F9FC] rounded-xl transition-colors cursor-pointer"
             aria-label="View notifications"
           >
             <Bell className="w-5 h-5" />
@@ -174,59 +195,165 @@ export const Header = ({ onOpenMobileMenu, globalSearch, setGlobalSearch }) => {
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-[#E5EAF2] rounded-2xl shadow-dropdown z-50 overflow-hidden animate-fade-in">
-              <div className="p-4 border-b border-[#E5EAF2] flex items-center justify-between bg-[#FCFDFE]">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-[#172033]">Notifications</h4>
-                  {unreadCount > 0 && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-[#2563EB]">
-                      {unreadCount} new
-                    </span>
+            <>
+              {/* Mobile Backdrop Overlay (sm:hidden) */}
+              <div
+                className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 sm:hidden animate-fade-in"
+                onClick={() => setShowNotifications(false)}
+              />
+
+              {/* Notification Panel: fixed full-width with safe margins on mobile, anchored dropdown on desktop */}
+              <div
+                className={`fixed inset-x-3.5 top-16 sm:inset-x-auto sm:absolute sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-96 max-w-[calc(100vw-1.75rem)] sm:max-w-none rounded-2xl shadow-2xl sm:shadow-dropdown z-50 overflow-hidden animate-fade-in border ${
+                  isDark
+                    ? 'bg-[#0D152D] border-[#1E294B] text-slate-100'
+                    : 'bg-white border-[#E5EAF2] text-[#172033]'
+                }`}
+              >
+                {/* Panel Header */}
+                <div
+                  className={`p-3.5 sm:p-4 border-b flex items-center justify-between ${
+                    isDark ? 'bg-[#0A1024] border-[#1E294B]' : 'bg-[#FCFDFE] border-[#E5EAF2]'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center">
+                      <Bell className="w-3.5 h-3.5" />
+                    </div>
+                    <h4 className={`text-sm font-bold ${isDark ? 'text-white' : 'text-[#172033]'}`}>
+                      Notifications
+                    </h4>
+                    {unreadCount > 0 && (
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-[#2563EB]">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {unreadCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleMarkAllRead}
+                        className="text-xs text-[#2563EB] hover:underline font-semibold cursor-pointer"
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowNotifications(false)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 sm:hidden cursor-pointer"
+                      aria-label="Close notifications"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Notifications List */}
+                <div
+                  className={`max-h-[60vh] sm:max-h-80 overflow-y-auto divide-y ${
+                    isDark ? 'divide-[#1E294B]' : 'divide-[#E5EAF2]'
+                  }`}
+                >
+                  {notifications.map((notif) => {
+                    let IconComponent = Bell;
+                    let iconBg = 'bg-blue-50 text-[#2563EB]';
+                    if (notif.type === 'leave') {
+                      IconComponent = CalendarIcon;
+                      iconBg = 'bg-amber-50 text-amber-600';
+                    } else if (notif.type === 'candidate') {
+                      IconComponent = UserIcon;
+                      iconBg = 'bg-teal-50 text-teal-600';
+                    } else if (notif.type === 'birthday') {
+                      IconComponent = Sparkles;
+                      iconBg = 'bg-pink-50 text-pink-600';
+                    }
+
+                    return (
+                      <div
+                        key={notif.id}
+                        onClick={() => handleNotificationClick(notif)}
+                        className={`p-3.5 transition-colors flex items-start gap-3 cursor-pointer group ${
+                          notif.unread
+                            ? isDark
+                              ? 'bg-blue-950/20 hover:bg-blue-950/40'
+                              : 'bg-blue-50/40 hover:bg-blue-50/70'
+                            : isDark
+                            ? 'hover:bg-[#121A33]'
+                            : 'hover:bg-[#F8FAFC]'
+                        }`}
+                      >
+                        <div
+                          className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 ${iconBg}`}
+                        >
+                          <IconComponent className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-1">
+                            <p
+                              className={`text-xs font-semibold leading-snug truncate ${
+                                isDark ? 'text-white' : 'text-[#172033]'
+                              }`}
+                            >
+                              {notif.title}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={(e) => handleDismissNotification(e, notif.id)}
+                              className="text-slate-400 hover:text-slate-600 p-0.5 opacity-60 group-hover:opacity-100 transition-opacity cursor-pointer"
+                              title="Dismiss"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <p
+                            className={`text-[11px] mt-0.5 line-clamp-2 leading-relaxed ${
+                              isDark ? 'text-slate-400' : 'text-[#8292AD]'
+                            }`}
+                          >
+                            {notif.message}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-[10px] text-[#8292AD] flex items-center gap-1">
+                              <Clock className="w-2.5 h-2.5" />
+                              <span>{notif.time}</span>
+                            </span>
+                            {notif.unread && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {notifications.length === 0 && (
+                    <div className="py-10 text-center text-slate-400">
+                      <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-500 mb-2 opacity-80" />
+                      <p className="text-xs font-bold text-slate-600">All caught up!</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">No new notifications</p>
+                    </div>
                   )}
                 </div>
-                {unreadCount > 0 && (
-                  <button
-                    onClick={handleMarkAllRead}
-                    className="text-xs text-[#2563EB] hover:underline font-medium"
-                  >
-                    Mark all read
-                  </button>
-                )}
-              </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-[#E5EAF2]">
-                {notifications.map((notif) => (
-                  <div
-                    key={notif.id}
-                    className={`p-3.5 hover:bg-[#F8FAFC] transition-colors flex items-start gap-3 ${
-                      notif.unread ? 'bg-blue-50/30' : ''
-                    }`}
-                  >
-                    <div
-                      className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${
-                        notif.unread ? 'bg-[#2563EB]' : 'bg-transparent'
-                      }`}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-[#172033]">{notif.title}</p>
-                      <p className="text-[11px] text-[#8292AD] mt-0.5 line-clamp-2">
-                        {notif.message}
-                      </p>
-                      <span className="text-[10px] text-[#8292AD] mt-1 block">{notif.time}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="p-2.5 text-center border-t border-[#E5EAF2] bg-[#FCFDFE]">
-                <button
-                  onClick={() => setShowNotifications(false)}
-                  className="text-xs font-semibold text-[#8292AD] hover:text-[#172033]"
+                {/* Panel Footer */}
+                <div
+                  className={`p-2.5 text-center border-t ${
+                    isDark ? 'bg-[#0A1024] border-[#1E294B]' : 'bg-[#FCFDFE] border-[#E5EAF2]'
+                  }`}
                 >
-                  Close
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowNotifications(false)}
+                    className="text-xs font-bold text-[#8292AD] hover:text-[#172033] py-1 px-4 cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 

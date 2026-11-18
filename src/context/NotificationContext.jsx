@@ -23,12 +23,12 @@ export const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={{ addToast, removeToast }}>
       {children}
-      {/* Toast Container */}
-      <div className="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full">
+      {/* Toast Container: centered safe bounds on mobile, bottom-right on desktop */}
+      <div className="fixed bottom-4 inset-x-3 sm:inset-x-auto sm:bottom-5 sm:right-5 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm sm:w-full mx-auto sm:mx-0">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-lg border transition-all transform duration-300 animate-fade-in ${
+            className={`pointer-events-auto flex items-start gap-3 p-3.5 sm:p-4 rounded-xl shadow-xl sm:shadow-lg border transition-all transform duration-300 animate-fade-in w-full ${
               toast.type === 'success'
                 ? 'bg-white border-emerald-200 text-[#172033]'
                 : toast.type === 'error'
@@ -49,13 +49,14 @@ export const NotificationProvider = ({ children }) => {
                   : 'bg-amber-500'
               }`}
             />
-            <div className="flex-1">
-              <h4 className="text-sm font-semibold">{toast.title}</h4>
-              {toast.message && <p className="text-xs text-[#8292AD] mt-0.5">{toast.message}</p>}
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-semibold truncate">{toast.title}</h4>
+              {toast.message && <p className="text-xs text-[#8292AD] mt-0.5 line-clamp-2">{toast.message}</p>}
             </div>
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-[#8292AD] hover:text-[#172033] text-sm leading-none p-1"
+              className="text-[#8292AD] hover:text-[#172033] text-sm leading-none p-1 cursor-pointer flex-shrink-0"
+              aria-label="Dismiss toast"
             >
               ✕
             </button>
