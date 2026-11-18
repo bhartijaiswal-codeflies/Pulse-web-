@@ -1339,46 +1339,46 @@ export const Candidates = () => {
     {
       header: 'CANDIDATE',
       accessor: 'name',
-      className: 'min-w-[170px] sm:min-w-[200px]',
+      className: 'w-[125px] min-w-[120px] max-w-[130px] sm:w-auto sm:min-w-[190px] sm:max-w-none',
       render: (row) => (
-        <div className="py-1 min-w-0">
+        <div className="py-1 min-w-0 max-w-full">
           <div
-            className="font-bold text-[#111827] text-xs hover:text-[#2563EB] cursor-pointer transition-colors"
+            className="font-bold text-[#111827] text-xs hover:text-[#2563EB] cursor-pointer transition-colors truncate"
             onClick={() => setSelectedCandidate(row)}
-            title="Click to view full profile"
+            title={`Click to view full profile: ${row.name}`}
           >
             {row.name}
           </div>
 
-            {/* Email with copy action - clear & visible */}
-            <button
-              type="button"
-              onClick={(e) => handleCopyEmail(e, row.email)}
-              title="Click to copy email"
-              className="group/email flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-[#2563EB] transition-colors font-medium mt-1 text-left cursor-pointer"
-            >
-              <Mail className="w-3.5 h-3.5 text-[#6B7280] group-hover/email:text-[#2563EB] flex-shrink-0" />
-              <span className="truncate max-w-[190px]">{row.email}</span>
-              <Copy className="w-3 h-3 text-[#9CA3AF] opacity-0 group-hover/email:opacity-100 transition-opacity flex-shrink-0" />
-            </button>
+          {/* Email with copy action - clear & visible */}
+          <button
+            type="button"
+            onClick={(e) => handleCopyEmail(e, row.email)}
+            title={`Click to copy email: ${row.email}`}
+            className="group/email flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-[#4B5563] hover:text-[#2563EB] transition-colors font-medium mt-1 text-left cursor-pointer min-w-0 max-w-full"
+          >
+            <Mail className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#6B7280] group-hover/email:text-[#2563EB] flex-shrink-0" />
+            <span className="truncate max-w-[85px] sm:max-w-[180px]">{row.email}</span>
+            <Copy className="w-3 h-3 text-[#9CA3AF] opacity-0 group-hover/email:opacity-100 transition-opacity flex-shrink-0 hidden sm:inline-block" />
+          </button>
 
-            {/* Phone with calling redirect - clear & visible */}
-            <a
-              href={`tel:${row.phone}`}
-              onClick={(e) => e.stopPropagation()}
-              title="Click to call candidate"
-              className="group/phone flex items-center gap-1.5 text-xs text-[#4B5563] hover:text-emerald-600 transition-colors font-medium mt-0.5"
-            >
-              <Phone className="w-3.5 h-3.5 text-[#6B7280] group-hover/phone:text-emerald-600 flex-shrink-0" />
-              <span>{row.phone}</span>
-            </a>
+          {/* Phone with calling redirect - clear & visible */}
+          <a
+            href={`tel:${row.phone}`}
+            onClick={(e) => e.stopPropagation()}
+            title={`Click to call candidate: ${row.phone}`}
+            className="group/phone flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-[#4B5563] hover:text-emerald-600 transition-colors font-medium mt-0.5 min-w-0 max-w-full"
+          >
+            <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#6B7280] group-hover/phone:text-emerald-600 flex-shrink-0" />
+            <span className="truncate">{row.phone}</span>
+          </a>
         </div>
       ),
     },
     {
       header: 'ROLE & EXP',
       accessor: 'role',
-      className: 'min-w-[140px]',
+      className: 'min-w-[125px] sm:min-w-[140px]',
       render: (row) => (
         <div className="space-y-1">
           <div className="text-xs font-bold text-[#111827]">{row.role}</div>

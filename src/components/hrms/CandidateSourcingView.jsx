@@ -368,13 +368,13 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-[#F8FAFC] border-b border-[#E5EAF2] text-[#8292AD] font-bold uppercase text-[10.5px] tracking-wider">
-                <th className="py-3 px-4 min-w-[170px] sm:min-w-[190px] sticky left-0 bg-[#F8FAFC] z-20 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">Candidate Profile</th>
-                <th className="py-3 px-4 min-w-[190px]">Contact Info</th>
-                <th className="py-3 px-4 min-w-[140px]">Target Role</th>
-                <th className="py-3 px-4 min-w-[100px]">Experience</th>
-                <th className="py-3 px-4 min-w-[240px]">Sourcing Description & Notes</th>
-                <th className="py-3 px-4 min-w-[120px]">Status</th>
-                <th className="py-3 px-4 min-w-[190px] text-right">Approval & Actions</th>
+                <th className="py-3 px-2.5 sm:px-4 w-[125px] min-w-[120px] max-w-[130px] sm:w-auto sm:min-w-[190px] sm:max-w-none sticky left-0 bg-[#F8FAFC] z-20 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">Candidate Profile</th>
+                <th className="py-3 px-2.5 sm:px-4 min-w-[180px]">Contact Info</th>
+                <th className="py-3 px-2.5 sm:px-4 min-w-[130px]">Target Role</th>
+                <th className="py-3 px-2.5 sm:px-4 min-w-[95px]">Experience</th>
+                <th className="py-3 px-2.5 sm:px-4 min-w-[220px]">Sourcing Description & Notes</th>
+                <th className="py-3 px-2.5 sm:px-4 min-w-[110px]">Status</th>
+                <th className="py-3 px-2.5 sm:px-4 min-w-[180px] text-right">Approval & Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5EAF2]">
@@ -388,21 +388,21 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                     onClick={() => setViewingCandidate(cand)}
                   >
                     {/* 1. Candidate Profile */}
-                    <td className="py-3.5 px-4 sticky left-0 bg-white group-hover:bg-[#F8FAFC] z-10 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
+                    <td className="py-3.5 px-2.5 sm:px-4 w-[125px] min-w-[120px] max-w-[130px] sm:w-auto sm:min-w-[190px] sm:max-w-none sticky left-0 bg-white group-hover:bg-[#F8FAFC] z-10 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]">
                       <div className="min-w-0">
                         <div className="font-bold text-[#172033] hover:text-[#2563EB] transition-colors truncate">
                           {cand.name}
                         </div>
-                        <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5">
-                          <span className="font-mono text-slate-600">{cand.id}</span>
+                        <div className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1 mt-0.5 truncate">
+                          <span className="font-mono text-slate-600 truncate">{cand.id}</span>
                           <span>•</span>
-                          <span>{cand.sourceChannel}</span>
+                          <span className="truncate">{cand.sourceChannel}</span>
                         </div>
                       </div>
                     </td>
 
                     {/* 2. Contact Info */}
-                    <td className="py-3.5 px-4" onClick={(e) => e.stopPropagation()}>
+                    <td className="py-3.5 px-2.5 sm:px-4" onClick={(e) => e.stopPropagation()}>
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-slate-700">
                           <Mail className="w-3 h-3 text-[#8292AD] flex-shrink-0" />
@@ -432,7 +432,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                     </td>
 
                     {/* 3. Target Role */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-2.5 sm:px-4">
                       <div className="flex flex-col">
                         <span className="font-bold text-[#172033]">{cand.role}</span>
                         <span className="text-[10px] text-[#8292AD]">{cand.department || 'Talent Pool'}</span>
@@ -440,14 +440,14 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                     </td>
 
                     {/* 4. Experience */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-2.5 sm:px-4">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
                         {cand.experience}
                       </span>
                     </td>
 
                     {/* 5. Description & Notes */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-2.5 sm:px-4">
                       <div className="max-w-xs">
                         <p className="text-xs text-[#526484] line-clamp-2 leading-relaxed" title={cand.description}>
                           {cand.description || 'No notes entered.'}
@@ -461,7 +461,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                     </td>
 
                     {/* 6. Status */}
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-2.5 sm:px-4">
                       {isApproved ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
@@ -481,7 +481,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
                     </td>
 
                     {/* 7. Approval & Actions */}
-                    <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                    <td className="py-3.5 px-2.5 sm:px-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="inline-flex items-center justify-end gap-1.5">
                         {/* Primary Workflow Button: Approve & Move to Candidates */}
                         {!isApproved ? (

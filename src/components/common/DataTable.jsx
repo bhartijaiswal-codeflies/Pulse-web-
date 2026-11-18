@@ -124,7 +124,7 @@ export const DataTable = ({
                 {columns.map((col, idx) => (
                   <th
                     key={idx}
-                    className={`py-3 px-4 text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider ${
+                    className={`py-3 px-2.5 sm:px-4 text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider ${
                       idx === 0
                         ? 'sticky left-0 bg-white z-20 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)]'
                         : ''
@@ -140,7 +140,7 @@ export const DataTable = ({
                   </th>
                 ))}
                 {actions && (
-                  <th className="py-3 px-4 text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider text-right">
+                  <th className="py-3 px-2.5 sm:px-4 text-[10.5px] font-bold text-[#8292AD] uppercase tracking-wider text-right">
                     ACTIONS
                   </th>
                 )}
@@ -156,7 +156,7 @@ export const DataTable = ({
                     {columns.map((col, colIdx) => (
                       <td
                         key={colIdx}
-                        className={`py-3 px-4 align-middle ${
+                        className={`py-3 px-2.5 sm:px-4 align-middle ${
                           colIdx === 0
                             ? 'sticky left-0 bg-white group-hover:bg-[#F8FAFC] z-10 shadow-[2px_0_6px_-2px_rgba(0,0,0,0.08)] transition-colors'
                             : ''
@@ -172,7 +172,7 @@ export const DataTable = ({
                       </td>
                     ))}
                     {actions && (
-                      <td className="py-3 px-4 align-middle text-right whitespace-nowrap">
+                      <td className="py-3 px-2.5 sm:px-4 align-middle text-right whitespace-nowrap">
                         {actions(row)}
                       </td>
                     )}
