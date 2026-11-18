@@ -444,17 +444,17 @@ export const Attendance = () => {
     {
       header: 'EMPLOYEE',
       accessor: 'name',
-      className: 'min-w-[150px] sm:min-w-[190px]',
+      className: 'w-[125px] min-w-[120px] max-w-[130px] sm:w-auto sm:min-w-[180px] sm:max-w-none',
       render: (row) => (
         <div
           onClick={() => setSelectedRecord(row)}
-          className="flex items-center gap-2.5 cursor-pointer group/emp min-w-0"
+          className="flex items-center gap-2 sm:gap-2.5 cursor-pointer group/emp min-w-0"
           title={`Click to view attendance log for ${row.name}`}
         >
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] group-hover/emp:ring-[#2563EB] transition-all flex-shrink-0"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] group-hover/emp:ring-[#2563EB] transition-all flex-shrink-0"
           />
           <div className="min-w-0">
             <div className="font-bold text-[#172033] text-xs group-hover/emp:text-[#2563EB] transition-colors truncate">

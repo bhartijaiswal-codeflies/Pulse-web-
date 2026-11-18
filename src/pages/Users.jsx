@@ -801,14 +801,14 @@ export const Users = () => {
     {
       header: 'USER / ROLE',
       accessor: 'role',
-      className: 'min-w-[170px] sm:min-w-[200px]',
+      className: 'w-[115px] min-w-[110px] max-w-[125px] sm:w-auto sm:min-w-[180px] sm:max-w-none',
       render: (row) => {
         const isStarred = starredUsers.includes(row.id);
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
             <button
               onClick={() => toggleStar(row.id)}
-              className="focus:outline-none transition-transform hover:scale-110 cursor-pointer"
+              className="focus:outline-none transition-transform hover:scale-110 cursor-pointer flex-shrink-0"
               title="Toggle Bookmark"
             >
               <Star
@@ -819,9 +819,9 @@ export const Users = () => {
                 }`}
               />
             </button>
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563EB] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100 hover:bg-blue-100/60 transition-colors">
-              <span>{row.role}</span>
-              <span className="text-[9px] opacity-60">▾</span>
+            <span className="inline-flex items-center gap-1 text-[10.5px] sm:text-[11px] font-semibold text-[#2563EB] bg-blue-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-blue-100 hover:bg-blue-100/60 transition-colors truncate">
+              <span className="truncate">{row.role}</span>
+              <span className="text-[9px] opacity-60 flex-shrink-0">▾</span>
             </span>
           </div>
         );

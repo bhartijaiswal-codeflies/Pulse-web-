@@ -381,13 +381,13 @@ export const MyFinances = () => {
     {
       header: 'EMPLOYEE LIST',
       accessor: 'name',
-      className: 'min-w-[160px] sm:min-w-[185px]',
+      className: 'w-[125px] min-w-[120px] max-w-[130px] sm:w-auto sm:min-w-[185px] sm:max-w-none',
       render: (row) => (
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] flex-shrink-0"
           />
           <div className="min-w-0">
             <div
@@ -397,7 +397,7 @@ export const MyFinances = () => {
             >
               {row.name}
             </div>
-            <div className="text-[10px] text-[#8292AD] font-medium mt-0.5">
+            <div className="text-[10px] text-[#8292AD] font-medium mt-0.5 truncate">
               <span className="font-mono text-slate-700">{row.empCode}</span>
             </div>
           </div>

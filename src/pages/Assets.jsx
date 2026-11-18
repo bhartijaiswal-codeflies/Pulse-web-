@@ -651,7 +651,7 @@ export const Assets = () => {
     {
       header: 'TYPE / TAG',
       accessor: 'type',
-      className: 'min-w-[130px] sm:min-w-[150px]',
+      className: 'w-[115px] min-w-[110px] max-w-[125px] sm:w-auto sm:min-w-[150px] sm:max-w-none',
       render: (row) => {
         const isStarred = starredItems.includes(row.id);
         const typeBadgeColor =
@@ -664,10 +664,10 @@ export const Assets = () => {
             : 'bg-teal-50 text-teal-700 border-teal-200';
 
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
             <button
               onClick={() => toggleStar(row.id)}
-              className="focus:outline-none transition-transform hover:scale-110 cursor-pointer"
+              className="focus:outline-none transition-transform hover:scale-110 cursor-pointer flex-shrink-0"
               title="Bookmark Asset"
             >
               <Star
@@ -677,10 +677,10 @@ export const Assets = () => {
               />
             </button>
             <span
-              className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${typeBadgeColor}`}
+              className={`inline-flex items-center gap-1 text-[10.5px] sm:text-[11px] font-semibold px-2 sm:px-2.5 py-0.5 rounded-full border truncate ${typeBadgeColor}`}
             >
-              <span>{row.type}</span>
-              <ChevronDown className="w-2.5 h-2.5 opacity-60 ml-0.5" />
+              <span className="truncate">{row.type}</span>
+              <ChevronDown className="w-2.5 h-2.5 opacity-60 ml-0.5 flex-shrink-0" />
             </span>
           </div>
         );
@@ -829,11 +829,11 @@ export const Assets = () => {
     {
       header: 'TICKET #',
       accessor: 'ticketNo',
-      className: 'min-w-[120px] sm:min-w-[140px]',
+      className: 'w-[105px] min-w-[100px] max-w-[115px] sm:w-auto sm:min-w-[140px] sm:max-w-none',
       render: (row) => (
-        <div className="flex items-center gap-2">
-          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-          <span className="font-bold text-[#2563EB] text-xs cursor-pointer hover:underline" onClick={() => setSelectedTicket(row)}>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
+          <span className="font-bold text-[#2563EB] text-xs cursor-pointer hover:underline truncate" onClick={() => setSelectedTicket(row)}>
             {row.ticketNo}
           </span>
         </div>
@@ -906,11 +906,11 @@ export const Assets = () => {
     {
       header: 'REQUEST #',
       accessor: 'requestNo',
-      className: 'min-w-[120px] sm:min-w-[140px]',
+      className: 'w-[105px] min-w-[100px] max-w-[115px] sm:w-auto sm:min-w-[140px] sm:max-w-none',
       render: (row) => (
-        <div className="flex items-center gap-2">
-          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-          <span className="font-bold text-[#172033] text-xs">{row.requestNo}</span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 flex-shrink-0" />
+          <span className="font-bold text-[#172033] text-xs truncate">{row.requestNo}</span>
         </div>
       ),
     },
