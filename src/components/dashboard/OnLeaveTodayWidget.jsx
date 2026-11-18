@@ -68,28 +68,28 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
   ];
 
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
+    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 sm:p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
       {/* Top Header */}
       <div>
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+        <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-between gap-2 pb-3 border-b border-[#E5EAF2]">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
               <UserMinus className="w-4 h-4" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-[#172033] text-sm">Today's Leaves</h3>
-                <span className="text-[10px] font-semibold text-[#8292AD] bg-[#F7F9FC] px-2 py-0.5 rounded border border-[#E5EAF2]">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h3 className="font-bold text-[#172033] text-sm truncate">Today's Leaves</h3>
+                <span className="text-[10px] font-semibold text-[#8292AD] bg-[#F7F9FC] px-1.5 py-0.5 rounded border border-[#E5EAF2] flex-shrink-0">
                   Admin Roster
                 </span>
               </div>
-              <p className="text-[11px] text-[#8292AD]">Team Time-Off & Absence Roster</p>
+              <p className="text-[11px] text-[#8292AD] truncate">Team Time-Off & Absence Roster</p>
             </div>
           </div>
 
           <Link
             to="/attendance"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-50 text-[#2563EB] hover:bg-blue-100 border border-blue-200 transition-colors"
+            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-xl bg-blue-50 text-[#2563EB] hover:bg-blue-100 border border-blue-200 transition-colors flex-shrink-0 self-end sm:self-auto whitespace-nowrap"
           >
             <span>Leave Register</span>
             <ExternalLink className="w-3 h-3" />
@@ -97,14 +97,14 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
         </div>
 
         {/* Status Filter Chips */}
-        <div className="flex items-center gap-2 my-3">
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+        <div className="flex items-center gap-1.5 my-3 flex-wrap">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap">
             3 Absent Today
           </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 whitespace-nowrap">
             2 Upcoming
           </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
             1 Pending
           </span>
         </div>
@@ -114,9 +114,9 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
           {onLeaveStaff.map((staff) => (
             <div
               key={staff.id}
-              className="py-2.5 flex items-center justify-between gap-3 text-xs hover:bg-[#F8FAFC] transition-colors rounded-lg px-2 -mx-2"
+              className="py-2.5 flex items-center justify-between gap-2 text-xs hover:bg-[#F8FAFC] transition-colors rounded-lg px-1.5"
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <img
                   src={staff.avatar}
                   alt={staff.name}
@@ -130,7 +130,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 flex-shrink-0">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 <StatusBadge status={staff.status} size="xs" />
               </div>
             </div>

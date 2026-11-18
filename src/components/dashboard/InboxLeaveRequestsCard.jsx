@@ -31,20 +31,20 @@ export const InboxLeaveRequestsCard = ({ requests, onApprove, onReject }) => {
   };
 
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[220px]">
+    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 sm:p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[220px]">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2]">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
+      <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-between gap-2 pb-3 border-b border-[#E5EAF2]">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center flex-shrink-0">
             <Inbox className="w-4 h-4" />
           </div>
-          <div>
-            <h3 className="font-bold text-[#172033] text-sm">Inbox leave requests</h3>
-            <p className="text-[11px] text-[#8292AD]">Pending Admin Approvals</p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-[#172033] text-sm truncate">Inbox leave requests</h3>
+            <p className="text-[11px] text-[#8292AD] truncate">Pending Admin Approvals</p>
           </div>
         </div>
         {pending.length > 0 && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex-shrink-0 whitespace-nowrap self-end sm:self-auto">
             {pending.length} Action Needed
           </span>
         )}

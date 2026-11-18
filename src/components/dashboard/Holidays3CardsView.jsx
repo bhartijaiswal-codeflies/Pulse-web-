@@ -71,20 +71,20 @@ export const Holidays3CardsView = () => {
   const displayedHolidays = viewCount === '3' ? holidays3Cards.slice(0, 3) : holidays3Cards;
 
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
+    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 sm:p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2]">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+      <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-between gap-2.5 pb-3 border-b border-[#E5EAF2]">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
             <Palmtree className="w-4 h-4" />
           </div>
-          <div>
-            <h3 className="font-bold text-[#172033] text-sm">Upcoming Holidays & Events</h3>
-            <p className="text-[11px] text-[#8292AD]">6 Official Holidays Scheduled (Q4 2026 - Q1 2027)</p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-[#172033] text-sm truncate">Upcoming Holidays & Events</h3>
+            <p className="text-[11px] text-[#8292AD] truncate">6 Official Holidays Scheduled (Q4 2026 - Q1 2027)</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
           {/* 3 vs 6 View Toggle */}
           <div className="flex items-center bg-[#F8FAFC] border border-[#E5EAF2] rounded-lg p-0.5 text-[10.5px]">
             <button
@@ -113,7 +113,7 @@ export const Holidays3CardsView = () => {
 
           <Link
             to="/calendar"
-            className="text-xs text-[#2563EB] hover:underline font-semibold flex items-center gap-1 ml-1"
+            className="text-xs text-[#2563EB] hover:underline font-semibold flex items-center gap-1 ml-1 whitespace-nowrap"
           >
             <span>Calendar</span>
             <ArrowRight className="w-3.5 h-3.5" />

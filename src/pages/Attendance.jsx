@@ -444,23 +444,23 @@ export const Attendance = () => {
     {
       header: 'EMPLOYEE',
       accessor: 'name',
-      className: 'min-w-[160px] sm:min-w-[190px]',
+      className: 'min-w-[150px] sm:min-w-[190px]',
       render: (row) => (
         <div
           onClick={() => setSelectedRecord(row)}
-          className="flex items-center gap-2.5 cursor-pointer group/emp"
+          className="flex items-center gap-2.5 cursor-pointer group/emp min-w-0"
           title={`Click to view attendance log for ${row.name}`}
         >
           <img
             src={row.avatar}
             alt={row.name}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] group-hover/emp:ring-[#2563EB] transition-all"
+            className="w-8 h-8 rounded-full object-cover ring-2 ring-[#E5EAF2] group-hover/emp:ring-[#2563EB] transition-all flex-shrink-0"
           />
-          <div>
-            <div className="font-bold text-[#172033] text-xs group-hover/emp:text-[#2563EB] transition-colors">
+          <div className="min-w-0">
+            <div className="font-bold text-[#172033] text-xs group-hover/emp:text-[#2563EB] transition-colors truncate">
               {row.name}
             </div>
-            <div className="text-[10px] text-[#8292AD] font-medium">{row.employeeId}</div>
+            <div className="text-[10px] text-[#8292AD] font-medium truncate">{row.employeeId}</div>
           </div>
         </div>
       ),
@@ -468,39 +468,39 @@ export const Attendance = () => {
     {
       header: 'DEPARTMENT',
       accessor: 'department',
-      className: 'min-w-[130px]',
+      className: 'min-w-[120px] whitespace-nowrap',
       render: (row) => (
-        <span className="text-xs text-[#4E5D78] font-medium">{row.department}</span>
+        <span className="text-xs text-[#4E5D78] font-medium whitespace-nowrap">{row.department}</span>
       ),
     },
     {
       header: 'DATE',
       accessor: 'date',
-      className: 'min-w-[110px]',
-      render: (row) => <span className="text-xs text-[#8292AD] font-medium">{row.date}</span>,
+      className: 'min-w-[100px] whitespace-nowrap',
+      render: (row) => <span className="text-xs text-[#8292AD] font-medium whitespace-nowrap">{row.date}</span>,
     },
     {
       header: 'CHECK IN',
       accessor: 'checkIn',
-      className: 'min-w-[95px]',
+      className: 'min-w-[95px] whitespace-nowrap',
       render: (row) => (
-        <span className="text-xs font-bold text-[#172033]">{row.checkIn}</span>
+        <span className="text-xs font-bold text-[#172033] whitespace-nowrap">{row.checkIn}</span>
       ),
     },
     {
       header: 'CHECK OUT',
       accessor: 'checkOut',
-      className: 'min-w-[95px]',
+      className: 'min-w-[95px] whitespace-nowrap',
       render: (row) => (
-        <span className="text-xs font-medium text-[#4E5D78]">{row.checkOut}</span>
+        <span className="text-xs font-medium text-[#4E5D78] whitespace-nowrap">{row.checkOut}</span>
       ),
     },
     {
       header: 'HOURS',
       accessor: 'workHours',
-      className: 'min-w-[90px]',
+      className: 'min-w-[90px] whitespace-nowrap',
       render: (row) => (
-        <span className="text-xs font-semibold text-[#172033] bg-[#F7F9FC] px-2 py-0.5 rounded-full border border-[#E5EAF2]">
+        <span className="text-xs font-semibold text-[#172033] bg-[#F7F9FC] px-2 py-0.5 rounded-full border border-[#E5EAF2] whitespace-nowrap inline-block">
           {row.workHours}
         </span>
       ),
@@ -508,9 +508,9 @@ export const Attendance = () => {
     {
       header: 'LOCATION',
       accessor: 'location',
-      className: 'min-w-[100px]',
+      className: 'min-w-[115px] whitespace-nowrap',
       render: (row) => (
-        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#4E5D78] bg-[#F7F9FC] px-2 py-0.5 rounded-full border border-[#E5EAF2]">
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#4E5D78] bg-[#F7F9FC] px-2 py-0.5 rounded-full border border-[#E5EAF2] whitespace-nowrap">
           {row.location}
         </span>
       ),
@@ -519,21 +519,23 @@ export const Attendance = () => {
       header: 'STATUS',
       accessor: 'status',
       align: 'center',
-      className: 'min-w-[125px]',
+      className: 'min-w-[135px] whitespace-nowrap',
       render: (row) => (
-        <StatusBadge
-          status={row.status}
-          options={[
-            'Present',
-            'Absent',
-            'First Half Leave',
-            'Second Half Leave',
-            'Half Day Marked',
-          ]}
-          size="xs"
-          showChevron={true}
-          onStatusChange={(newStatus) => handleStatusChange(row.id, newStatus)}
-        />
+        <div className="whitespace-nowrap">
+          <StatusBadge
+            status={row.status}
+            options={[
+              'Present',
+              'Absent',
+              'First Half Leave',
+              'Second Half Leave',
+              'Half Day Marked',
+            ]}
+            size="xs"
+            showChevron={true}
+            onStatusChange={(newStatus) => handleStatusChange(row.id, newStatus)}
+          />
+        </div>
       ),
     },
   ];
@@ -665,7 +667,7 @@ export const Attendance = () => {
         </div>
 
         {/* 3. Quick Period Dropdown */}
-        <div className="relative w-full sm:w-auto min-w-[150px] flex-1 sm:flex-initial">
+        <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[150px] flex-1 sm:flex-initial">
           <select
             value={periodFilter}
             onChange={(e) => {
@@ -676,7 +678,7 @@ export const Attendance = () => {
                 setToDate('');
               }
             }}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
           >
             <option value="all">All Dates</option>
             <option value="today">Today</option>
@@ -714,11 +716,11 @@ export const Attendance = () => {
         )}
 
         {/* 5. Department Filter */}
-        <div className="relative w-full sm:w-auto min-w-[145px] flex-1 sm:flex-initial">
+        <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[155px] flex-1 sm:flex-initial">
           <select
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
           >
             {departments.map((dept) => (
               <option key={dept} value={dept}>

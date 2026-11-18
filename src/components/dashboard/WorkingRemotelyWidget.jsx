@@ -31,20 +31,20 @@ export const WorkingRemotelyWidget = () => {
   ];
 
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[190px]">
+    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 sm:p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[190px]">
       <div>
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+        <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-between gap-2 pb-3 border-b border-[#E5EAF2]">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
               <Laptop className="w-4 h-4" />
             </div>
-            <div>
-              <h3 className="font-bold text-[#172033] text-sm">Working Remotely</h3>
-              <p className="text-[11px] text-[#8292AD]">Remote Workforce Today</p>
+            <div className="min-w-0">
+              <h3 className="font-bold text-[#172033] text-sm truncate">Working Remotely</h3>
+              <p className="text-[11px] text-[#8292AD] truncate">Remote Workforce Today</p>
             </div>
           </div>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 flex-shrink-0 whitespace-nowrap self-end sm:self-auto">
             {remoteStaff.length} Remote
           </span>
         </div>

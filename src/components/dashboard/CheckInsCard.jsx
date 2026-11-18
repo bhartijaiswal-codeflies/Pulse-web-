@@ -128,26 +128,26 @@ export const CheckInsCard = () => {
   });
 
   return (
-    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[220px]">
+    <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 sm:p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full min-h-[220px]">
       <div>
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E5EAF2]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
+        <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center justify-between gap-2 pb-3 border-b border-[#E5EAF2]">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center flex-shrink-0">
               <Clock className="w-4 h-4" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-[#172033] text-sm">Check-in / Check-out</h3>
-                <span className="text-[10px] font-semibold text-[#2563EB] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h3 className="font-bold text-[#172033] text-sm truncate">Check-in / Check-out</h3>
+                <span className="text-[10px] font-semibold text-[#2563EB] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100 flex-shrink-0">
                   Live Feed
                 </span>
               </div>
-              <p className="text-[11px] text-[#8292AD]">Admin Employee Punch Table</p>
+              <p className="text-[11px] text-[#8292AD] truncate">Admin Employee Punch Table</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-shrink-0 self-end sm:self-auto">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>224 Present</span>
@@ -156,15 +156,15 @@ export const CheckInsCard = () => {
         </div>
 
         {/* Filter Pills Bar (styled identical to Reference Image) */}
-        <div className="flex items-center justify-between gap-2 my-3 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between gap-2 my-3 overflow-x-auto no-scrollbar py-0.5">
+          <div className="flex items-center gap-1.5 min-w-max">
             {filterTabs.map((t) => {
               const isActive = filter === t.id;
               return (
                 <button
                   key={t.id}
                   onClick={() => setFilter(t.id)}
-                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold transition-all ${isActive
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-semibold transition-all cursor-pointer whitespace-nowrap ${isActive
                     ? 'bg-[#2563EB] text-white shadow-2xs'
                     : 'bg-white text-[#64748B] hover:text-[#172033] hover:bg-[#F8FAFC] border border-[#E5EAF2]'
                     }`}
@@ -190,17 +190,17 @@ export const CheckInsCard = () => {
         </div>
 
         {/* Table styled identical to Reference Image: fonts, colors, borders & alignment */}
-        <div className="overflow-x-auto -mx-1">
-          <table className="w-full text-left border-collapse">
+        <div className="overflow-x-auto -mx-1 sm:mx-0 min-w-0">
+          <table className="w-full text-left border-collapse min-w-[280px]">
             <thead>
               <tr className="border-b border-[#E5EAF2] bg-white">
-                <th className="py-2.5 px-3 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider">
+                <th className="py-2.5 px-2.5 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider min-w-[120px]">
                   EMPLOYEE
                 </th>
-                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider">
+                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider min-w-[70px]">
                   PUNCH
                 </th>
-                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider text-right">
+                <th className="py-2.5 px-2 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider text-right min-w-[85px] whitespace-nowrap">
                   OPTIONS
                 </th>
               </tr>
@@ -212,7 +212,7 @@ export const CheckInsCard = () => {
                   className="hover:bg-[#F8FAFC] transition-colors group"
                 >
                   {/* Employee & Dept */}
-                  <td className="py-2.5 px-3 align-middle">
+                  <td className="py-2.5 px-2.5 align-middle">
                     <div className="flex items-center gap-2 min-w-0">
                       <img
                         src={p.avatar}
