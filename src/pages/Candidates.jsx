@@ -1158,18 +1158,18 @@ export const Candidates = () => {
   // Single-Row Filter Bar matching Attendance design (media_1794304412388_6a1f2742.png)
   const candidateFilterBar = (
     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full min-w-0">
-      {/* Left: All Filters in 1 Row */}
+      {/* Left: All Filters in 1 Row on desktop, cleanly stacked & paired on mobile */}
       <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 w-full">
-        {/* 1. All Pipeline in 1 Styled Colored Dropdown */}
-        <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial flex-shrink-0" ref={stageDropdownRef}>
+        {/* 1. All Pipeline in 1 Styled Colored Dropdown (Full width on mobile, auto on desktop) */}
+        <div className="relative w-full sm:w-auto flex-shrink-0" ref={stageDropdownRef}>
           <button
             type="button"
             onClick={() => setShowStageDropdown((prev) => !prev)}
-            className={`w-full inline-flex items-center justify-between gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentStageConfig.pillClass}`}
+            className={`w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 whitespace-nowrap ${currentStageConfig.pillClass}`}
           >
             <div className="flex items-center gap-2">
               <span className="flex-shrink-0">{currentStageConfig.icon}</span>
-              <span>
+              <span className="whitespace-nowrap">
                 {currentStageConfig.label} ({currentStageConfig.count})
               </span>
             </div>
@@ -1181,7 +1181,7 @@ export const Candidates = () => {
 
           {/* Stage Options Popover */}
           {showStageDropdown && (
-            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[220px] animate-fade-in text-left">
+            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[220px] max-w-[90vw] animate-fade-in text-left">
               <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider border-b border-[#F1F5F9] mb-1">
                 Filter by Pipeline Stage
               </div>
@@ -1223,8 +1223,8 @@ export const Candidates = () => {
           )}
         </div>
 
-        {/* 2. Search Candidate, Role, Recruiter */}
-        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
+        {/* 2. Search Candidate, Role, Recruiter (Full width on mobile, 240px on desktop) */}
+        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-shrink-0 sm:flex-initial">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -1233,31 +1233,51 @@ export const Candidates = () => {
           />
         </div>
 
-        {/* 3. Quick Period Dropdown */}
-        <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial">
-          <select
-            value={periodFilter}
-            onChange={(e) => {
-              const val = e.target.value;
-              setPeriodFilter(val);
-              if (val !== 'custom') {
-                setFromDate('');
-                setToDate('');
-              }
-            }}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            <option value="all">All Dates</option>
-            <option value="today">Today</option>
-            <option value="this-week">This Week</option>
-            <option value="this-month">This Month</option>
-            <option value="custom">Custom Date Range...</option>
-          </select>
-          <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* 3 & 4. Dropdowns Row: 50/50 paired on mobile, inline on desktop */}
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-1 min-w-0">
+          {/* Quick Period Dropdown */}
+          <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[145px]">
+            <select
+              value={periodFilter}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPeriodFilter(val);
+                if (val !== 'custom') {
+                  setFromDate('');
+                  setToDate('');
+                }
+              }}
+              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="this-week">This Week</option>
+              <option value="this-month">This Month</option>
+              <option value="custom">Custom Date Range...</option>
+            </select>
+            <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Department Filter */}
+          <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[150px]">
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            >
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept === 'All' ? 'All Departments' : dept}
+                </option>
+              ))}
+            </select>
+            <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
 
-        {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
+        {/* 5. Custom Date Range Inputs (when 'custom' selected) */}
         {periodFilter === 'custom' && (
           <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] w-full sm:w-auto flex-wrap sm:flex-nowrap">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
@@ -1280,23 +1300,6 @@ export const Candidates = () => {
             </div>
           </div>
         )}
-
-        {/* 5. Department Filter */}
-        <div className="relative w-full sm:w-auto min-w-[135px] flex-1 sm:flex-initial">
-          <select
-            value={deptFilter}
-            onChange={(e) => setDeptFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept === 'All' ? 'All Departments' : dept}
-              </option>
-            ))}
-          </select>
-          <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
       </div>
 
       {/* Right: Clear with cross + Live Filter Counter + Refresh */}

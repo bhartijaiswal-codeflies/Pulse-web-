@@ -616,18 +616,18 @@ export const Users = () => {
   // Single-Row Filter Bar matching Candidates design exactly
   const userFilterBar = (
     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 w-full min-w-0">
-      {/* Left: All Filters in 1 Row */}
+      {/* Left: All Filters in 1 Row on desktop, cleanly stacked & paired on mobile */}
       <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 w-full">
         {/* 1. Status Dropdown Pill (Only Active / Inactive) */}
-        <div className="relative w-full sm:w-auto min-w-[130px] flex-1 sm:flex-initial flex-shrink-0" ref={statusDropdownRef}>
+        <div className="relative w-full sm:w-auto flex-shrink-0" ref={statusDropdownRef}>
           <button
             type="button"
             onClick={() => setShowStatusDropdown((prev) => !prev)}
-            className={`w-full inline-flex items-center justify-between gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 ${currentStatusConfig.pillClass}`}
+            className={`w-full sm:w-auto inline-flex items-center justify-between sm:justify-start gap-2 px-3.5 h-9 rounded-xl border text-xs font-bold transition-all shadow-2xs cursor-pointer select-none active:scale-95 whitespace-nowrap ${currentStatusConfig.pillClass}`}
           >
             <div className="flex items-center gap-2">
               <span className="flex-shrink-0">{currentStatusConfig.icon}</span>
-              <span>
+              <span className="whitespace-nowrap">
                 {currentStatusConfig.label} ({currentStatusConfig.count})
               </span>
             </div>
@@ -640,7 +640,7 @@ export const Users = () => {
 
           {/* Status Dropdown Popover */}
           {showStatusDropdown && (
-            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[210px] animate-fade-in text-left">
+            <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-2xl shadow-xl border border-[#E5EAF2] py-1.5 min-w-[210px] max-w-[90vw] animate-fade-in text-left">
               <div className="px-3.5 py-1.5 text-[10px] font-bold text-[#8292AD] uppercase tracking-wider border-b border-[#F1F5F9] mb-1">
                 Filter by User Status
               </div>
@@ -684,7 +684,7 @@ export const Users = () => {
         </div>
 
         {/* 2. Search User, Role, Address, ID */}
-        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
+        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-shrink-0 sm:flex-initial">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -693,31 +693,52 @@ export const Users = () => {
           />
         </div>
 
-        {/* 3. Quick Period Dropdown */}
-        <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial">
-          <select
-            value={periodFilter}
-            onChange={(e) => {
-              const val = e.target.value;
-              setPeriodFilter(val);
-              if (val !== 'custom') {
-                setFromDate('');
-                setToDate('');
-              }
-            }}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            <option value="all">All Dates</option>
-            <option value="today">Today</option>
-            <option value="this-week">This Week</option>
-            <option value="this-month">This Month</option>
-            <option value="custom">Custom Date Range...</option>
-          </select>
-          <Calendar className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* 3 & 4. Dropdowns Row: 50/50 paired on mobile, inline on desktop */}
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-1 min-w-0">
+          {/* Quick Period Dropdown */}
+          <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[145px]">
+            <select
+              value={periodFilter}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPeriodFilter(val);
+                if (val !== 'custom') {
+                  setFromDate('');
+                  setToDate('');
+                }
+              }}
+              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="this-week">This Week</option>
+              <option value="this-month">This Month</option>
+              <option value="custom">Custom Date Range...</option>
+            </select>
+            <Calendar className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Role Filter Dropdown */}
+          <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[145px]">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            >
+              <option value="All">All Roles</option>
+              <option value="Employee">Employee</option>
+              <option value="Team Lead">Team Lead</option>
+              <option value="Manager">Manager</option>
+              <option value="Director">Director</option>
+              <option value="HR Admin">HR Admin</option>
+            </select>
+            <Shield className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
 
-        {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
+        {/* 5. Custom Date Range Inputs (when 'custom' selected) */}
         {periodFilter === 'custom' && (
           <div className="flex items-center gap-2 animate-fade-in bg-[#F8FAFC] px-2.5 h-9 rounded-xl border border-[#E5EAF2] w-full sm:w-auto flex-wrap sm:flex-nowrap">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
@@ -740,24 +761,6 @@ export const Users = () => {
             </div>
           </div>
         )}
-
-        {/* 5. Role Filter Dropdown */}
-        <div className="relative w-full sm:w-auto min-w-[130px] flex-1 sm:flex-initial">
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            <option value="All">All Roles</option>
-            <option value="Employee">Employee</option>
-            <option value="Team Lead">Team Lead</option>
-            <option value="Manager">Manager</option>
-            <option value="Director">Director</option>
-            <option value="HR Admin">HR Admin</option>
-          </select>
-          <Shield className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
       </div>
 
       {/* Right: Clear with cross + Live Filter Counter + Refresh */}

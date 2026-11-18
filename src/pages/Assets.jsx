@@ -503,7 +503,7 @@ export const Assets = () => {
       {/* Left side: View Dropdown + Search + Type & Status Dropdowns */}
       <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 w-full">
         {/* 1. Blue View Pill Dropdown with Fixed Icons */}
-        <div className="relative w-full sm:w-auto min-w-[140px] flex-1 sm:flex-initial flex-shrink-0">
+        <div className="relative w-full sm:w-auto flex-shrink-0">
           <select
             value={activeView}
             onChange={(e) => {
@@ -512,7 +512,7 @@ export const Assets = () => {
               setTypeFilter('All');
               setStatusFilter('All');
             }}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-bold rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] hover:bg-blue-100/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-colors shadow-2xs"
+            className="w-full sm:w-auto appearance-none pl-8 pr-8 h-9 text-xs font-bold rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] hover:bg-blue-100/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-colors shadow-2xs whitespace-nowrap"
           >
             <option value="assets">All Assets ({assets.length})</option>
             <option value="tickets">Support Tickets ({tickets.length})</option>
@@ -531,7 +531,7 @@ export const Assets = () => {
         </div>
 
         {/* 2. Standard Search Input */}
-        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
+        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-shrink-0 sm:flex-initial">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -546,59 +546,62 @@ export const Assets = () => {
           />
         </div>
 
-        {/* 3. Dropdown 1: All Types (only in Assets view) with Fixed Tag & Chevron Icons */}
-        {activeView === 'assets' && (
-          <div className="relative w-full sm:w-auto min-w-[130px] flex-1 sm:flex-initial">
+        {/* 3 & 4. Dropdowns Row: 50/50 paired on mobile, inline on desktop */}
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-1 min-w-0">
+          {/* Dropdown 1: All Types (only in Assets view) */}
+          {activeView === 'assets' && (
+            <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[140px]">
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+              >
+                <option value="All">All Types</option>
+                <option value="Laptop">Laptop</option>
+                <option value="Charger">Charger</option>
+                <option value="Cable">Cable</option>
+                <option value="Mouse">Mouse</option>
+                <option value="Monitors">Monitors</option>
+                <option value="Mobile Devices">Mobile Devices</option>
+              </select>
+              <Tag className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          )}
+
+          {/* Dropdown 2: All Statuses */}
+          <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[145px]">
             <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
             >
-              <option value="All">All Types</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Charger">Charger</option>
-              <option value="Cable">Cable</option>
-              <option value="Mouse">Mouse</option>
-              <option value="Monitors">Monitors</option>
-              <option value="Mobile Devices">Mobile Devices</option>
+              <option value="All">All Statuses</option>
+              {activeView === 'assets' && (
+                <>
+                  <option value="Active">Active</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Available">Available</option>
+                </>
+              )}
+              {activeView === 'tickets' && (
+                <>
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                </>
+              )}
+              {activeView === 'requests' && (
+                <>
+                  <option value="Pending">Pending</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                </>
+              )}
             </select>
-            <Tag className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Shield className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
-        )}
-
-        {/* 4. Dropdown 2: All Statuses with Fixed Shield & Chevron Icons */}
-        <div className="relative w-full sm:w-auto min-w-[135px] flex-1 sm:flex-initial">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            <option value="All">All Statuses</option>
-            {activeView === 'assets' && (
-              <>
-                <option value="Active">Active</option>
-                <option value="Maintenance">Maintenance</option>
-                <option value="Available">Available</option>
-              </>
-            )}
-            {activeView === 'tickets' && (
-              <>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-              </>
-            )}
-            {activeView === 'requests' && (
-              <>
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-              </>
-            )}
-          </select>
-          <Shield className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
       </div>
 

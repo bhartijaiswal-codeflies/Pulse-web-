@@ -656,8 +656,8 @@ export const Attendance = () => {
           )}
         </div>
 
-        {/* 2. Search Employee / ID (fixed text cutting issue) */}
-        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-1 sm:flex-initial">
+        {/* 2. Search Employee / ID (Full width on mobile, 240px on desktop) */}
+        <div className="w-full sm:w-64 min-w-0 sm:min-w-[210px] flex-shrink-0 sm:flex-initial">
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
@@ -666,32 +666,52 @@ export const Attendance = () => {
           />
         </div>
 
-        {/* 3. Quick Period Dropdown */}
-        <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[150px] flex-1 sm:flex-initial">
-          <select
-            value={periodFilter}
-            onChange={(e) => {
-              const val = e.target.value;
-              setPeriodFilter(val);
-              if (val !== 'custom') {
-                setFromDate('');
-                setToDate('');
-              }
-            }}
-            className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            <option value="all">All Dates</option>
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="this-week">This Week</option>
-            <option value="this-month">This Month</option>
-            <option value="custom">Custom Date Range...</option>
-          </select>
-          <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* 3 & 4. Dropdowns Row: 50/50 paired on mobile, inline on desktop */}
+        <div className="flex items-center gap-2 w-full sm:w-auto flex-1 min-w-0">
+          {/* Quick Period Dropdown */}
+          <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[145px]">
+            <select
+              value={periodFilter}
+              onChange={(e) => {
+                const val = e.target.value;
+                setPeriodFilter(val);
+                if (val !== 'custom') {
+                  setFromDate('');
+                  setToDate('');
+                }
+              }}
+              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="yesterday">Yesterday</option>
+              <option value="this-week">This Week</option>
+              <option value="this-month">This Month</option>
+              <option value="custom">Custom Date Range...</option>
+            </select>
+            <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Department Filter */}
+          <div className="relative flex-1 sm:flex-initial sm:w-auto min-w-0 sm:min-w-[150px]">
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+            >
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept === 'All' ? 'All Departments' : dept}
+                </option>
+              ))}
+            </select>
+            <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
 
-        {/* 4. Custom Date Range Inputs (when 'custom' selected) */}
+        {/* 5. Custom Date Range Inputs (when 'custom' selected) */}
         {periodFilter === 'custom' && (
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 animate-fade-in bg-[#F8FAFC] p-2 sm:px-2.5 sm:h-9 rounded-xl border border-[#E5EAF2] w-full sm:w-auto">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-[#64748B]">
@@ -714,23 +734,6 @@ export const Attendance = () => {
             </div>
           </div>
         )}
-
-        {/* 5. Department Filter */}
-        <div className="relative w-full sm:w-auto min-w-0 sm:min-w-[155px] flex-1 sm:flex-initial">
-          <select
-            value={deptFilter}
-            onChange={(e) => setDeptFilter(e.target.value)}
-            className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
-          >
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept === 'All' ? 'All Departments' : dept}
-              </option>
-            ))}
-          </select>
-          <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        </div>
       </div>
 
       {/* Right: Clear with cross + Live Filter Counter + Refresh */}
