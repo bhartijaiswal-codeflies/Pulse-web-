@@ -16,6 +16,34 @@ export const attendanceService = {
     return attendanceRecords;
   },
 
+  saveRecords: (records) => {
+    localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(records));
+    return records;
+  },
+
+  addRecord: (record) => {
+    const records = attendanceService.getRecords();
+    const updated = [record, ...records];
+    localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(updated));
+    return updated;
+  },
+
+  updateRecord: (id, updates) => {
+    const records = attendanceService.getRecords();
+    const updated = records.map((r) =>
+      r.id === id ? { ...r, ...updates } : r
+    );
+    localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(updated));
+    return updated;
+  },
+
+  deleteRecord: (id) => {
+    const records = attendanceService.getRecords();
+    const updated = records.filter((r) => r.id !== id);
+    localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(updated));
+    return updated;
+  },
+
   checkIn: (emp) => {
     const records = attendanceService.getRecords();
     const existingIndex = records.findIndex((r) => r.employeeId === emp.employeeId);
@@ -69,4 +97,5 @@ export const attendanceService = {
     return updated;
   },
 };
+
 

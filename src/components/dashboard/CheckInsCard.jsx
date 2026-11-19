@@ -240,13 +240,15 @@ export const CheckInsCard = () => {
                     </span>
                   </td>
 
-                  {/* Options Pill Badge (Clean Static Badge) */}
+                  {/* Options Pill Badge (Interactive Status Dropdown) */}
                   <td className="py-2.5 px-2 align-middle text-right whitespace-nowrap">
                     <StatusBadge
                       status={p.status}
+                      options={['On Time', 'Late', 'Remote', 'Checked Out']}
                       size="xs"
-                      showChevron={false}
-                      interactive={false}
+                      showChevron={true}
+                      interactive={true}
+                      onStatusChange={(newStatus) => handleStatusChange(p.id, newStatus)}
                     />
                   </td>
                 </tr>

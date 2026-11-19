@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserMinus, Calendar, Plus, ExternalLink, Clock, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../common/StatusBadge';
+import { useToast } from '../../context/NotificationContext';
 
 export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
-  const onLeaveStaff = [
+  const { addToast } = useToast();
+  const [filterType, setFilterType] = useState('All'); // 'All', 'Absent', 'Upcoming', 'Pending'
+
+  const [onLeaveStaff, setOnLeaveStaff] = useState([
     {
       id: 'L1',
       name: 'Marcus Vance',
@@ -14,6 +18,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       dates: '09 Nov – 11 Nov',
       duration: '2 days',
       status: 'On Leave',
+      category: 'Absent',
     },
     {
       id: 'L2',
@@ -24,6 +29,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       dates: '09 Nov – 05 Dec',
       duration: '15 days',
       status: 'On Leave',
+      category: 'Absent',
     },
     {
       id: 'L3',
@@ -34,6 +40,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       dates: '09 Nov – 09 Nov',
       duration: '1 day (Today)',
       status: 'On Leave',
+      category: 'Absent',
     },
     {
       id: 'L4',
@@ -44,6 +51,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       dates: '12 Nov – 15 Nov',
       duration: '4 days (Upcoming)',
       status: 'Pending',
+      category: 'Pending',
     },
     {
       id: 'L5',
@@ -54,6 +62,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       dates: '14 Nov – 14 Nov',
       duration: '1 day (Upcoming)',
       status: 'Approved',
+      category: 'Upcoming',
     },
     {
       id: 'L6',
@@ -64,8 +73,32 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       dates: '16 Nov – 17 Nov',
       duration: '2 days (Upcoming)',
       status: 'Approved',
+      category: 'Upcoming',
     },
-  ];
+  ]);
+
+  const handleStatusChange = (id, newStatus) => {
+    setOnLeaveStaff((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, status: newStatus } : s))
+    );
+    addToast({
+      title: 'Leave Status Updated',
+      message: `Staff leave marked as "${newStatus}".`,
+      type: 'info',
+    });
+  };
+
+  const filteredStaff = onLeaveStaff.filter((staff) => {
+    if (filterType === 'All') return true;
+    if (filterType === 'Absent') return staff.category === 'Absent' || staff.status === 'On Leave';
+    if (filterType === 'Upcoming') return staff.category === 'Upcoming' || staff.status === 'Approved';
+    if (filterType === 'Pending') return staff.category === 'Pending' || staff.status === 'Pending';
+    return true;
+  });
+
+  const absentCount = onLeaveStaff.filter((s) => s.category === 'Absent' || s.status === 'On Leave').length;
+  const upcomingCount = onLeaveStaff.filter((s) => s.category === 'Upcoming' || s.status === 'Approved').length;
+  const pendingCount = onLeaveStaff.filter((s) => s.category === 'Pending' || s.status === 'Pending').length;
 
   return (
     <div className="bg-white border border-[#E5EAF2] rounded-2xl p-3.5 sm:p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
@@ -96,22 +129,57 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
           </Link>
         </div>
 
-        {/* Status Filter Chips */}
+        {/* Status Filter Chips (Clickable tabs) */}
         <div className="flex items-center gap-1.5 my-3 flex-wrap">
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap">
-            3 Absent Today
-          </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 whitespace-nowrap">
-            2 Upcoming
-          </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
-            1 Pending
-          </span>
+          <button
+            type="button"
+            onClick={() => setFilterType('All')}
+            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
+              filterType === 'All'
+                ? 'bg-[#2563EB] text-white shadow-2xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
+            }`}
+          >
+            All ({onLeaveStaff.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterType(filterType === 'Absent' ? 'All' : 'Absent')}
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
+              filterType === 'Absent'
+                ? 'bg-rose-600 text-white shadow-2xs'
+                : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+            }`}
+          >
+            {absentCount} Absent Today
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterType(filterType === 'Upcoming' ? 'All' : 'Upcoming')}
+            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
+              filterType === 'Upcoming'
+                ? 'bg-[#2563EB] text-white shadow-2xs'
+                : 'bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100'
+            }`}
+          >
+            {upcomingCount} Upcoming
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterType(filterType === 'Pending' ? 'All' : 'Pending')}
+            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
+              filterType === 'Pending'
+                ? 'bg-amber-600 text-white shadow-2xs'
+                : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+            }`}
+          >
+            {pendingCount} Pending
+          </button>
         </div>
 
         {/* Leave rows matching wireframe lines --- */}
         <div className="divide-y divide-[#E5EAF2]">
-          {onLeaveStaff.map((staff) => (
+          {filteredStaff.map((staff) => (
             <div
               key={staff.id}
               className="py-2.5 flex items-center justify-between gap-2 text-xs hover:bg-[#F8FAFC] transition-colors rounded-lg px-1.5"
@@ -131,7 +199,14 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
               </div>
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <StatusBadge status={staff.status} size="xs" />
+                <StatusBadge
+                  status={staff.status}
+                  options={['On Leave', 'Approved', 'Pending', 'Rejected']}
+                  size="xs"
+                  showChevron={true}
+                  interactive={true}
+                  onStatusChange={(newStatus) => handleStatusChange(staff.id, newStatus)}
+                />
               </div>
             </div>
           ))}
@@ -141,7 +216,7 @@ export const OnLeaveTodayWidget = ({ onApplyLeaveClick }) => {
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#E5EAF2] text-xs">
         <span className="text-[#8292AD] text-[11px]">
-          3 employees currently absent
+          {absentCount} employees currently absent
         </span>
       </div>
     </div>

@@ -134,14 +134,68 @@ export const Attendance = () => {
   }, []);
 
   const handleExportCSV = () => {
+    const list = filteredRecords.length > 0 ? filteredRecords : records;
+    if (list.length === 0) {
+      addToast({
+        title: 'Export Failed',
+        message: 'No records available to export.',
+        type: 'warning',
+      });
+      return;
+    }
+
+    const headers = [
+      'Record ID',
+      'Employee ID',
+      'Employee Name',
+      'Department',
+      'Date',
+      'Check In',
+      'Check Out',
+      'Work Hours',
+      'Location',
+      'Status',
+      'Remarks',
+    ];
+
+    const rows = list.map((r) => [
+      r.id || '',
+      r.employeeId || '',
+      `"${(r.name || '').replace(/"/g, '""')}"`,
+      `"${(r.department || '').replace(/"/g, '""')}"`,
+      r.date || '',
+      r.checkIn || '',
+      r.checkOut || '',
+      r.workHours || '',
+      `"${(r.location || '').replace(/"/g, '""')}"`,
+      r.status || '',
+      `"${(r.remarks || '').replace(/"/g, '""')}"`,
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute(
+      'download',
+      `attendance_report_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     addToast({
       title: 'Attendance Report Exported',
-      message: 'Monthly attendance log has been downloaded as CSV.',
+      message: `${list.length} records successfully downloaded as CSV.`,
       type: 'success',
     });
   };
 
   const handleStatusChange = (id, newStatus) => {
+    attendanceService.updateRecord(id, { status: newStatus });
     setRecords((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r))
     );
@@ -153,6 +207,97 @@ export const Attendance = () => {
     if (selectedRecord && selectedRecord.id === id) {
       setSelectedRecord((prev) => ({ ...prev, status: newStatus }));
     }
+  };
+
+  // Edit Attendance Record Modal States
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [editInTime, setEditInTime] = useState('');
+  const [editOutTime, setEditOutTime] = useState('');
+  const [editDate, setEditDate] = useState('');
+  const [editStatus, setEditStatus] = useState('Present');
+  const [editLocation, setEditLocation] = useState('Office (SF HQ)');
+  const [editRemarks, setEditRemarks] = useState('');
+
+  // Delete Attendance Record State
+  const [recordToDelete, setRecordToDelete] = useState(null);
+
+  const handleOpenEdit = (record) => {
+    setEditingRecord(record);
+    setEditInTime(record.checkIn && record.checkIn !== '--:--' ? record.checkIn : '09:00 AM');
+    setEditOutTime(record.checkOut && record.checkOut !== '--:--' ? record.checkOut : '06:00 PM');
+    setEditDate(record.date || 'Today');
+    setEditStatus(record.status || 'Present');
+    setEditLocation(record.location || 'Office (SF HQ)');
+    setEditRemarks(record.remarks || '');
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    if (!editingRecord) return;
+
+    let workHours = editingRecord.workHours;
+    if (editStatus === 'Absent') {
+      workHours = '0h 00m';
+    } else if (editStatus.includes('Half')) {
+      workHours = '4h 00m';
+    } else if (editInTime && editOutTime && editOutTime !== '--:--') {
+      workHours = '8h 30m';
+    }
+
+    const updates = {
+      checkIn: editInTime,
+      checkOut: editOutTime,
+      date: editDate,
+      status: editStatus,
+      location: editLocation,
+      remarks: editRemarks,
+      workHours,
+    };
+
+    attendanceService.updateRecord(editingRecord.id, updates);
+    setRecords((prev) =>
+      prev.map((r) => (r.id === editingRecord.id ? { ...r, ...updates } : r))
+    );
+
+    if (selectedRecord && selectedRecord.id === editingRecord.id) {
+      setSelectedRecord((prev) => ({ ...prev, ...updates }));
+    }
+
+    setEditingRecord(null);
+    addToast({
+      title: 'Attendance Updated',
+      message: `Record for ${editingRecord.name} has been successfully updated.`,
+      type: 'success',
+    });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!recordToDelete) return;
+    const name = recordToDelete.name;
+    const id = recordToDelete.id;
+
+    attendanceService.deleteRecord(id);
+    setRecords((prev) => prev.filter((r) => r.id !== id));
+
+    if (selectedRecord && selectedRecord.id === id) {
+      setSelectedRecord(null);
+    }
+    setRecordToDelete(null);
+
+    addToast({
+      title: 'Attendance Record Deleted',
+      message: `Record for ${name} has been removed.`,
+      type: 'info',
+    });
+  };
+
+  const handleCalendarDayClick = (day) => {
+    setViewMode('table');
+    addToast({
+      title: `November ${day}, 2026 Selected`,
+      message: `Switched to Table View for day ${day} inspection.`,
+      type: 'info',
+    });
   };
 
   // Add more date input row in Create Modal
@@ -253,6 +398,7 @@ export const Attendance = () => {
       remarks: createRemarks,
     };
 
+    attendanceService.addRecord(newRecord);
     setRecords((prev) => [newRecord, ...prev]);
     setShowCreateModal(false);
 
@@ -867,6 +1013,39 @@ export const Attendance = () => {
           entityName="records"
           emptyMessage="No attendance records found"
           emptySubtext="Try selecting another filter or adjusting your search term."
+          actions={(row) => (
+            <div className="inline-flex items-center justify-end gap-1.5">
+              {/* View Button */}
+              <button
+                type="button"
+                onClick={() => setSelectedRecord(row)}
+                title={`View attendance details for ${row.name}`}
+                className="w-7 h-7 rounded-full bg-blue-50 text-[#2563EB] border border-blue-200 hover:bg-blue-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Edit Button */}
+              <button
+                type="button"
+                onClick={() => handleOpenEdit(row)}
+                title={`Edit attendance log for ${row.name}`}
+                className="w-7 h-7 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Delete Button */}
+              <button
+                type="button"
+                onClick={() => setRecordToDelete(row)}
+                title={`Delete attendance record for ${row.name}`}
+                className="w-7 h-7 rounded-full bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 hover:scale-105 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         />
       ) : (
         /* Monthly Attendance Calendar View */
@@ -901,14 +1080,17 @@ export const Attendance = () => {
                   const isWeekend = day % 7 === 0 || day % 7 === 6;
                   const isToday = day === 9;
                   return (
-                    <div
+                    <button
                       key={day}
-                      className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-colors ${
+                      type="button"
+                      onClick={() => handleCalendarDayClick(day)}
+                      title={`Click to view attendance records for Nov ${day}`}
+                      className={`p-2 rounded-xl border min-h-[64px] flex flex-col justify-between transition-all cursor-pointer text-left active:scale-95 ${
                         isToday
-                          ? 'bg-blue-50/50 border-blue-400 font-bold'
+                          ? 'bg-blue-50/50 border-blue-400 font-bold shadow-2xs hover:bg-blue-100/60'
                           : isWeekend
-                          ? 'bg-[#F7F9FC] border-transparent text-[#8292AD]'
-                          : 'bg-white border-[#E5EAF2] hover:border-blue-200'
+                          ? 'bg-[#F7F9FC] border-transparent text-[#8292AD] hover:bg-slate-100'
+                          : 'bg-white border-[#E5EAF2] hover:border-blue-300 hover:shadow-xs'
                       }`}
                     >
                       <span className={`text-xs ${isToday ? 'text-[#2563EB]' : 'text-[#172033]'}`}>
@@ -919,7 +1101,7 @@ export const Attendance = () => {
                           98%
                         </span>
                       )}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -1210,7 +1392,29 @@ export const Attendance = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-end pt-3 border-t border-[#E5EAF2]">
+            <div className="flex items-center justify-between pt-3 border-t border-[#E5EAF2] flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleOpenEdit(selectedRecord);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-colors cursor-pointer"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Edit Record</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecordToDelete(selectedRecord);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete</span>
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={() => setSelectedRecord(null)}
@@ -1222,6 +1426,218 @@ export const Attendance = () => {
           </div>
         </Modal>
       )}
+
+      {/* EDIT ATTENDANCE MODAL */}
+      {editingRecord &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+            onClick={() => setEditingRecord(null)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-lg w-full overflow-hidden animate-scale-in my-auto max-h-[92vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-3 border-b border-[#F1F5F9]">
+                <div>
+                  <h3 className="text-base font-bold text-[#172033]">
+                    Edit Attendance Record
+                  </h3>
+                  <p className="text-xs text-[#8292AD] mt-0.5">
+                    Update clock-in, clock-out times, and attendance status
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingRecord(null)}
+                  className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Modal Body Form */}
+              <form onSubmit={handleSaveEdit} className="flex flex-col overflow-hidden flex-1">
+                <div className="px-4 sm:px-6 py-4 space-y-4 overflow-y-auto flex-1">
+                  {/* Employee Info Header Pill */}
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F8FAFC] border border-[#E5EAF2]">
+                    <img
+                      src={editingRecord.avatar}
+                      alt={editingRecord.name}
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-300 flex-shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs text-[#172033] truncate">
+                        {editingRecord.name}
+                      </p>
+                      <p className="text-[10.5px] text-[#8292AD] truncate mt-0.5">
+                        {editingRecord.employeeId} • {editingRecord.department}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Date & Location */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                        Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editDate}
+                        onChange={(e) => setEditDate(e.target.value)}
+                        placeholder="e.g. 15 Nov, 2026 or Today"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                        Location
+                      </label>
+                      <input
+                        type="text"
+                        value={editLocation}
+                        onChange={(e) => setEditLocation(e.target.value)}
+                        placeholder="e.g. Office (SF HQ)"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* In Time & Out Time */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                        In Time
+                      </label>
+                      <input
+                        type="text"
+                        value={editInTime}
+                        onChange={(e) => setEditInTime(e.target.value)}
+                        placeholder="e.g. 09:00 AM"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                        Out Time
+                      </label>
+                      <input
+                        type="text"
+                        value={editOutTime}
+                        onChange={(e) => setEditOutTime(e.target.value)}
+                        placeholder="e.g. 06:00 PM or --:--"
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Attendance Status */}
+                  <div>
+                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                      Status <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        required
+                        value={editStatus}
+                        onChange={(e) => setEditStatus(e.target.value)}
+                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                      >
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="First Half Leave">First Half Leave</option>
+                        <option value="Second Half Leave">Second Half Leave</option>
+                        <option value="Half Day Marked">Half Day Marked</option>
+                      </select>
+                      <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Remarks */}
+                  <div>
+                    <label className="block text-xs font-bold text-[#374151] mb-1.5">
+                      Remarks / Notes
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={editRemarks}
+                      onChange={(e) => setEditRemarks(e.target.value)}
+                      placeholder="Add any supervisor comments or punch justifications..."
+                      className="w-full px-3.5 py-2 text-xs rounded-lg border border-[#D1D5DB] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-[#111827] resize-y"
+                    />
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="bg-[#ECEEF2] px-4 sm:px-6 py-3.5 border-t border-[#E5EAF2] flex items-center justify-between">
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-md bg-[#2563EB] hover:bg-blue-700 text-white shadow-xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Save className="w-4 h-4 stroke-[2.2]" />
+                    <span>Save Changes</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setEditingRecord(null)}
+                    className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {recordToDelete &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+            onClick={() => setRecordToDelete(null)}
+          >
+            <div
+              className="bg-white rounded-2xl shadow-2xl border border-[#E5EAF2] max-w-sm w-full overflow-hidden animate-scale-in p-5 text-center my-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3 border border-rose-100">
+                <Trash2 className="w-6 h-6 stroke-[2]" />
+              </div>
+              <h3 className="text-base font-bold text-[#172033]">
+                Delete Attendance Record?
+              </h3>
+              <p className="text-xs text-[#64748B] mt-1.5 leading-relaxed">
+                Are you sure you want to remove the attendance log for{' '}
+                <strong className="text-[#172033] font-bold">{recordToDelete.name}</strong> on{' '}
+                <span className="font-semibold">{recordToDelete.date}</span>? This action cannot be undone.
+              </p>
+
+              <div className="flex items-center justify-center gap-2.5 mt-5">
+                <button
+                  type="button"
+                  onClick={() => setRecordToDelete(null)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-[#F8FAFC] rounded-xl border border-[#E5EAF2] cursor-pointer transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition-colors cursor-pointer"
+                >
+                  Yes, Delete
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
