@@ -113,18 +113,18 @@ export const CodefliesEventsCard = () => {
   return (
     <div className="bg-white border border-[#E5EAF2] rounded-2xl p-4 sm:p-5 shadow-card hover:shadow-subtle transition-all flex flex-col justify-between h-full">
       {/* Header */}
-      <div className="flex items-center justify-between pb-2.5 border-b border-[#E5EAF2]">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shadow-2xs">
+      <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[#E5EAF2]">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shadow-2xs flex-shrink-0">
             <PartyPopper className="w-3.5 h-3.5 text-purple-600" />
           </div>
-          <div>
-            <h3 className="font-bold text-[#172033] text-sm">Upcoming Codeflies Events</h3>
-            <p className="text-[10.5px] text-[#8292AD]">Company Celebrations & Culture</p>
+          <div className="min-w-0">
+            <h3 className="font-bold text-[#172033] text-sm truncate">Upcoming Codeflies Events</h3>
+            <p className="text-[10.5px] text-[#8292AD] truncate">Company Celebrations & Culture</p>
           </div>
         </div>
 
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+        <span className="text-[10px] sm:text-[10.5px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 whitespace-nowrap flex-shrink-0">
           {codefliesEventsData.length} Events
         </span>
       </div>
