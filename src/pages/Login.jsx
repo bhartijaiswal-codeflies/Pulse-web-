@@ -44,18 +44,21 @@ export const Login = () => {
     {
       role: 'HR Admin',
       name: 'Saurabh H.',
+      displayName: 'Saurabh H.',
       email: 'saurabh.h@pulsehr.com',
       password: 'PulseAdmin@2026',
     },
     {
       role: 'Team Lead',
       name: 'Elena Rostova',
+      displayName: 'Elena R.',
       email: 'elena.rostova@pulsehr.com',
       password: 'LeadPulse@2026',
     },
     {
       role: 'Employee',
       name: 'Marcus Vance',
+      displayName: 'Marcus V.',
       email: 'marcus.vance@pulsehr.com',
       password: 'UserPulse@2026',
     },
@@ -148,29 +151,29 @@ export const Login = () => {
         {/* Left Side: Modern Executive Login Form                                    */}
         {/* ========================================================================= */}
         <div
-          className={`w-full lg:w-[48%] xl:w-[46%] 2xl:w-[44%] min-h-screen flex flex-col justify-between px-7 sm:px-12 md:px-14 xl:px-18 py-7 lg:py-9 z-20 flex-shrink-0 transition-colors duration-300 ${
+          className={`w-full lg:w-[48%] xl:w-[46%] 2xl:w-[44%] min-h-screen flex flex-col justify-between px-4 sm:px-10 md:px-14 xl:px-18 py-5 sm:py-7 lg:py-9 z-20 flex-shrink-0 transition-colors duration-300 ${
             isDarkMode
               ? 'bg-[#070B18]/95 backdrop-blur-2xl border-r border-white/5'
               : 'bg-white/95 backdrop-blur-xl border-r border-[#E2E8F0] shadow-2xl shadow-slate-200/50'
           }`}
         >
           {/* Top Brand Logo & Controls */}
-          <div className="flex items-center justify-between select-none">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#2563EB] via-[#3B82F6] to-[#60A5FA] flex items-center justify-center p-2 shadow-lg shadow-blue-500/25 ring-2 ring-white">
+          <div className="flex items-center justify-between select-none gap-2">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className="relative shrink-0">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#2563EB] via-[#3B82F6] to-[#60A5FA] flex items-center justify-center p-2 shadow-lg shadow-blue-500/25 ring-2 ring-white">
                   <img
                     src="/logo.png"
                     alt="Pulse Logo"
                     className="w-full h-full object-contain brightness-0 invert"
                   />
                 </div>
-                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <span
-                    className={`text-[20px] font-black leading-tight tracking-tight ${
+                    className={`text-lg sm:text-[20px] font-black leading-tight tracking-tight ${
                       isDarkMode ? 'text-white' : 'text-[#0F172A]'
                     }`}
                   >
@@ -178,23 +181,24 @@ export const Login = () => {
                   </span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
                   <span
-                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${
+                    className={`text-[9.5px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 ${
                       isDarkMode
                         ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
                         : 'bg-blue-50 border-blue-200 text-[#2563EB]'
                     }`}
                   >
-                    v2.6 Enterprise
+                    <span className="sm:hidden">v2.6</span>
+                    <span className="hidden sm:inline">v2.6 Enterprise</span>
                   </span>
                 </div>
-                <div className="text-[10px] font-extrabold text-[#2563EB] tracking-[0.2em] uppercase">
+                <div className="text-[9px] sm:text-[10px] font-extrabold text-[#2563EB] tracking-[0.2em] uppercase truncate">
                   BY CODEFLIES
                 </div>
               </div>
             </div>
 
             {/* Top Right: Segmented Theme Switcher & Enterprise Badge */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <div
                 className={`p-1 rounded-xl flex items-center border transition-all ${
                   isDarkMode
@@ -206,32 +210,32 @@ export const Login = () => {
                   type="button"
                   onClick={() => setIsDarkMode(false)}
                   title="Switch to Light Mode"
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                     !isDarkMode
                       ? 'bg-white text-slate-800 shadow-xs'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  <Sun className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Light</span>
+                  <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span className="hidden sm:inline">Light</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsDarkMode(true)}
                   title="Switch to Dark Mode"
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                     isDarkMode
                       ? 'bg-[#1E293B] text-white shadow-xs'
                       : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  <Moon className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Dark</span>
+                  <Moon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                  <span className="hidden sm:inline">Dark</span>
                 </button>
               </div>
 
               <div
-                className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold ${
+                className={`hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[11px] font-semibold ${
                   isDarkMode
                     ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400'
                     : 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-2xs'
@@ -244,28 +248,28 @@ export const Login = () => {
           </div>
 
           {/* Main Form Center Box */}
-          <div className="my-auto py-6 max-w-[440px] w-full mx-auto">
+          <div className="my-auto py-5 sm:py-6 max-w-[440px] w-full mx-auto">
             {/* Heading & Subtitle */}
-            <div className="mb-5">
+            <div className="mb-4 sm:mb-5">
               <div
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold mb-2.5 border ${
+                className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-[10.5px] sm:text-[11px] font-bold mb-2.5 border ${
                   isDarkMode
                     ? 'bg-blue-500/10 border-blue-500/25 text-[#60A5FA]'
                     : 'bg-blue-50 border-blue-200 text-[#2563EB] shadow-2xs'
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />
                 <span>Centralized Workforce Operating System</span>
               </div>
               <h1
-                className={`text-3xl sm:text-[32px] font-black tracking-tight leading-tight ${
+                className={`text-2xl sm:text-[32px] font-black tracking-tight leading-tight ${
                   isDarkMode ? 'text-white' : 'text-[#0F172A]'
                 }`}
               >
                 Sign In to your Account
               </h1>
               <p
-                className={`text-xs sm:text-sm mt-1.5 font-normal leading-relaxed ${
+                className={`text-xs sm:text-sm mt-1 sm:mt-1.5 font-normal leading-relaxed ${
                   isDarkMode ? 'text-slate-400' : 'text-[#64748B]'
                 }`}
               >
@@ -275,7 +279,7 @@ export const Login = () => {
 
             {/* 1-Click Demo Account Quick Fill */}
             <div
-              className={`mb-5 p-3.5 rounded-2xl border transition-all ${
+              className={`mb-4 sm:mb-5 p-3 sm:p-3.5 rounded-2xl border transition-all ${
                 isDarkMode
                   ? 'bg-white/[0.03] border-white/10'
                   : 'bg-[#F8FAFC] border-[#E2E8F0] shadow-2xs'
@@ -283,7 +287,7 @@ export const Login = () => {
             >
               <div className="flex items-center justify-between mb-2">
                 <span
-                  className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                  className={`text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${
                     isDarkMode ? 'text-slate-400' : 'text-slate-600'
                   }`}
                 >
@@ -298,7 +302,7 @@ export const Login = () => {
                   Auto-fill role
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 {demoAccounts.map((acc) => {
                   const isActive = selectedRole === acc.role;
                   return (
@@ -306,7 +310,7 @@ export const Login = () => {
                       key={acc.role}
                       type="button"
                       onClick={() => handleSelectDemoAccount(acc)}
-                      className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer relative ${
+                      className={`p-2 sm:p-2.5 rounded-xl text-left border transition-all cursor-pointer relative ${
                         isActive
                           ? isDarkMode
                             ? 'bg-blue-600/25 border-blue-400/80 text-white ring-1 ring-blue-400/30 shadow-xs'
@@ -316,9 +320,12 @@ export const Login = () => {
                           : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 shadow-2xs'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
+                      {isActive && (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB] absolute top-1.5 right-1.5 shrink-0" />
+                      )}
+                      <div className="pr-3.5">
                         <span
-                          className={`text-[11px] font-extrabold truncate ${
+                          className={`text-[10.5px] sm:text-[11px] font-extrabold block truncate ${
                             isActive
                               ? isDarkMode
                                 ? 'text-blue-300'
@@ -327,19 +334,19 @@ export const Login = () => {
                               ? 'text-slate-300'
                               : 'text-slate-800'
                           }`}
+                          title={acc.role}
                         >
                           {acc.role}
                         </span>
-                        {isActive && (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB] flex-shrink-0 ml-1" />
-                        )}
                       </div>
                       <div
-                        className={`text-[10px] truncate mt-0.5 font-medium ${
+                        className={`text-[9.5px] sm:text-[10px] truncate mt-0.5 font-medium ${
                           isActive ? 'text-[#2563EB]' : 'text-slate-400'
                         }`}
+                        title={acc.name}
                       >
-                        {acc.name}
+                        <span className="sm:hidden">{acc.displayName}</span>
+                        <span className="hidden sm:inline">{acc.name}</span>
                       </div>
                     </button>
                   );
