@@ -117,6 +117,30 @@ export const MyFinances = () => {
     notes: '',
   });
 
+  // Mobile summary cards view state ('carousel' or 'grid')
+  const [mobileCardsView, setMobileCardsView] = useState('carousel');
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
+  const cardsCarouselRef = useRef(null);
+
+  const handleCardsScroll = () => {
+    if (cardsCarouselRef.current) {
+      const scrollLeft = cardsCarouselRef.current.scrollLeft;
+      const width = cardsCarouselRef.current.offsetWidth * 0.75;
+      const index = Math.round(scrollLeft / width);
+      setActiveCardIndex(Math.min(3, Math.max(0, index)));
+    }
+  };
+
+  const scrollToCard = (index) => {
+    if (cardsCarouselRef.current) {
+      const cardEl = cardsCarouselRef.current.children[index];
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      }
+      setActiveCardIndex(index);
+    }
+  };
+
   // Load data for active month and finances
   const loadData = () => {
     setFinances(financeService.getFinances());
@@ -638,70 +662,182 @@ export const MyFinances = () => {
       />
 
       {/* 2. Top Summary Metrics Cards for Selected Month */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Card 1: Total Net Payable */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Net Payable</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-              <DollarSign className="w-4 h-4" />
-            </div>
+      <div className="space-y-2">
+        {/* Mobile View Header & Toggle */}
+        <div className="flex sm:hidden items-center justify-between px-0.5">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#172033]">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Monthly Finance Summary</span>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-emerald-950 mt-2 truncate">
-            {formatCurrency(summaryMetrics.totalPayable)}
-          </div>
-          <div className="text-[10.5px] sm:text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1">
-            <span>Cycle: {selectedMonth}</span>
+
+          <div className="inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200 text-[10.5px]">
+            <button
+              type="button"
+              onClick={() => setMobileCardsView('carousel')}
+              className={`px-2 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+                mobileCardsView === 'carousel'
+                  ? 'bg-white text-[#2563EB] shadow-2xs font-bold'
+                  : 'text-[#64748B] hover:text-[#172033]'
+              }`}
+            >
+              Swipe
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileCardsView('grid')}
+              className={`px-2 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+                mobileCardsView === 'grid'
+                  ? 'bg-white text-[#2563EB] shadow-2xs font-bold'
+                  : 'text-[#64748B] hover:text-[#172033]'
+              }`}
+            >
+              2×2 Grid
+            </button>
           </div>
         </div>
 
-        {/* Card 2: Total Gross Base Salary */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Gross & Base Payroll</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold">
-              <CreditCard className="w-4 h-4" />
+        {/* CARDS CONTAINER:
+            Mobile Swipe Carousel (Default) or 2x2 Grid (Toggled) | Tablet/Desktop 4-col Grid */}
+        <div
+          ref={cardsCarouselRef}
+          onScroll={handleCardsScroll}
+          className={`${
+            mobileCardsView === 'carousel'
+              ? 'flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-3 px-3 sm:mx-0 sm:px-0 py-1'
+              : 'grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4'
+          }`}
+        >
+          {/* Card 1: Total Net Payable */}
+          <div
+            className={`p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-50/60 to-white border border-emerald-200/90 sm:border-[#E5EAF2] shadow-card hover:shadow-subtle transition-all ${
+              mobileCardsView === 'carousel'
+                ? 'w-[84vw] max-w-[310px] sm:w-auto shrink-0 sm:shrink snap-start'
+                : 'w-full'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10.5px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider truncate">
+                {mobileCardsView === 'grid' ? 'Net Payable' : 'Total Net Payable'}
+              </span>
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold flex-shrink-0">
+                <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-emerald-950 mt-1.5 sm:mt-2 truncate">
+              {formatCurrency(summaryMetrics.totalPayable)}
+            </div>
+            <div className="text-[10px] sm:text-[11px] text-emerald-700 font-semibold mt-1 flex items-center gap-1 truncate">
+              <span className="whitespace-nowrap">Cycle: {selectedMonth}</span>
+              <span className="text-emerald-500">•</span>
+              <span className="whitespace-nowrap">{summaryMetrics.headcount} Staff</span>
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-black text-[#172033] mt-2 truncate">
-            {formatCurrency(summaryMetrics.totalGross)}
+
+          {/* Card 2: Total Gross Base Salary */}
+          <div
+            className={`p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:shadow-subtle transition-all ${
+              mobileCardsView === 'carousel'
+                ? 'w-[84vw] max-w-[310px] sm:w-auto shrink-0 sm:shrink snap-start'
+                : 'w-full'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10.5px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider truncate">
+                {mobileCardsView === 'grid' ? 'Gross Payroll' : 'Gross & Base Payroll'}
+              </span>
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold flex-shrink-0">
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-[#172033] mt-1.5 sm:mt-2 truncate">
+              {formatCurrency(summaryMetrics.totalGross)}
+            </div>
+            <div
+              className="text-[10px] sm:text-[11px] text-blue-700 font-semibold mt-1 truncate"
+              title={`Base Salary (50%): ${formatCurrency(summaryMetrics.totalBase)} • ${summaryMetrics.headcount} Staff`}
+            >
+              {mobileCardsView === 'grid' ? (
+                <span className="whitespace-nowrap">Base: ₹{(summaryMetrics.totalBase / 100000).toFixed(2)}L</span>
+              ) : (
+                <span className="whitespace-nowrap">Base (50%): {formatCurrency(summaryMetrics.totalBase)}</span>
+              )}
+            </div>
           </div>
-          <div className="text-[10.5px] sm:text-[11px] text-blue-700 font-semibold mt-0.5 truncate" title={`Base (50%): ${formatCurrency(summaryMetrics.totalBase)} • ${summaryMetrics.headcount} Staff`}>
-            Base: {formatCurrency(summaryMetrics.totalBase)} • {summaryMetrics.headcount} Staff
+
+          {/* Card 3: Total Unpaid LOP Leaves */}
+          <div
+            className={`p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:shadow-subtle transition-all ${
+              mobileCardsView === 'carousel'
+                ? 'w-[84vw] max-w-[310px] sm:w-auto shrink-0 sm:shrink snap-start'
+                : 'w-full'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10.5px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider truncate">
+                {mobileCardsView === 'grid' ? 'Unpaid LOP' : 'Unpaid LOP Leaves'}
+              </span>
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold flex-shrink-0">
+                <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-rose-700 mt-1.5 sm:mt-2 truncate whitespace-nowrap">
+              {summaryMetrics.totalUnpaidLeaves} Days
+            </div>
+            <div className="text-[10px] sm:text-[11px] text-rose-600 font-semibold mt-1 truncate whitespace-nowrap">
+              -{formatCurrency(summaryMetrics.totalUnpaidDeduction)} deducted
+            </div>
+          </div>
+
+          {/* Card 4: Total Statutory & Other Deductions */}
+          <div
+            className={`p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card hover:shadow-subtle transition-all ${
+              mobileCardsView === 'carousel'
+                ? 'w-[84vw] max-w-[310px] sm:w-auto shrink-0 sm:shrink snap-start'
+                : 'w-full'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[10.5px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider truncate">
+                {mobileCardsView === 'grid' ? 'Deductions' : 'Total Deductions'}
+              </span>
+              <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold flex-shrink-0">
+                <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+            </div>
+            <div className="text-xl sm:text-2xl font-black text-rose-700 mt-1.5 sm:mt-2 truncate whitespace-nowrap">
+              -{formatCurrency(summaryMetrics.totalDeductions)}
+            </div>
+            <div
+              className="text-[10px] sm:text-[11px] text-[#8292AD] font-semibold mt-1 truncate"
+              title={`PF 24%: ${formatCurrency(summaryMetrics.totalPf)} • ESI 4%: ${formatCurrency(summaryMetrics.totalEsi)} • TDS: ${formatCurrency(summaryMetrics.totalTds)}`}
+            >
+              {mobileCardsView === 'grid' ? (
+                <span className="whitespace-nowrap text-purple-700 font-bold">PF, ESI & TDS</span>
+              ) : (
+                <span className="whitespace-nowrap">PF: ₹{(summaryMetrics.totalPf / 1000).toFixed(0)}k • ESI: ₹{(summaryMetrics.totalEsi / 1000).toFixed(1)}k • TDS: ₹{(summaryMetrics.totalTds / 1000).toFixed(0)}k</span>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Card 3: Total Unpaid LOP Leaves */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Unpaid LOP Leaves</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
+        {/* Carousel Pagination Dots on mobile */}
+        {mobileCardsView === 'carousel' && (
+          <div className="flex sm:hidden items-center justify-center gap-1.5 pt-1 pb-0.5">
+            {[0, 1, 2, 3].map((idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => scrollToCard(idx)}
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  activeCardIndex === idx
+                    ? 'w-5 bg-[#2563EB]'
+                    : 'w-1.5 bg-slate-300 hover:bg-slate-400'
+                }`}
+                title={`Go to card ${idx + 1}`}
+              />
+            ))}
           </div>
-          <div className="text-xl sm:text-2xl font-black text-rose-700 mt-2 truncate">
-            {summaryMetrics.totalUnpaidLeaves} Days
-          </div>
-          <div className="text-[10.5px] sm:text-[11px] text-rose-600 font-semibold mt-0.5 truncate">
-            -{formatCurrency(summaryMetrics.totalUnpaidDeduction)} deducted
-          </div>
-        </div>
-
-        {/* Card 4: Total Statutory & Other Deductions */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E5EAF2] shadow-card">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] sm:text-xs font-bold text-[#8292AD] uppercase tracking-wider">Total Deductions</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
-              <Receipt className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-xl sm:text-2xl font-black text-rose-700 mt-2 truncate">
-            -{formatCurrency(summaryMetrics.totalDeductions)}
-          </div>
-          <div className="text-[10px] text-[#8292AD] font-semibold mt-0.5 truncate" title={`PF 24%: ${formatCurrency(summaryMetrics.totalPf)} | ESI 4%: ${formatCurrency(summaryMetrics.totalEsi)} | TDS: ${formatCurrency(summaryMetrics.totalTds)}`}>
-            PF: {formatCurrency(summaryMetrics.totalPf)} • ESI: {formatCurrency(summaryMetrics.totalEsi)} • TDS: {formatCurrency(summaryMetrics.totalTds)}
-          </div>
-        </div>
+        )}
       </div>
 
       {/* 3. View Switcher Tabs Bar */}
