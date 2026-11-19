@@ -512,7 +512,7 @@ export const Assets = () => {
               setTypeFilter('All');
               setStatusFilter('All');
             }}
-            className="w-full sm:w-auto appearance-none pl-8 pr-8 h-9 text-xs font-bold rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] hover:bg-blue-100/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-colors shadow-2xs whitespace-nowrap"
+            className="w-full sm:w-auto appearance-none pl-8 pr-9 h-9 text-xs font-bold rounded-xl bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] hover:bg-blue-100/70 focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer transition-colors shadow-2xs whitespace-nowrap"
           >
             <option value="assets">All Assets ({assets.length})</option>
             <option value="tickets">Support Tickets ({tickets.length})</option>
@@ -527,7 +527,7 @@ export const Assets = () => {
           {activeView === 'requests' && (
             <Briefcase className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           )}
-          <ChevronDown className="w-3.5 h-3.5 text-[#2563EB] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <ChevronDown className="w-3.5 h-3.5 text-[#2563EB] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
         {/* 2. Standard Search Input */}
@@ -554,7 +554,7 @@ export const Assets = () => {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+                className="w-full appearance-none pl-7 sm:pl-8 pr-8 sm:pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
               >
                 <option value="All">All Types</option>
                 <option value="Laptop">Laptop</option>
@@ -565,7 +565,7 @@ export const Assets = () => {
                 <option value="Mobile Devices">Mobile Devices</option>
               </select>
               <Tag className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           )}
 
@@ -574,7 +574,7 @@ export const Assets = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+              className="w-full appearance-none pl-7 sm:pl-8 pr-8 sm:pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Statuses</option>
               {activeView === 'assets' && (
@@ -600,7 +600,7 @@ export const Assets = () => {
               )}
             </select>
             <Shield className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
       </div>
@@ -1499,18 +1499,21 @@ export const Assets = () => {
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Asset Type</label>
-                <select
-                  value={assetForm.type}
-                  onChange={(e) => setAssetForm({ ...assetForm, type: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  <option value="Laptop">Laptop</option>
-                  <option value="Charger">Charger</option>
-                  <option value="Cable">Cable</option>
-                  <option value="Mouse">Mouse</option>
-                  <option value="Monitors">Monitors</option>
-                  <option value="Mobile Devices">Mobile Devices</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={assetForm.type}
+                    onChange={(e) => setAssetForm({ ...assetForm, type: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    <option value="Laptop">Laptop</option>
+                    <option value="Charger">Charger</option>
+                    <option value="Cable">Cable</option>
+                    <option value="Mouse">Mouse</option>
+                    <option value="Monitors">Monitors</option>
+                    <option value="Mobile Devices">Mobile Devices</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -1526,39 +1529,45 @@ export const Assets = () => {
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Assigned To</label>
-                <select
-                  value={assetForm.assignedTo}
-                  onChange={(e) => setAssetForm({ ...assetForm, assignedTo: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  <option value="Codeflies">Codeflies (Inventory)</option>
-                  {employees.map((emp) => (
-                    <option key={emp.id} value={emp.name}>
-                      {emp.name} ({emp.id})
-                    </option>
-                  ))}
-                  <option value="Neeraj Kumar">Neeraj Kumar</option>
-                  <option value="Harsh Bhardwaj">Harsh Bhardwaj</option>
-                  <option value="Akshat Verma">Akshat Verma</option>
-                  <option value="Manjeet Singh">Manjeet Singh</option>
-                  <option value="Anmol Gupta">Anmol Gupta</option>
-                  <option value="Varun Sarpal">Varun Sarpal</option>
-                  <option value="Chirag Verma">Chirag Verma</option>
-                  <option value="saurabh pal">saurabh pal</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={assetForm.assignedTo}
+                    onChange={(e) => setAssetForm({ ...assetForm, assignedTo: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    <option value="Codeflies">Codeflies (Inventory)</option>
+                    {employees.map((emp) => (
+                      <option key={emp.id} value={emp.name}>
+                        {emp.name} ({emp.id})
+                      </option>
+                    ))}
+                    <option value="Neeraj Kumar">Neeraj Kumar</option>
+                    <option value="Harsh Bhardwaj">Harsh Bhardwaj</option>
+                    <option value="Akshat Verma">Akshat Verma</option>
+                    <option value="Manjeet Singh">Manjeet Singh</option>
+                    <option value="Anmol Gupta">Anmol Gupta</option>
+                    <option value="Varun Sarpal">Varun Sarpal</option>
+                    <option value="Chirag Verma">Chirag Verma</option>
+                    <option value="saurabh pal">saurabh pal</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Status</label>
-                <select
-                  value={assetForm.status}
-                  onChange={(e) => setAssetForm({ ...assetForm, status: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  <option value="Active">Active</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Available">Available</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={assetForm.status}
+                    onChange={(e) => setAssetForm({ ...assetForm, status: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Available">Available</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -1574,17 +1583,20 @@ export const Assets = () => {
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Condition</label>
-                <select
-                  value={assetForm.condition || 'Brand New'}
-                  onChange={(e) => setAssetForm({ ...assetForm, condition: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  <option value="Brand New">Brand New</option>
-                  <option value="Excellent">Excellent</option>
-                  <option value="Good">Good</option>
-                  <option value="Fair">Fair</option>
-                  <option value="Maintenance Needed">Maintenance Needed</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={assetForm.condition || 'Brand New'}
+                    onChange={(e) => setAssetForm({ ...assetForm, condition: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    <option value="Brand New">Brand New</option>
+                    <option value="Excellent">Excellent</option>
+                    <option value="Good">Good</option>
+                    <option value="Fair">Fair</option>
+                    <option value="Maintenance Needed">Maintenance Needed</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               {/* Multi-Image Upload & Management */}
@@ -1859,37 +1871,43 @@ export const Assets = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Associated Asset</label>
-                <select
-                  value={ticketForm.assetId}
-                  onChange={(e) => setTicketForm({ ...ticketForm, assetId: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  {assets.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.code} - {a.name} ({a.tag})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={ticketForm.assetId}
+                    onChange={(e) => setTicketForm({ ...ticketForm, assetId: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    {assets.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.code} - {a.name} ({a.tag})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Submitted By</label>
-                <select
-                  value={ticketForm.submittedBy}
-                  onChange={(e) => setTicketForm({ ...ticketForm, submittedBy: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  <option value="Devendra kumar">Devendra kumar</option>
-                  <option value="Manjeet Singh">Manjeet Singh</option>
-                  <option value="Deepak Kumar">Deepak Kumar</option>
-                  <option value="Ajay Gond">Ajay Gond</option>
-                  <option value="Pankaj Singh">Pankaj Singh</option>
-                  {employees.map((e) => (
-                    <option key={e.id} value={e.name}>
-                      {e.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={ticketForm.submittedBy}
+                    onChange={(e) => setTicketForm({ ...ticketForm, submittedBy: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    <option value="Devendra kumar">Devendra kumar</option>
+                    <option value="Manjeet Singh">Manjeet Singh</option>
+                    <option value="Deepak Kumar">Deepak Kumar</option>
+                    <option value="Ajay Gond">Ajay Gond</option>
+                    <option value="Pankaj Singh">Pankaj Singh</option>
+                    {employees.map((e) => (
+                      <option key={e.id} value={e.name}>
+                        {e.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
             </div>
 
@@ -1936,37 +1954,43 @@ export const Assets = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Requested By</label>
-                <select
-                  value={requestForm.by}
-                  onChange={(e) => setRequestForm({ ...requestForm, by: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  <option value="Chirag Verma">Chirag Verma</option>
-                  <option value="Kartikey Tripathi">Kartikey Tripathi</option>
-                  <option value="simran kaur">simran kaur</option>
-                  <option value="Neeraj Kumar">Neeraj Kumar</option>
-                  <option value="saurabh pal">saurabh pal</option>
-                  {employees.map((e) => (
-                    <option key={e.id} value={e.name}>
-                      {e.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={requestForm.by}
+                    onChange={(e) => setRequestForm({ ...requestForm, by: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    <option value="Chirag Verma">Chirag Verma</option>
+                    <option value="Kartikey Tripathi">Kartikey Tripathi</option>
+                    <option value="simran kaur">simran kaur</option>
+                    <option value="Neeraj Kumar">Neeraj Kumar</option>
+                    <option value="saurabh pal">saurabh pal</option>
+                    {employees.map((e) => (
+                      <option key={e.id} value={e.name}>
+                        {e.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#172033] mb-1">Select Hardware Asset</label>
-                <select
-                  value={requestForm.assetId}
-                  onChange={(e) => setRequestForm({ ...requestForm, assetId: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E5EAF2] text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
-                >
-                  {assets.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.code} - {a.name} ({a.tag})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={requestForm.assetId}
+                    onChange={(e) => setRequestForm({ ...requestForm, assetId: e.target.value })}
+                    className="w-full appearance-none pl-3 pr-9 py-2 text-xs rounded-xl border border-[#E5EAF2] bg-white text-[#172033] focus:outline-none focus:border-[#2563EB] cursor-pointer"
+                  >
+                    {assets.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.code} - {a.name} ({a.tag})
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
