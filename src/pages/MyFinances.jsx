@@ -426,45 +426,45 @@ export const MyFinances = () => {
     {
       header: 'LEAVE TAKEN',
       accessor: 'leaveTaken',
-      className: 'min-w-[110px]',
+      className: 'min-w-[115px] whitespace-nowrap',
       render: (row) => (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-          <Calendar className="w-3 h-3 text-slate-500" />
-          <span>{row.leaveTaken} {row.leaveTaken === 1 ? 'Day' : 'Days'}</span>
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 whitespace-nowrap">
+          <Calendar className="w-3 h-3 text-slate-500 flex-shrink-0" />
+          <span className="whitespace-nowrap">{row.leaveTaken} {row.leaveTaken === 1 ? 'Day' : 'Days'}</span>
         </span>
       ),
     },
     {
       header: 'BUCKET AVAILABLE',
       accessor: 'bucketAvailable',
-      className: 'min-w-[125px]',
+      className: 'min-w-[125px] whitespace-nowrap',
       render: (row) => (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1D4ED8] border border-blue-200">
-          <Wallet className="w-3 h-3 text-[#2563EB]" />
-          <span>{row.bucketAvailable} {row.bucketAvailable === 1 ? 'Day' : 'Days'}</span>
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1D4ED8] border border-blue-200 whitespace-nowrap">
+          <Wallet className="w-3 h-3 text-[#2563EB] flex-shrink-0" />
+          <span className="whitespace-nowrap">{row.bucketAvailable} {row.bucketAvailable === 1 ? 'Day' : 'Days'}</span>
         </span>
       ),
     },
     {
       header: 'UNPAID LEAVE',
       accessor: 'unpaidLeave',
-      className: 'min-w-[115px]',
+      className: 'min-w-[130px] whitespace-nowrap',
       render: (row) => {
         if (row.unpaidLeave > 0) {
           return (
             <span
               title={`Deduction: -${formatCurrency(row.unpaidDeductionAmount)} (${daysInCurrentMonth} days divisor)`}
-              className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200"
+              className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap"
             >
-              <AlertTriangle className="w-3 h-3 text-rose-600" />
-              <span>{row.unpaidLeave} {row.unpaidLeave === 1 ? 'Day' : 'Days'} LOP</span>
+              <AlertTriangle className="w-3 h-3 text-rose-600 flex-shrink-0" />
+              <span className="whitespace-nowrap">{row.unpaidLeave} {row.unpaidLeave === 1 ? 'Day' : 'Days'} LOP</span>
             </span>
           );
         }
         return (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <Check className="w-3 h-3 text-emerald-600" />
-            <span>0 Days</span>
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+            <Check className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+            <span className="whitespace-nowrap">0 Days</span>
           </span>
         );
       },
@@ -472,11 +472,11 @@ export const MyFinances = () => {
     {
       header: 'NEW BUCKET',
       accessor: 'newBucket',
-      className: 'min-w-[100px]',
+      className: 'min-w-[110px] whitespace-nowrap',
       render: (row) => (
-        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-[#008080] border border-teal-200">
-          <Layers className="w-3 h-3 text-[#008080]" />
-          <span>{row.newBucket} {row.newBucket === 1 ? 'Day' : 'Days'}</span>
+        <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-[#008080] border border-teal-200 whitespace-nowrap">
+          <Layers className="w-3 h-3 text-[#008080] flex-shrink-0" />
+          <span className="whitespace-nowrap">{row.newBucket} {row.newBucket === 1 ? 'Day' : 'Days'}</span>
         </span>
       ),
     },
