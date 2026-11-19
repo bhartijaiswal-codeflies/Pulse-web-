@@ -1740,7 +1740,7 @@ export const Users = () => {
                   {/* 4 Modern Executive Metric Cards (2 boxes in 1 row: 2x2 grid) */}
                   <div className="grid grid-cols-2 gap-3">
                     {/* Leaves */}
-                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-blue-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-blue-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between min-h-[96px] h-auto">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-slate-600 group-hover:text-blue-600 transition-colors">
                           Leaves Taken
@@ -1753,65 +1753,65 @@ export const Users = () => {
                         {selectedUser.leaveStats?.leaves ?? 1}
                       </div>
                       <div className="flex items-center gap-1 text-[9.5px] font-semibold text-blue-600">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                        <span>Approved</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                        <span className="truncate">Approved</span>
                       </div>
                     </div>
 
                     {/* Absents */}
-                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-rose-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-rose-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between min-h-[96px] h-auto">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-slate-600 group-hover:text-rose-600 transition-colors">
                           Absents
                         </span>
                         <div className="w-5 h-5 rounded-md bg-rose-50 text-rose-600 flex items-center justify-center">
-                          <AlertCircle className="w-3 h-3" />
+                          <AlertCircle className="w-3.5 h-3.5" />
                         </div>
                       </div>
                       <div className="text-2xl font-black text-[#172033] tracking-tight leading-none my-1">
                         {selectedUser.leaveStats?.absents ?? 3}
                       </div>
                       <div className="flex items-center gap-1 text-[9.5px] font-semibold text-rose-600">
-                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                        <span>Loss of Pay</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                        <span className="truncate">Loss of Pay</span>
                       </div>
                     </div>
 
                     {/* Sandwiches */}
-                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-purple-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                    <div className="group rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-purple-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between min-h-[96px] h-auto">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-slate-600 group-hover:text-purple-600 transition-colors">
                           Sandwiches
                         </span>
                         <div className="w-5 h-5 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center">
-                          <Layers className="w-3 h-3" />
+                          <Layers className="w-3.5 h-3.5" />
                         </div>
                       </div>
                       <div className="text-2xl font-black text-[#172033] tracking-tight leading-none my-1">
                         {selectedUser.leaveStats?.sandwiches ?? 2}
                       </div>
                       <div className="flex items-center gap-1 text-[9.5px] font-semibold text-purple-600">
-                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                        <span>Bridge Days</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0" />
+                        <span className="truncate">Bridge Days</span>
                       </div>
                     </div>
 
                     {/* Bucket */}
-                    <div className="group rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50/50 hover:from-teal-100/60 hover:to-emerald-100/70 border border-teal-200 hover:border-teal-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between h-[96px]">
+                    <div className="group rounded-xl bg-gradient-to-br from-teal-50 to-emerald-50/50 hover:from-teal-100/60 hover:to-emerald-100/70 border border-teal-200 hover:border-teal-400 p-3 transition-all duration-200 hover:shadow-xs flex flex-col justify-between min-h-[96px] h-auto">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold text-teal-900">
                           Leave Bucket
                         </span>
                         <div className="w-5 h-5 rounded-md bg-[#008080] text-white flex items-center justify-center shadow-2xs">
-                          <Wallet className="w-3 h-3" />
+                          <Wallet className="w-3.5 h-3.5" />
                         </div>
                       </div>
                       <div className="text-2xl font-black text-teal-950 tracking-tight leading-none my-1">
                         {selectedUser.leaveStats?.bucket ?? 0}
                       </div>
                       <div className="flex items-center gap-1 text-[9.5px] font-bold text-[#008080]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
-                        <span>Paid Balance</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0" />
+                        <span className="truncate">Paid Available</span>
                       </div>
                     </div>
                   </div>

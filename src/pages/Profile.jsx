@@ -181,6 +181,7 @@ export const Profile = () => {
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [showGatePassModal, setShowGatePassModal] = useState(false);
   const [selectedAssetForTicket, setSelectedAssetForTicket] = useState(null);
+  const [shiftLogView, setShiftLogView] = useState('cards');
 
   // Edit form state
   const [editForm, setEditForm] = useState({ ...user });
@@ -777,14 +778,14 @@ export const Profile = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Card 1: The Iconic 2x2 Live Month Summary Grid */}
-            <div className="lg:col-span-2 p-5 rounded-2xl border border-[#E5EAF2] bg-white shadow-card space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#F1F5F9]">
+            <div className="lg:col-span-2 p-4 sm:p-5 rounded-2xl border border-[#E5EAF2] bg-white shadow-card space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#F1F5F9]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200/70 text-[#008080] flex items-center justify-center shadow-2xs">
+                  <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-200/70 text-[#008080] flex items-center justify-center shadow-2xs shrink-0">
                     <Calendar className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-extrabold text-[#172033] tracking-tight">
+                    <h4 className="text-xs sm:text-sm font-extrabold text-[#172033] tracking-tight">
                       Current Month Leave & Attendance Summary
                     </h4>
                     <p className="text-[10px] text-[#8292AD] font-medium flex items-center gap-1.5 mt-0.5">
@@ -793,92 +794,92 @@ export const Profile = () => {
                     </p>
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full text-[10.5px] font-extrabold bg-teal-50 text-[#008080] border border-teal-200 shadow-2xs">
+                <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-[10.5px] font-extrabold bg-teal-50 text-[#008080] border border-teal-200 shadow-2xs shrink-0">
                   Live Summary
                 </span>
               </div>
 
               {/* 4 Modern Executive Metric Cards (2x2 Grid) */}
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5">
                 {/* Leaves Taken */}
-                <div className="group rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/90 hover:border-blue-400 p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between h-[104px]">
+                <div className="group rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/90 hover:border-blue-400 p-3 sm:p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[104px]">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors">
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-700 group-hover:text-blue-600 transition-colors">
                       Leaves Taken
                     </span>
                     <div className="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                       <CalendarCheck className="w-3.5 h-3.5" />
                     </div>
                   </div>
-                  <div className="text-3xl font-black text-[#172033] tracking-tight leading-none my-1">
+                  <div className="text-2xl sm:text-3xl font-black text-[#172033] tracking-tight leading-none my-1">
                     {user.leaveStats?.leaves ?? 1}
                   </div>
                   <div className="flex items-center gap-1 text-[10px] font-bold text-blue-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Approved By HR</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                    <span className="truncate">Approved By HR</span>
                   </div>
                 </div>
 
                 {/* Absents */}
-                <div className="group rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/90 hover:border-rose-400 p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between h-[104px]">
+                <div className="group rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/90 hover:border-rose-400 p-3 sm:p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[104px]">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700 group-hover:text-rose-600 transition-colors">
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-700 group-hover:text-rose-600 transition-colors">
                       Absents
                     </span>
                     <div className="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
                       <AlertCircle className="w-3.5 h-3.5" />
                     </div>
                   </div>
-                  <div className="text-3xl font-black text-[#172033] tracking-tight leading-none my-1">
+                  <div className="text-2xl sm:text-3xl font-black text-[#172033] tracking-tight leading-none my-1">
                     {user.leaveStats?.absents ?? 3}
                   </div>
                   <div className="flex items-center gap-1 text-[10px] font-bold text-rose-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                    <span>Loss of Pay</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                    <span className="truncate">Loss of Pay</span>
                   </div>
                 </div>
 
                 {/* Sandwiches */}
-                <div className="group rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/90 hover:border-purple-400 p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between h-[104px]">
+                <div className="group rounded-2xl bg-slate-50/80 hover:bg-white border border-slate-200/90 hover:border-purple-400 p-3 sm:p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[104px]">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700 group-hover:text-purple-600 transition-colors">
+                    <span className="text-[11px] sm:text-xs font-bold text-slate-700 group-hover:text-purple-600 transition-colors">
                       Sandwiches
                     </span>
                     <div className="w-6 h-6 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
                       <Layers className="w-3.5 h-3.5" />
                     </div>
                   </div>
-                  <div className="text-3xl font-black text-[#172033] tracking-tight leading-none my-1">
+                  <div className="text-2xl sm:text-3xl font-black text-[#172033] tracking-tight leading-none my-1">
                     {user.leaveStats?.sandwiches ?? 2}
                   </div>
                   <div className="flex items-center gap-1 text-[10px] font-bold text-purple-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                    <span>Bridge Days</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0" />
+                    <span className="truncate">Bridge Days</span>
                   </div>
                 </div>
 
                 {/* Leave Bucket */}
-                <div className="group rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50/60 hover:from-teal-100/70 hover:to-emerald-100/80 border border-teal-200 hover:border-teal-400 p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between h-[104px]">
+                <div className="group rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50/60 hover:from-teal-100/70 hover:to-emerald-100/80 border border-teal-200 hover:border-teal-400 p-3 sm:p-4 transition-all duration-200 hover:shadow-sm flex flex-col justify-between min-h-[96px] sm:min-h-[104px]">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-teal-900">Leave Bucket</span>
+                    <span className="text-[11px] sm:text-xs font-bold text-teal-900">Leave Bucket</span>
                     <div className="w-6 h-6 rounded-lg bg-[#008080] text-white flex items-center justify-center shadow-xs">
                       <Wallet className="w-3.5 h-3.5" />
                     </div>
                   </div>
-                  <div className="text-3xl font-black text-teal-950 tracking-tight leading-none my-1">
+                  <div className="text-2xl sm:text-3xl font-black text-teal-950 tracking-tight leading-none my-1">
                     {user.leaveStats?.bucket ?? 0}
                   </div>
                   <div className="flex items-center gap-1 text-[10px] font-extrabold text-[#008080]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
-                    <span>Paid Balance Available</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0" />
+                    <span className="truncate">Paid Available</span>
                   </div>
                 </div>
               </div>
 
               {/* Accrual Policy Note */}
-              <div className="p-3.5 bg-teal-50/60 border border-teal-100 rounded-xl flex items-start gap-2.5">
+              <div className="p-3 sm:p-3.5 bg-teal-50/60 border border-teal-100 rounded-xl flex items-start gap-2 sm:gap-2.5">
                 <Sparkles className="w-4 h-4 text-[#008080] flex-shrink-0 mt-0.5" />
-                <p className="text-[11px] text-teal-900 font-medium leading-relaxed">
+                <p className="text-[10.5px] sm:text-[11px] text-teal-900 font-medium leading-relaxed">
                   <strong className="font-bold">Accrual Policy:</strong> 1 Paid leave is automatically credited to the employee bucket on the 1st of every month. Unused paid leaves carry forward into the subsequent calendar year up to 30 days maximum.
                 </p>
               </div>
@@ -947,24 +948,111 @@ export const Profile = () => {
           </div>
 
           {/* Recent 5-Day Attendance Log Table */}
-          <div className="bg-white border border-[#E5EAF2] rounded-2xl p-5 shadow-card space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-[#E5EAF2]">
-              <h3 className="text-xs font-extrabold text-[#172033] uppercase tracking-wider">
-                Recent 5-Day Clock-In & Shift Log
-              </h3>
-              <span className="text-[11px] text-[#8292AD]">Standard Hours: 09:30 AM - 06:30 PM</span>
+          <div className="bg-white border border-[#E5EAF2] rounded-2xl p-4 sm:p-5 shadow-card space-y-3.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-[#E5EAF2]">
+              <div>
+                <h3 className="text-xs font-extrabold text-[#172033] uppercase tracking-wider">
+                  Recent 5-Day Clock-In & Shift Log
+                </h3>
+                <span className="text-[10.5px] sm:text-[11px] text-[#8292AD]">Standard Hours: 09:30 AM - 06:30 PM</span>
+              </div>
+
+              {/* Mobile View Toggle */}
+              <div className="flex sm:hidden items-center self-start sm:self-auto gap-1 p-0.5 rounded-lg bg-slate-100 border border-slate-200 text-[10.5px]">
+                <button
+                  type="button"
+                  onClick={() => setShiftLogView('cards')}
+                  className={`px-2.5 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+                    shiftLogView === 'cards'
+                      ? 'bg-white text-[#2563EB] shadow-2xs font-bold'
+                      : 'text-[#64748B] hover:text-[#172033]'
+                  }`}
+                >
+                  Cards
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShiftLogView('table')}
+                  className={`px-2.5 py-0.5 rounded-md font-semibold transition-all cursor-pointer ${
+                    shiftLogView === 'table'
+                      ? 'bg-white text-[#2563EB] shadow-2xs font-bold'
+                      : 'text-[#64748B] hover:text-[#172033]'
+                  }`}
+                >
+                  Table
+                </button>
+              </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
+            {/* 1. Mobile Cards View (Clean, responsive cards without table squishing) */}
+            <div className={`${shiftLogView === 'cards' ? 'block sm:hidden' : 'hidden'} space-y-2.5`}>
+              {[
+                { date: 'Today, 12 Nov', in: '09:28 AM', out: 'In Progress', hours: '7h 15m', loc: 'San Francisco HQ', status: 'On Time', badge: 'bg-emerald-50 text-emerald-700' },
+                { date: 'Tue, 11 Nov', in: '09:24 AM', out: '06:35 PM', hours: '9h 11m', loc: 'San Francisco HQ', status: 'On Time', badge: 'bg-emerald-50 text-emerald-700' },
+                { date: 'Mon, 10 Nov', in: '09:32 AM', out: '06:30 PM', hours: '8h 58m', loc: 'Remote (Home)', status: 'Remote Work', badge: 'bg-blue-50 text-blue-700' },
+                { date: 'Fri, 07 Nov', in: '09:20 AM', out: '06:40 PM', hours: '9h 20m', loc: 'San Francisco HQ', status: 'On Time', badge: 'bg-emerald-50 text-emerald-700' },
+                { date: 'Thu, 06 Nov', in: '09:45 AM', out: '06:30 PM', hours: '8h 45m', loc: 'San Francisco HQ', status: 'Late Punch', badge: 'bg-amber-50 text-amber-700' },
+              ].map((row, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 rounded-xl bg-slate-50/70 border border-[#E5EAF2] hover:bg-white hover:shadow-xs transition-all space-y-2.5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-7 h-7 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center font-bold shrink-0">
+                        <Calendar className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-xs font-bold text-[#172033] block truncate">
+                          {row.date}
+                        </span>
+                        <span className="text-[10px] text-[#8292AD] flex items-center gap-1 truncate">
+                          <MapPin className="w-2.5 h-2.5 text-[#8292AD] shrink-0" />
+                          <span className="truncate">{row.loc}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${row.badge}`}>
+                        {row.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-slate-200/60 text-[11px]">
+                    <div className="bg-white px-2 py-1.5 rounded-lg border border-slate-200/60 text-center">
+                      <span className="text-[9.5px] font-bold text-[#8292AD] uppercase block">Check In</span>
+                      <span className="font-bold text-slate-800 text-[11px] block mt-0.5 whitespace-nowrap">{row.in}</span>
+                    </div>
+                    <div className="bg-white px-2 py-1.5 rounded-lg border border-slate-200/60 text-center">
+                      <span className="text-[9.5px] font-bold text-[#8292AD] uppercase block">Check Out</span>
+                      <span className={`font-bold text-[11px] block mt-0.5 whitespace-nowrap ${row.out === 'In Progress' ? 'text-blue-600' : 'text-slate-800'}`}>{row.out}</span>
+                    </div>
+                    <div className="bg-emerald-50/70 px-2 py-1.5 rounded-lg border border-emerald-200/60 text-center">
+                      <span className="text-[9.5px] font-bold text-emerald-700 uppercase block">Total Work</span>
+                      <span className="font-black text-emerald-950 text-[11px] block mt-0.5 whitespace-nowrap">{row.hours}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 2. Responsive Scrollable Table View (Shown on Desktop, or when Table is toggled on mobile) */}
+            <div className={`${shiftLogView === 'table' ? 'block' : 'hidden sm:block'} overflow-x-auto -mx-1 px-1`}>
+              <div className="sm:hidden flex items-center justify-between text-[10.5px] text-[#8292AD] pb-1.5 font-medium">
+                <span>← Swipe table horizontally</span>
+                <span>6 Columns →</span>
+              </div>
+              <table className="w-full min-w-[580px] text-xs">
                 <thead>
                   <tr className="border-b border-[#E5EAF2] text-[#8292AD] text-[10.5px] uppercase">
-                    <th className="py-2.5 text-left font-bold">Date</th>
-                    <th className="py-2.5 text-left font-bold">Check In</th>
-                    <th className="py-2.5 text-left font-bold">Check Out</th>
-                    <th className="py-2.5 text-left font-bold">Total Work</th>
-                    <th className="py-2.5 text-left font-bold">Location</th>
-                    <th className="py-2.5 text-right font-bold">Status</th>
+                    <th className="py-2.5 pr-3 text-left font-bold whitespace-nowrap">Date</th>
+                    <th className="py-2.5 px-3 text-left font-bold whitespace-nowrap">Check In</th>
+                    <th className="py-2.5 px-3 text-left font-bold whitespace-nowrap">Check Out</th>
+                    <th className="py-2.5 px-3 text-left font-bold whitespace-nowrap">Total Work</th>
+                    <th className="py-2.5 px-3 text-left font-bold whitespace-nowrap">Location</th>
+                    <th className="py-2.5 pl-3 text-right font-bold whitespace-nowrap">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F7F9FC]">
@@ -976,12 +1064,12 @@ export const Profile = () => {
                     { date: 'Thu, 06 Nov', in: '09:45 AM', out: '06:30 PM', hours: '8h 45m', loc: 'San Francisco HQ', status: 'Late Punch', badge: 'bg-amber-50 text-amber-700' },
                   ].map((row, idx) => (
                     <tr key={idx} className="hover:bg-slate-50/50">
-                      <td className="py-2.5 font-bold text-[#172033]">{row.date}</td>
-                      <td className="py-2.5 text-slate-700 font-semibold">{row.in}</td>
-                      <td className="py-2.5 text-slate-700 font-semibold">{row.out}</td>
-                      <td className="py-2.5 font-bold text-slate-800">{row.hours}</td>
-                      <td className="py-2.5 text-[#8292AD]">{row.loc}</td>
-                      <td className="py-2.5 text-right">
+                      <td className="py-2.5 pr-3 font-bold text-[#172033] whitespace-nowrap">{row.date}</td>
+                      <td className="py-2.5 px-3 text-slate-700 font-semibold whitespace-nowrap">{row.in}</td>
+                      <td className="py-2.5 px-3 text-slate-700 font-semibold whitespace-nowrap">{row.out}</td>
+                      <td className="py-2.5 px-3 font-bold text-slate-800 whitespace-nowrap">{row.hours}</td>
+                      <td className="py-2.5 px-3 text-[#8292AD] whitespace-nowrap">{row.loc}</td>
+                      <td className="py-2.5 pl-3 text-right whitespace-nowrap">
                         <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold ${row.badge}`}>
                           {row.status}
                         </span>
