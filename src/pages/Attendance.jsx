@@ -826,7 +826,7 @@ export const Attendance = () => {
                   setToDate('');
                 }
               }}
-              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+              className="w-full appearance-none pl-7 sm:pl-8 pr-8 sm:pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="all">All Dates</option>
               <option value="today">Today</option>
@@ -836,7 +836,7 @@ export const Attendance = () => {
               <option value="custom">Custom Date Range...</option>
             </select>
             <CalendarIcon className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Department Filter */}
@@ -844,7 +844,7 @@ export const Attendance = () => {
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+              className="w-full appearance-none pl-7 sm:pl-8 pr-8 sm:pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
             >
               {departments.map((dept) => (
                 <option key={dept} value={dept}>
@@ -853,7 +853,7 @@ export const Attendance = () => {
               ))}
             </select>
             <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
@@ -1148,7 +1148,7 @@ export const Attendance = () => {
                         required
                         value={createEmployee}
                         onChange={(e) => setCreateEmployee(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                        className="w-full px-3.5 pr-9 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
                       >
                         <option value="">-- Select --</option>
                         {employeesList.map((emp) => (
@@ -1250,7 +1250,7 @@ export const Attendance = () => {
                           required
                           value={createStatus}
                           onChange={(e) => setCreateStatus(e.target.value)}
-                          className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                          className="w-full px-3.5 pr-9 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
                         >
                           <option value="">-- Select --</option>
                           <option value="Present">Present</option>
@@ -1544,7 +1544,7 @@ export const Attendance = () => {
                         required
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="w-full px-3.5 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
+                        className="w-full px-3.5 pr-9 py-2.5 text-xs rounded-lg border border-[#D1D5DB] bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 appearance-none cursor-pointer"
                       >
                         <option value="Present">Present</option>
                         <option value="Absent">Absent</option>

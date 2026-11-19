@@ -903,7 +903,7 @@ export const MyFinances = () => {
                     <select
                       value={selectedMonth}
                       onChange={(e) => setSelectedMonth(e.target.value)}
-                      className="appearance-none pl-7 pr-7 h-7 text-xs font-extrabold rounded-lg bg-transparent text-[#2563EB] focus:outline-none cursor-pointer"
+                      className="appearance-none pl-7 pr-8 h-7 text-xs font-extrabold rounded-lg bg-transparent text-[#2563EB] focus:outline-none cursor-pointer"
                     >
                       {payrollMonthsList.map((m) => (
                         <option key={m.key} value={m.key} className="text-[#172033] font-semibold">
@@ -912,7 +912,7 @@ export const MyFinances = () => {
                       ))}
                     </select>
                     <Calendar className="w-3.5 h-3.5 text-[#2563EB] absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <ChevronDown className="w-3 h-3 text-[#2563EB] absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <ChevronDown className="w-3 h-3 text-[#2563EB] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
 
                   <button
@@ -940,7 +940,7 @@ export const MyFinances = () => {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+                    className="w-full appearance-none pl-8 pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
                   >
                     <option value="All">All Statuses</option>
                     <option value="Paid">Paid</option>
@@ -948,7 +948,7 @@ export const MyFinances = () => {
                     <option value="Pending">Pending</option>
                   </select>
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
 
                 {/* Clear Filter Button */}

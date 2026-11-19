@@ -301,7 +301,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+              className="w-full appearance-none pl-8 pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
             >
               <option value="All">All Roles</option>
               <option value="SEO Manager">SEO Manager</option>
@@ -312,7 +312,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
               <option value="Subject Matter Expert (SME)">Subject Matter Expert (SME)</option>
             </select>
             <Briefcase className="w-3.5 h-3.5 text-teal-600 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Status Filter */}
@@ -320,7 +320,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+              className="w-full appearance-none pl-8 pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
             >
               <option value="All">All Statuses</option>
               <option value="Sourced">Sourced (Pending)</option>
@@ -328,7 +328,7 @@ export const CandidateSourcingView = ({ prefillRole, onCandidateApproved }) => {
               <option value="Rejected">Rejected</option>
             </select>
             <Filter className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Clear Filters */}

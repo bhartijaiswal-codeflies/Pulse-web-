@@ -286,7 +286,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+              className="w-full appearance-none pl-8 pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
             >
               <option value="All">All Priorities</option>
               <option value="P1">Priority 1 (Urgent)</option>
@@ -294,7 +294,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
               <option value="P3">Priority 3 (Normal)</option>
             </select>
             <Flame className="w-3.5 h-3.5 text-rose-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Department Filter */}
@@ -302,7 +302,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
             <select
               value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+              className="w-full appearance-none pl-8 pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
             >
               <option value="All">All Departments</option>
               <option value="Marketing">Marketing</option>
@@ -312,7 +312,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
               <option value="Operations">Operations</option>
             </select>
             <Building className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Status Filter */}
@@ -320,7 +320,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full appearance-none pl-8 pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
+              className="w-full appearance-none pl-8 pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs"
             >
               <option value="All">All Statuses</option>
               <option value="Active">Active</option>
@@ -328,7 +328,7 @@ export const HiringPositionsView = ({ onNavigateToSourcing }) => {
               <option value="Closed">Closed</option>
             </select>
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Clear Filters */}

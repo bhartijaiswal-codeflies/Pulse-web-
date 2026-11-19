@@ -707,7 +707,7 @@ export const Users = () => {
                   setToDate('');
                 }
               }}
-              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+              className="w-full appearance-none pl-7 sm:pl-8 pr-8 sm:pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="all">All Dates</option>
               <option value="today">Today</option>
@@ -716,7 +716,7 @@ export const Users = () => {
               <option value="custom">Custom Date Range...</option>
             </select>
             <Calendar className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Role Filter Dropdown */}
@@ -724,7 +724,7 @@ export const Users = () => {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full appearance-none pl-7 sm:pl-8 pr-7 sm:pr-8 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
+              className="w-full appearance-none pl-7 sm:pl-8 pr-8 sm:pr-9 h-9 text-xs font-semibold rounded-xl border border-[#E5EAF2] bg-white text-[#172033] hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Roles</option>
               <option value="Employee">Employee</option>
@@ -734,7 +734,7 @@ export const Users = () => {
               <option value="HR Admin">HR Admin</option>
             </select>
             <Shield className="w-3.5 h-3.5 text-[#2563EB] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#8292AD] absolute right-3 sm:right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
