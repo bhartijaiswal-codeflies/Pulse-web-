@@ -161,14 +161,16 @@ export const Login = () => {
           <div className="flex items-center justify-between select-none gap-2">
             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
               <div className="relative shrink-0">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#2563EB] via-[#3B82F6] to-[#60A5FA] flex items-center justify-center p-2 shadow-lg shadow-blue-500/25 ring-2 ring-white">
+                <div
+                  className="w-[42px] h-[42px] sm:w-[46px] sm:h-[46px] rounded-full bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center p-2 ring-2 ring-[#3B82F6]/70 shadow-[0_0_16px_rgba(37,99,235,0.45)] transition-transform duration-200"
+                  style={{ outline: '1px solid #fff', outlineOffset: '-2px' }}
+                >
                   <img
                     src="/logo.png"
-                    alt="Pulse Logo"
+                    alt="Pulse HR Logo"
                     className="w-full h-full object-contain brightness-0 invert"
                   />
                 </div>
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500 ring-2 ring-white animate-pulse" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 sm:gap-2">
@@ -184,14 +186,14 @@ export const Login = () => {
                     className={`text-[9.5px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 ${
                       isDarkMode
                         ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
-                        : 'bg-blue-50 border-blue-200 text-[#2563EB]'
+                        : 'bg-[#EFF6FF] border-[#BFDBFE] text-[#2563EB]'
                     }`}
                   >
                     <span className="sm:hidden">v2.6</span>
                     <span className="hidden sm:inline">v2.6 Enterprise</span>
                   </span>
                 </div>
-                <div className="text-[9px] sm:text-[10px] font-extrabold text-[#2563EB] tracking-[0.2em] uppercase truncate">
+                <div className="text-[9px] sm:text-[10px] font-black text-[#2563EB] tracking-[0.2em] uppercase truncate">
                   BY CODEFLIES
                 </div>
               </div>
